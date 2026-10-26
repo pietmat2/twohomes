@@ -1,4 +1,27 @@
-import { format, isThisYear, isToday, isTomorrow, isYesterday, parseISO } from 'date-fns'
+import {
+  differenceInCalendarDays,
+  format,
+  isThisYear,
+  isToday,
+  isTomorrow,
+  isYesterday,
+  parseISO,
+} from 'date-fns'
+
+/**
+ * A day as it reads mid-sentence: "until tomorrow", "until Wednesday".
+ * friendlyDay lowercased gives "wed 28 oct", which looks like a typo.
+ */
+export function daySpoken(iso: string): string {
+  const date = parseISO(iso)
+  if (isToday(date)) return 'today'
+  if (isTomorrow(date)) return 'tomorrow'
+  if (isYesterday(date)) return 'yesterday'
+  const days = differenceInCalendarDays(date, new Date())
+  if (days > 0 && days < 7) return format(date, 'EEEE')
+  if (days < 0 && days > -7) return `last ${format(date, 'EEEE')}`
+  return format(date, isThisYear(date) ? 'EEEE d MMMM' : 'd MMMM yyyy')
+}
 
 export function parseDay(iso: string): Date {
   return parseISO(iso)

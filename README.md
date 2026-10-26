@@ -100,13 +100,29 @@ swap to a real backend a change in one file rather than a rewrite.
 
 ## Design notes
 
-Each home has a colour and keeps it everywhere — on calendar days, balance cards,
-event pills. You should be able to read the month at a glance without reading any
-words.
+**The ribbon is the idea.** Parents describe custody in stays, not days — *"I have them
+Monday and Tuesday, he has Wednesday and Thursday, then I get the long weekend."* So
+consecutive days in the same home fuse into one block, rounded only where a stay
+actually begins and ends. A stay that runs past Sunday stays square on that edge and
+picks up again on the next row. The shape carries the information: week-on/week-off
+reads as two long bars, 2-2-3 as a stutter. You can see the rhythm of an arrangement
+before reading a single number.
 
-The copy is deliberately flat. No "your ex", no blame, no streaks or scores on
+**Two homes, two colours, equal weight.** Amber and mint — warm against cool, so they
+separate instantly, and neither is the "good" colour or the alert colour. Which parent
+gets which is arbitrary and fixed; the colour then holds everywhere, from calendar days
+to the balance figure.
+
+**A dark ground, not cream.** This app is opened at 22:00 by someone checking tomorrow's
+handover. Faustina carries dates, names and amounts; Figtree carries the interface.
+
+**One moment of motion:** the ribbon wipes in once on Today. Everything else moves only
+in response to a tap, and all of it is off under `prefers-reduced-motion`.
+
+**The copy is flat on purpose.** No "your ex", no blame, no streaks or scores on
 parenting. Both parents may read every screen, so every screen is written as if both
-are reading it.
+are reading it. The hero is a sentence — *"They're with Jonas until Wednesday at
+16:00"* — because that is the answer, and a stat tile is not.
 
 ## Not included
 

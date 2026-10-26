@@ -6,22 +6,28 @@ export function cx(...parts: (string | false | null | undefined)[]): string {
 }
 
 /** Tailwind fragments for whichever home a thing belongs to. */
-export const homeStyles: Record<ParentId, { text: string; bg: string; solid: string; ring: string }> =
-  {
-    a: {
-      text: 'text-home-a',
-      bg: 'bg-home-a-soft',
-      solid: 'bg-home-a',
-      ring: 'ring-home-a',
-    },
-    b: {
-      text: 'text-home-b',
-      bg: 'bg-home-b-soft',
-      solid: 'bg-home-b',
-      ring: 'ring-home-b',
-    },
-  }
+export const homeStyles: Record<
+  ParentId,
+  { text: string; bg: string; solid: string; border: string }
+> = {
+  a: {
+    text: 'text-home-a',
+    bg: 'bg-home-a-soft',
+    solid: 'bg-home-a',
+    border: 'border-home-a',
+  },
+  b: {
+    text: 'text-home-b',
+    bg: 'bg-home-b-soft',
+    solid: 'bg-home-b',
+    border: 'border-home-b',
+  },
+}
 
+/**
+ * A plain bounded area. Deliberately flat: elevation is reserved for things
+ * that actually lift off the page, which in this app is only the sheet.
+ */
 export function Card({
   children,
   className,
@@ -32,21 +38,43 @@ export function Card({
   as?: 'div' | 'section' | 'li'
 }) {
   return (
-    <Tag
-      className={cx(
-        'rounded-card border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]',
-        className,
-      )}
-    >
+    <Tag className={cx('rounded-card border border-line bg-surface p-4', className)}>
       {children}
     </Tag>
   )
 }
 
+/** A list whose items are separated by hairlines rather than boxed one by one. */
+export function Rows({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <ul className={cx('divide-y divide-line border-y border-line', className)}>{children}</ul>
+  )
+}
+
+export function Row({
+  children,
+  className,
+  onClick,
+}: {
+  children: ReactNode
+  className?: string
+  onClick?: () => void
+}) {
+  const content = <div className={cx('flex items-start gap-3 py-3', className)}>{children}</div>
+  if (!onClick) return <li>{content}</li>
+  return (
+    <li>
+      <button type="button" onClick={onClick} className="w-full text-left hover:bg-sunken">
+        {content}
+      </button>
+    </li>
+  )
+}
+
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
-    <div className="mb-2 flex items-baseline justify-between gap-3 px-1">
-      <h2 className="text-xs font-semibold tracking-[0.08em] text-muted uppercase">{children}</h2>
+    <div className="mb-2 flex items-baseline justify-between gap-3">
+      <h2 className="font-display text-[1.0625rem] font-semibold">{children}</h2>
       {action}
     </div>
   )
@@ -66,13 +94,13 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center gap-1.5 rounded-xl font-medium transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45'
+    'inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors disabled:pointer-events-none disabled:opacity-40'
   const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-4 py-2.5 text-[0.9375rem]' }
   const variants = {
-    primary: 'bg-ink text-paper hover:opacity-90',
-    secondary: 'border border-line bg-surface text-ink hover:bg-sunken',
-    ghost: 'text-muted hover:bg-sunken hover:text-ink',
-    danger: 'border border-line bg-surface text-danger hover:bg-sunken',
+    primary: 'bg-ink text-paper hover:opacity-85',
+    secondary: 'border border-line bg-surface hover:bg-sunken',
+    ghost: 'text-muted hover:text-ink',
+    danger: 'border border-line text-danger hover:bg-sunken',
   }
   return (
     <button
@@ -93,9 +121,9 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-ink">{label}</span>
+      <span className="mb-1.5 block text-sm font-medium">{label}</span>
       {children}
-      {hint ? <span className="mt-1 block text-xs text-muted">{hint}</span> : null}
+      {hint ? <span className="mt-1.5 block text-xs text-muted">{hint}</span> : null}
     </label>
   )
 }
@@ -110,7 +138,7 @@ export function Segmented<T extends string>({
   options: { value: T; label: ReactNode }[]
 }) {
   return (
-    <div className="flex gap-1 rounded-xl border border-line bg-sunken p-1">
+    <div className="flex gap-1 rounded-lg border border-line p-1">
       {options.map((option) => (
         <button
           key={option.value}
@@ -118,8 +146,8 @@ export function Segmented<T extends string>({
           onClick={() => onChange(option.value)}
           aria-pressed={value === option.value}
           className={cx(
-            'flex-1 rounded-lg px-3 py-1.5 text-sm font-medium transition',
-            value === option.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink',
+            'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            value === option.value ? 'bg-ink text-paper' : 'text-muted hover:text-ink',
           )}
         >
           {option.label}
@@ -129,7 +157,7 @@ export function Segmented<T extends string>({
   )
 }
 
-/** A dot plus a name, used wherever a day or a cost is attributed to a home. */
+/** A dot plus a name, wherever a day or a cost is attributed to a home. */
 export function HomeTag({
   parent,
   name,
@@ -155,18 +183,13 @@ export function Pill({
   tone?: 'neutral' | 'a' | 'b' | 'warn'
 }) {
   const tones = {
-    neutral: 'bg-sunken text-muted',
-    a: 'bg-home-a-soft text-home-a',
-    b: 'bg-home-b-soft text-home-b',
-    warn: 'bg-home-b-soft text-warn',
+    neutral: 'border-line text-muted',
+    a: 'border-home-a text-home-a',
+    b: 'border-home-b text-home-b',
+    warn: 'border-warn text-warn',
   }
   return (
-    <span
-      className={cx(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-        tones[tone],
-      )}
-    >
+    <span className={cx('rounded-full border px-2 py-0.5 text-xs font-medium', tones[tone])}>
       {children}
     </span>
   )
@@ -182,9 +205,9 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="rounded-card border border-dashed border-line px-6 py-10 text-center">
-      <p className="font-medium text-ink">{title}</p>
-      <p className="mx-auto mt-1 max-w-xs text-sm text-muted">{body}</p>
+    <div className="border-y border-line py-10 text-center">
+      <p className="font-display text-lg">{title}</p>
+      <p className="mx-auto mt-1 max-w-[32ch] text-sm text-muted">{body}</p>
       {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
     </div>
   )
@@ -226,20 +249,20 @@ export function Sheet({
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/50"
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="animate-sheet relative flex max-h-[88vh] w-full flex-col rounded-t-3xl border border-line bg-surface sm:max-w-lg sm:rounded-3xl"
+        className="animate-sheet relative flex max-h-[88vh] w-full flex-col rounded-t-sheet border border-line bg-surface sm:max-w-lg sm:rounded-sheet"
       >
         <header className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h2 className="text-base font-semibold">{title}</h2>
+          <h2 className="font-display text-lg font-semibold">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="-mr-2 rounded-lg px-2 py-1 text-muted hover:bg-sunken hover:text-ink"
+            className="-mr-2 rounded-md px-2 py-1 text-muted hover:text-ink"
           >
             Close
           </button>
@@ -247,28 +270,6 @@ export function Sheet({
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
         {footer ? <div className="border-t border-line px-5 py-3">{footer}</div> : null}
       </div>
-    </div>
-  )
-}
-
-export function Stat({
-  label,
-  value,
-  sub,
-  tone,
-}: {
-  label: string
-  value: ReactNode
-  sub?: ReactNode
-  tone?: ParentId
-}) {
-  return (
-    <div className="rounded-card border border-line bg-surface px-4 py-3">
-      <p className="text-xs font-medium tracking-wide text-muted uppercase">{label}</p>
-      <p className={cx('mt-1 text-xl font-semibold', tone ? homeStyles[tone].text : 'text-ink')}>
-        {value}
-      </p>
-      {sub ? <p className="mt-0.5 text-xs text-muted">{sub}</p> : null}
     </div>
   )
 }

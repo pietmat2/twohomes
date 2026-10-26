@@ -1,64 +1,81 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: ui-sans-serif, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
+  /*
+   * Figtree carries the interface, Faustina the dates, names and amounts —
+   * the things a parent actually reads. Two families, clearly distinct.
+   */
+  --font-sans: 'Figtree', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Faustina', ui-serif, Georgia, 'Times New Roman', serif;
 
-  /* Surfaces and text. Overridden wholesale in dark mode below. */
-  --color-paper: #faf8f5;
+  /* Light is the base; the dark set below is the one the app is designed for. */
+  --color-paper: #f6f7f9;
   --color-surface: #ffffff;
-  --color-sunken: #f2eee7;
-  --color-line: #e7e0d6;
-  --color-ink: #1b1a17;
-  --color-muted: #6e6960;
-  --color-faint: #9a948a;
+  --color-sunken: #eceef2;
+  --color-line: #dfe3e9;
+  --color-ink: #15171c;
+  --color-muted: #5e6672;
+  --color-faint: #949ba6;
 
-  /* One colour per household. Used everywhere a day or cost is attributed. */
-  --color-home-a: #2f7d6e;
-  --color-home-a-soft: #dceeea;
-  --color-home-b: #bf6b36;
-  --color-home-b-soft: #f8e5d6;
+  /*
+   * One colour per home, warm against cool. They must read as equal: neither
+   * parent gets the better colour, and neither is the "alert" colour.
+   */
+  --color-home-a: #a86c0c;
+  --color-home-a-soft: #fbeacf;
+  --color-home-b: #0f7260;
+  --color-home-b-soft: #d4efe7;
 
-  --color-positive: #2f7d6e;
-  --color-warn: #b4791f;
-  --color-danger: #b23b3b;
+  --color-positive: #0f7260;
+  --color-warn: #a86c0c;
+  --color-danger: #b4332f;
 
-  --radius-card: 1.125rem;
+  /* Radius encodes hierarchy instead of being one value on everything. */
+  --radius-card: 0.5rem;
+  --radius-stay: 0.875rem;
+  --radius-sheet: 1.5rem;
 }
 
+/*
+ * One dark set, applied either because the device asks for it or because the
+ * reader chose it in Settings. An explicit data-theme always wins, which is
+ * why the media query excludes it.
+ */
 :root[data-theme='dark'] {
-  --color-paper: #141311;
-  --color-surface: #1e1c19;
-  --color-sunken: #262320;
-  --color-line: #332f2a;
-  --color-ink: #f3efe8;
-  --color-muted: #a8a197;
-  --color-faint: #7b746a;
-  --color-home-a: #5cc0aa;
-  --color-home-a-soft: #1d3a35;
-  --color-home-b: #e2945f;
-  --color-home-b-soft: #3d2a1b;
-  --color-positive: #5cc0aa;
-  --color-warn: #d9a441;
-  --color-danger: #e07a7a;
+  color-scheme: dark;
+  --color-paper: #14161b;
+  --color-surface: #1c1f26;
+  --color-sunken: #22262e;
+  --color-line: #2e333d;
+  --color-ink: #edeff3;
+  --color-muted: #99a1ae;
+  --color-faint: #6e7684;
+  --color-home-a: #e8a33d;
+  --color-home-a-soft: #3a2c13;
+  --color-home-b: #5ecfb4;
+  --color-home-b-soft: #12342c;
+  --color-positive: #5ecfb4;
+  --color-warn: #e8a33d;
+  --color-danger: #e08080;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-paper: #141311;
-    --color-surface: #1e1c19;
-    --color-sunken: #262320;
-    --color-line: #332f2a;
-    --color-ink: #f3efe8;
-    --color-muted: #a8a197;
-    --color-faint: #7b746a;
-    --color-home-a: #5cc0aa;
-    --color-home-a-soft: #1d3a35;
-    --color-home-b: #e2945f;
-    --color-home-b-soft: #3d2a1b;
-    --color-positive: #5cc0aa;
-    --color-warn: #d9a441;
-    --color-danger: #e07a7a;
+    color-scheme: dark;
+    --color-paper: #14161b;
+    --color-surface: #1c1f26;
+    --color-sunken: #22262e;
+    --color-line: #2e333d;
+    --color-ink: #edeff3;
+    --color-muted: #99a1ae;
+    --color-faint: #6e7684;
+    --color-home-a: #e8a33d;
+    --color-home-a-soft: #3a2c13;
+    --color-home-b: #5ecfb4;
+    --color-home-b-soft: #12342c;
+    --color-positive: #5ecfb4;
+    --color-warn: #e8a33d;
+    --color-danger: #e08080;
   }
 }
 
@@ -75,7 +92,6 @@
     overscroll-behavior-y: none;
   }
 
-  /* Inputs inherit the theme rather than the user agent's defaults. */
   input,
   select,
   textarea,
@@ -84,34 +100,30 @@
     color: inherit;
   }
 
-  input[type='date'],
-  input[type='time'] {
-    color-scheme: light;
+  /* Dates and money are read, compared and remembered — give them the serif. */
+  .numeral {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
   }
 
-  :root[data-theme='dark'] input[type='date'],
-  :root[data-theme='dark'] input[type='time'] {
-    color-scheme: dark;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) input[type='date'],
-    :root:not([data-theme='light']) input[type='time'] {
-      color-scheme: dark;
-    }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-home-a-soft);
+    background: var(--color-home-b-soft);
+    color: var(--color-ink);
   }
 }
 
 @layer components {
   .field {
     width: 100%;
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     border: 1px solid var(--color-line);
-    background: var(--color-surface);
+    background: var(--color-paper);
     padding: 0.625rem 0.75rem;
     font-size: 0.9375rem;
     outline: none;
@@ -119,13 +131,14 @@
 
   .field:focus {
     border-color: var(--color-ink);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ink) 12%, transparent);
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--color-ink);
   }
 }
 
 @keyframes sheet-in {
   from {
-    transform: translateY(16px);
+    transform: translateY(14px);
     opacity: 0;
   }
   to {
@@ -134,12 +147,30 @@
   }
 }
 
+/*
+ * The one piece of uninvited motion in the app: the ribbon of days wipes in
+ * once, on the screen that exists to show it.
+ */
+@keyframes stay-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 .animate-sheet {
   animation: sheet-in 0.18s ease-out;
 }
 
+.animate-stay {
+  animation: stay-in 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-sheet {
+  .animate-sheet,
+  .animate-stay {
     animation: none;
   }
 }

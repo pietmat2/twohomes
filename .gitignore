@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Skill symlinks point at absolute local paths
+.claude/skills/

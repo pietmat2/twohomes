@@ -14,19 +14,20 @@ import {
 import { IconChevronLeft, IconChevronRight, IconPlus, IconSwap } from '../components/icons'
 import {
   Button,
-  Card,
   Field,
   HomeTag,
   Pill,
+  Row,
+  Rows,
   SectionTitle,
   Segmented,
   Sheet,
   cx,
   homeStyles,
 } from '../components/ui'
-import { friendlyDay, longDay, monthTitle, prettyTime } from '../lib/format'
-import { assignmentFor, nightsSplit, otherParent, toISO } from '../lib/schedule'
-import { nameOf, useApp } from '../lib/store'
+import { daySpoken, friendlyDay, longDay, monthTitle, prettyTime } from '../lib/format'
+import { assignmentFor, nightsSplit, otherParent, toISO, type DayAssignment } from '../lib/schedule'
+import { useApp } from '../lib/store'
 import type { EventType, ParentId } from '../lib/types'
 
 const EVENT_TYPES: { value: EventType; label: string }[] = [
@@ -37,26 +38,58 @@ const EVENT_TYPES: { value: EventType; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
+interface WeekRun {
+  parent: ParentId
+  days: DayAssignment[]
+  /** The stay begins here, rather than carrying over from the previous week. */
+  opensLeft: boolean
+  /** The stay ends here, rather than continuing into the next week. */
+  closesRight: boolean
+}
+
+/**
+ * Split one week into the stays it contains. A stay running past Sunday is
+ * left square on that edge, so the block visibly carries into the next row.
+ */
+function runsForWeek(days: DayAssignment[], nextDay: DayAssignment | null): WeekRun[] {
+  const runs: WeekRun[] = []
+  days.forEach((day, index) => {
+    const current = runs[runs.length - 1]
+    if (current && current.parent === day.parent) {
+      current.days.push(day)
+      return
+    }
+    runs.push({
+      parent: day.parent,
+      days: [day],
+      opensLeft: index === 0 ? day.isHandover : true,
+      closesRight: true,
+    })
+  })
+  const last = runs[runs.length - 1]
+  if (last) last.closesRight = nextDay ? nextDay.parent !== last.parent : true
+  return runs
+}
+
 export default function CalendarPage() {
   const { state } = useApp()
   const [cursor, setCursor] = useState(() => new Date())
   const [selected, setSelected] = useState<string | null>(null)
 
-  const days = useMemo(() => {
+  const weeks = useMemo(() => {
     const start = startOfWeek(startOfMonth(cursor), { weekStartsOn: 1 })
     const end = endOfWeek(endOfMonth(cursor), { weekStartsOn: 1 })
-    return eachDayOfInterval({ start, end })
+    const all = eachDayOfInterval({ start, end })
+    return Array.from({ length: Math.ceil(all.length / 7) }, (_, i) => all.slice(i * 7, i * 7 + 7))
   }, [cursor])
 
-  const monthStart = startOfMonth(cursor)
-  const monthDays = endOfMonth(cursor).getDate()
-  const split = nightsSplit(state, monthStart, monthDays)
+  const split = nightsSplit(state, startOfMonth(cursor), endOfMonth(cursor).getDate())
   const weekdayLabels = useMemo(() => {
     const base = startOfWeek(new Date(), { weekStartsOn: 1 })
     return Array.from({ length: 7 }, (_, i) =>
       new Date(base.getFullYear(), base.getMonth(), base.getDate() + i).toLocaleDateString(
         state.locale,
-        { weekday: 'short' },
+        { weekday: 'narrow' },
       ),
     )
   }, [state.locale])
@@ -64,22 +97,24 @@ export default function CalendarPage() {
   const pendingSwaps = state.swaps.filter((s) => s.status === 'pending')
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold tracking-tight">{monthTitle(cursor)}</h1>
+    <div className="space-y-7">
+      <div className="flex items-baseline justify-between">
+        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+          {monthTitle(cursor)}
+        </h1>
         <div className="flex items-center gap-1">
           <button
             type="button"
             aria-label="Previous month"
             onClick={() => setCursor((c) => subMonths(c, 1))}
-            className="rounded-lg p-2 text-muted hover:bg-sunken hover:text-ink"
+            className="rounded-md p-1.5 text-muted hover:text-ink"
           >
-            <IconChevronLeft />
+            <IconChevronLeft width={18} height={18} />
           </button>
           <button
             type="button"
             onClick={() => setCursor(new Date())}
-            className="rounded-lg px-3 py-1.5 text-sm text-muted hover:bg-sunken hover:text-ink"
+            className="px-1 text-sm text-muted hover:text-ink"
           >
             Today
           </button>
@@ -87,70 +122,95 @@ export default function CalendarPage() {
             type="button"
             aria-label="Next month"
             onClick={() => setCursor((c) => addMonths(c, 1))}
-            className="rounded-lg p-2 text-muted hover:bg-sunken hover:text-ink"
+            className="rounded-md p-1.5 text-muted hover:text-ink"
           >
-            <IconChevronRight />
+            <IconChevronRight width={18} height={18} />
           </button>
         </div>
       </div>
 
-      <Card className="p-3">
-        <div className="mb-1 grid grid-cols-7 gap-1">
-          {weekdayLabels.map((label) => (
-            <div
-              key={label}
-              className="py-1 text-center text-[0.625rem] font-medium tracking-wide text-faint uppercase"
-            >
+      <div>
+        <div className="grid grid-cols-7 gap-1">
+          {weekdayLabels.map((label, index) => (
+            <div key={index} className="pb-1.5 text-center text-xs text-faint">
               {label}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1">
-          {days.map((day) => {
-            const iso = toISO(day)
-            const assignment = assignmentFor(state, iso)
-            const inMonth = isSameMonth(day, cursor)
-            const dayEvents = state.events.filter((e) => e.date === iso)
-            const hasPendingSwap = pendingSwaps.some((s) => s.dates.includes(iso))
+
+        <div className="space-y-1">
+          {weeks.map((week, weekIndex) => {
+            const assignments = week.map((day) => assignmentFor(state, toISO(day)))
+            const nextWeek = weeks[weekIndex + 1]
+            const nextDay = nextWeek ? assignmentFor(state, toISO(nextWeek[0])) : null
+            const runs = runsForWeek(assignments, nextDay)
+
             return (
-              <button
-                key={iso}
-                type="button"
-                onClick={() => setSelected(iso)}
-                className={cx(
-                  'relative flex h-14 flex-col items-center justify-center rounded-lg text-sm transition',
-                  homeStyles[assignment.parent].bg,
-                  homeStyles[assignment.parent].text,
-                  !inMonth && 'opacity-35',
-                  isToday(day) && 'ring-2 ring-ink ring-offset-1 ring-offset-surface',
-                )}
-              >
-                <span className={cx('font-semibold', isToday(day) && 'underline')}>
-                  {day.getDate()}
-                </span>
-                <span className="mt-1 flex h-1.5 items-center gap-0.5">
-                  {assignment.isHandover ? (
-                    <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
-                  ) : null}
-                  {dayEvents.length > 0 ? (
-                    <span className="size-1.5 rounded-full bg-ink opacity-45" aria-hidden />
-                  ) : null}
-                  {hasPendingSwap ? (
-                    <span className="size-1.5 rounded-full bg-warn" aria-hidden />
-                  ) : null}
-                </span>
-              </button>
+              <div key={weekIndex} className="grid grid-cols-7 gap-1">
+                {runs.map((run) => (
+                  <div
+                    key={run.days[0].date}
+                    style={{ gridColumn: `span ${run.days.length}` }}
+                    className={cx(
+                      'flex overflow-hidden',
+                      homeStyles[run.parent].bg,
+                      run.opensLeft && 'rounded-l-stay',
+                      run.closesRight && 'rounded-r-stay',
+                    )}
+                  >
+                    {run.days.map((day) => {
+                      const date = parseISO(day.date)
+                      const inMonth = isSameMonth(date, cursor)
+                      const events = state.events.filter((e) => e.date === day.date)
+                      const awaiting = pendingSwaps.some((s) => s.dates.includes(day.date))
+                      return (
+                        <button
+                          key={day.date}
+                          type="button"
+                          onClick={() => setSelected(day.date)}
+                          className={cx(
+                            'flex min-w-0 flex-1 flex-col items-center justify-center py-2.5',
+                            homeStyles[run.parent].text,
+                            !inMonth && 'opacity-30',
+                          )}
+                        >
+                          <span
+                            className={cx(
+                              'numeral flex size-6 items-center justify-center text-[0.8125rem]',
+                              isToday(date) &&
+                                cx(
+                                  'rounded-full font-bold text-paper',
+                                  homeStyles[run.parent].solid,
+                                ),
+                            )}
+                          >
+                            {date.getDate()}
+                          </span>
+                          <span className="mt-1 flex h-1 items-center gap-0.5">
+                            {events.length > 0 ? (
+                              <span className="size-1 rounded-full bg-current" aria-hidden />
+                            ) : null}
+                            {awaiting ? (
+                              <span className="size-1 rounded-full bg-warn" aria-hidden />
+                            ) : null}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                ))}
+              </div>
             )
           })}
         </div>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-line pt-3 text-xs text-muted">
-          <HomeTag parent="a" name={`${state.parents.a.name} · ${split.a}`} />
-          <HomeTag parent="b" name={`${state.parents.b.name} · ${split.b}`} />
-          <span className="text-faint">nights this month</span>
-        </div>
-      </Card>
 
-      <SwapRequestsSection />
+        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-sm text-muted">
+          <HomeTag parent="a" name={`${state.parents.a.name}, ${split.a} nights`} />
+          <HomeTag parent="b" name={`${state.parents.b.name}, ${split.b} nights`} />
+        </div>
+      </div>
+
+      <SwapRequests />
 
       {selected ? (
         <DaySheet date={selected} onClose={() => setSelected(null)} key={selected} />
@@ -159,83 +219,80 @@ export default function CalendarPage() {
   )
 }
 
-function SwapRequestsSection() {
+function SwapRequests() {
   const { state, actions, me } = useApp()
   const open = state.swaps.filter((s) => s.status === 'pending')
-  const recent = state.swaps
+  const settled = state.swaps
     .filter((s) => s.status !== 'pending')
     .sort((x, y) => (y.respondedAt ?? '').localeCompare(x.respondedAt ?? ''))
     .slice(0, 3)
 
-  if (open.length === 0 && recent.length === 0) return null
+  if (open.length === 0 && settled.length === 0) return null
 
   return (
     <section>
       <SectionTitle>Swap requests</SectionTitle>
-      <ul className="space-y-2">
+      <Rows>
         {open.map((swap) => {
           const mine = swap.from === me
           return (
-            <Card as="li" key={swap.id}>
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 text-muted">
-                  <IconSwap />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">
-                    {mine ? 'You asked' : `${state.parents[swap.from].name} asked you`} to cover{' '}
-                    {swap.dates.map((d) => friendlyDay(d)).join(', ')}
-                  </p>
-                  {swap.message ? <p className="mt-1 text-sm text-muted">“{swap.message}”</p> : null}
-                  {mine ? (
-                    <div className="mt-2 flex items-center gap-3">
-                      <Pill tone="warn">Waiting for a reply</Pill>
-                      <button
-                        type="button"
-                        onClick={() => actions.removeSwap(swap.id)}
-                        className="text-xs text-muted hover:text-ink"
-                      >
-                        Withdraw
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => actions.respondToSwap(swap.id, true)}
-                      >
-                        Accept
-                      </Button>
-                      <Button size="sm" onClick={() => actions.respondToSwap(swap.id, false)}>
-                        Can&apos;t do it
-                      </Button>
-                    </div>
-                  )}
-                </div>
+            <Row key={swap.id}>
+              <span className="mt-0.5 text-muted">
+                <IconSwap width={18} height={18} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm">
+                  {mine ? 'You asked' : `${state.parents[swap.from].name} asked you`} to cover{' '}
+                  {swap.dates.map((d) => friendlyDay(d)).join(' and ')}.
+                </p>
+                {swap.message ? (
+                  <p className="mt-1 text-sm text-muted italic">{swap.message}</p>
+                ) : null}
+                {mine ? (
+                  <div className="mt-2 flex items-center gap-3">
+                    <Pill tone="warn">No reply yet</Pill>
+                    <button
+                      type="button"
+                      onClick={() => actions.removeSwap(swap.id)}
+                      className="text-sm text-muted hover:text-ink"
+                    >
+                      Withdraw
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => actions.respondToSwap(swap.id, true)}
+                    >
+                      Take those days
+                    </Button>
+                    <Button size="sm" onClick={() => actions.respondToSwap(swap.id, false)}>
+                      Can&rsquo;t do it
+                    </Button>
+                  </div>
+                )}
               </div>
-            </Card>
+            </Row>
           )
         })}
-        {recent.map((swap) => (
-          <li
-            key={swap.id}
-            className="flex items-center justify-between px-1 text-xs text-muted"
-          >
-            <span>
-              {swap.dates.map((d) => friendlyDay(d)).join(', ')} ·{' '}
-              {swap.status === 'accepted' ? 'accepted' : 'declined'}
-            </span>
+        {settled.map((swap) => (
+          <Row key={swap.id}>
+            <p className="flex-1 text-sm text-muted">
+              {swap.dates.map((d) => friendlyDay(d)).join(' and ')} —{' '}
+              {swap.status === 'accepted' ? 'agreed' : 'declined'}
+            </p>
             <button
               type="button"
               onClick={() => actions.removeSwap(swap.id)}
-              className="hover:text-ink"
+              className="text-sm text-faint hover:text-ink"
             >
               Clear
             </button>
-          </li>
+          </Row>
         ))}
-      </ul>
+      </Rows>
     </section>
   )
 }
@@ -249,15 +306,13 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
   return (
     <Sheet open onClose={onClose} title={longDay(date)}>
       {mode === 'overview' ? (
-        <div className="space-y-5">
+        <div className="space-y-6">
           <div>
-            <p className="text-sm text-muted">With</p>
-            <p className="mt-0.5 flex items-center gap-2 text-lg font-semibold">
-              <span
-                className={cx('size-2.5 rounded-full', homeStyles[assignment.parent].solid)}
-                aria-hidden
-              />
-              {nameOf(state, assignment.parent)}
+            <p className="font-display text-xl font-semibold">
+              With{' '}
+              <span className={homeStyles[assignment.parent].text}>
+                {assignment.parent === me ? 'you' : state.parents[assignment.parent].name}
+              </span>
             </p>
             {assignment.isHandover ? (
               <p className="mt-1 text-sm text-muted">
@@ -266,15 +321,15 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
               </p>
             ) : null}
             {assignment.override ? (
-              <p className="mt-1 text-xs text-muted">
-                Changed from the pattern
+              <p className="mt-1 text-sm text-muted">
+                Changed from the usual pattern
                 {assignment.override.reason ? `: ${assignment.override.reason}` : ''}
               </p>
             ) : null}
           </div>
 
           <div>
-            <p className="mb-2 text-sm font-medium">Assign this day to</p>
+            <p className="mb-2 text-sm font-medium">Give this day to</p>
             <Segmented<ParentId>
               value={assignment.parent}
               onChange={(next) => {
@@ -290,9 +345,9 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
               <button
                 type="button"
                 onClick={() => actions.clearOverride(date)}
-                className="mt-2 text-xs text-muted hover:text-ink"
+                className="mt-2 text-sm text-muted hover:text-ink"
               >
-                Reset to the usual pattern
+                Put it back to the pattern
               </button>
             ) : null}
           </div>
@@ -301,50 +356,41 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
             <div className="mb-2 flex items-center justify-between">
               <p className="text-sm font-medium">Events</p>
               <Button size="sm" variant="ghost" onClick={() => setMode('event')}>
-                <IconPlus width={16} height={16} />
+                <IconPlus width={15} height={15} />
                 Add
               </Button>
             </div>
             {events.length === 0 ? (
               <p className="text-sm text-muted">Nothing scheduled.</p>
             ) : (
-              <ul className="space-y-2">
+              <Rows>
                 {events.map((event) => (
-                  <li
-                    key={event.id}
-                    className="flex items-start justify-between gap-3 rounded-xl border border-line px-3 py-2"
-                  >
-                    <div className="min-w-0">
+                  <Row key={event.id}>
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">
-                        {event.time ? `${prettyTime(event.time)} · ` : ''}
+                        {event.time ? `${prettyTime(event.time)} ` : ''}
                         {event.title}
                       </p>
                       <p className="text-xs text-muted">
-                        {[
-                          event.location,
-                          state.kids
-                            .filter((k) => event.kidIds.includes(k.id))
-                            .map((k) => k.name)
-                            .join(', '),
-                          event.owner ? `${state.parents[event.owner].name} takes them` : null,
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')}
+                        {state.kids
+                          .filter((k) => event.kidIds.includes(k.id))
+                          .map((k) => k.name)
+                          .join(' and ')}
+                        {event.location ? ` at ${event.location}` : ''}
+                        {event.owner ? `, ${state.parents[event.owner].name} takes them` : ''}
                       </p>
-                      {event.note ? (
-                        <p className="mt-1 text-xs text-muted">{event.note}</p>
-                      ) : null}
+                      {event.note ? <p className="mt-1 text-xs text-muted">{event.note}</p> : null}
                     </div>
                     <button
                       type="button"
                       onClick={() => actions.removeEvent(event.id)}
-                      className="text-xs text-muted hover:text-danger"
+                      className="text-sm text-faint hover:text-danger"
                     >
                       Remove
                     </button>
-                  </li>
+                  </Row>
                 ))}
-              </ul>
+              </Rows>
             )}
           </div>
 
@@ -357,12 +403,40 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
         </div>
       ) : null}
 
-      {mode === 'event' ? (
-        <EventForm date={date} onDone={() => setMode('overview')} />
-      ) : null}
-
+      {mode === 'event' ? <EventForm date={date} onDone={() => setMode('overview')} /> : null}
       {mode === 'swap' ? <SwapForm date={date} onDone={onClose} /> : null}
     </Sheet>
+  )
+}
+
+export function KidPicker({
+  value,
+  onChange,
+}: {
+  value: string[]
+  onChange: (next: string[]) => void
+}) {
+  const { state } = useApp()
+  if (state.kids.length === 0) return null
+  return (
+    <div className="flex flex-wrap gap-2">
+      {state.kids.map((kid) => {
+        const on = value.includes(kid.id)
+        return (
+          <button
+            key={kid.id}
+            type="button"
+            onClick={() => onChange(on ? value.filter((id) => id !== kid.id) : [...value, kid.id])}
+            className={cx(
+              'rounded-full border px-3 py-1.5 text-sm transition-colors',
+              on ? 'border-ink bg-ink text-paper' : 'border-line text-muted hover:text-ink',
+            )}
+          >
+            {kid.name}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
@@ -433,32 +507,9 @@ function EventForm({ date, onDone }: { date: string; onDone: () => void }) {
           placeholder="Sports hall"
         />
       </Field>
-      {state.kids.length > 0 ? (
-        <Field label="Who it is for">
-          <div className="flex flex-wrap gap-2">
-            {state.kids.map((kid) => {
-              const on = kidIds.includes(kid.id)
-              return (
-                <button
-                  key={kid.id}
-                  type="button"
-                  onClick={() =>
-                    setKidIds((prev) =>
-                      on ? prev.filter((id) => id !== kid.id) : [...prev, kid.id],
-                    )
-                  }
-                  className={cx(
-                    'rounded-full border px-3 py-1.5 text-sm transition',
-                    on ? 'border-ink bg-ink text-paper' : 'border-line text-muted hover:bg-sunken',
-                  )}
-                >
-                  {kid.name}
-                </button>
-              )
-            })}
-          </div>
-        </Field>
-      ) : null}
+      <Field label="Who it is for">
+        <KidPicker value={kidIds} onChange={setKidIds} />
+      </Field>
       <Field label="Note" hint="Anything the other home needs to know.">
         <textarea
           className="field"
@@ -500,17 +551,17 @@ function SwapForm({ date, onDone }: { date: string; onDone: () => void }) {
       }}
     >
       <p className="text-sm text-muted">
-        This asks {state.parents[them].name} to take {friendlyDay(date)}. Nothing moves on the
-        calendar until they accept.
+        {state.parents[them].name} is asked to take {daySpoken(date)}. The calendar only changes if
+        they agree.
       </p>
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
           checked={alsoNextDay}
           onChange={(e) => setAlsoNextDay(e.target.checked)}
-          className="size-4 rounded border-line"
+          className="size-4"
         />
-        Include {friendlyDay(nextDay).toLowerCase()} as well
+        Ask for {daySpoken(nextDay)} too
       </label>
       <Field label="Message" hint="Short and factual works best.">
         <textarea

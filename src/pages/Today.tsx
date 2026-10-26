@@ -1,8 +1,9 @@
 import { differenceInCalendarDays, parseISO, startOfMonth } from 'date-fns'
 import { Link } from 'react-router-dom'
-import { Button, Card, HomeTag, Pill, SectionTitle, Stat, cx, homeStyles } from '../components/ui'
-import { IconBag, IconCheck, IconSwap } from '../components/icons'
-import { friendlyDay, longDay, prettyTime } from '../lib/format'
+import { Ribbon } from '../components/Ribbon'
+import { Button, EmptyState, Pill, Row, Rows, SectionTitle, cx, homeStyles } from '../components/ui'
+import { IconCheck, IconSwap } from '../components/icons'
+import { daySpoken, friendlyDay, longDay, prettyTime } from '../lib/format'
 import { balanceView, formatMoney } from '../lib/money'
 import { assignmentFor, assignmentsForRange, nextHandover, nightsSplit, toISO } from '../lib/schedule'
 import { nameOf, useApp } from '../lib/store'
@@ -15,6 +16,7 @@ export default function Today() {
   const handover = nextHandover(state, today)
   const balance = balanceView(state.expenses, state.settlements)
   const month = nightsSplit(state, startOfMonth(today), 30)
+  const fortnight = assignmentsForRange(state, today, 14)
 
   const pendingForMe = state.swaps.filter((s) => s.status === 'pending' && s.to === me)
   const pendingFromMe = state.swaps.filter((s) => s.status === 'pending' && s.from === me)
@@ -24,184 +26,180 @@ export default function Today() {
     .sort((x, y) => (x.date + (x.time ?? '')).localeCompare(y.date + (y.time ?? '')))
     .slice(0, 4)
 
-  const week = assignmentsForRange(state, today, 7)
   const unpacked = state.bag.filter((item) => !item.packed)
   const latestMoment = [...state.moments].sort((x, y) => y.createdAt.localeCompare(x.createdAt))[0]
-
   const withMe = assignment.parent === me
-  const holder = state.parents[assignment.parent]
+
+  if (state.kids.length === 0) {
+    return (
+      <EmptyState
+        title="Start with your children"
+        body="Nights, costs, events and the bag list all hang off this."
+        action={
+          <Link to="/kids">
+            <Button variant="primary" size="sm">
+              Add a child
+            </Button>
+          </Link>
+        }
+      />
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      {/* The one question the app exists to answer at a glance. */}
-      <Card className={cx('border-0 p-5', homeStyles[assignment.parent].bg)}>
+    <div className="space-y-8">
+      {/* The question the app exists to answer, written as a sentence. */}
+      <section>
         <p className="text-sm text-muted">{longDay(todayIso)}</p>
-        <p className="mt-1 text-2xl font-semibold tracking-tight">
-          {state.kids.length === 0
-            ? 'No children added yet'
-            : withMe
-              ? 'The children are with you'
-              : `With ${holder.name}`}
-        </p>
-        {handover ? (
+        <h1 className="mt-1 font-display text-[2rem] leading-[1.15] font-semibold tracking-[-0.015em]">
+          {withMe ? (
+            <>They&rsquo;re with you</>
+          ) : (
+            <>
+              They&rsquo;re with{' '}
+              <span className={homeStyles[assignment.parent].text}>
+                {state.parents[assignment.parent].name}
+              </span>
+            </>
+          )}
+          {handover ? (
+            <span className="text-muted">
+              {' '}
+              until {daySpoken(handover.date)} at{' '}
+              {prettyTime(state.schedule.handoverTime)}
+            </span>
+          ) : null}
+        </h1>
+        {handover && state.schedule.handoverPlace ? (
           <p className="mt-2 text-sm text-muted">
-            Next changeover {friendlyDay(handover.date).toLowerCase()} at{' '}
-            {prettyTime(state.schedule.handoverTime)}
-            {state.schedule.handoverPlace ? `, ${state.schedule.handoverPlace}` : ''} — then{' '}
-            {handover.parent === me
-              ? 'they come to you'
-              : `${state.parents[handover.parent].name} has them`}
-            .
+            Changeover at {state.schedule.handoverPlace}, then{' '}
+            {handover.parent === me ? 'they come to you' : `${state.parents[handover.parent].name} has them`}.
           </p>
         ) : null}
         {assignment.override ? (
-          <p className="mt-2 text-xs text-muted">
-            Set by hand: {assignment.override.reason ?? 'changed from the usual pattern'}
+          <p className="mt-2 text-sm text-muted">
+            Today was changed by hand
+            {assignment.override.reason ? `: ${assignment.override.reason}` : ''}.
           </p>
         ) : null}
-      </Card>
+
+        <div className="mt-5">
+          <Ribbon
+            days={fortnight}
+            names={{ a: state.parents.a.name, b: state.parents.b.name }}
+            todayIso={todayIso}
+          />
+          <p className="mt-2 text-xs text-faint">The next fortnight, one block per stay.</p>
+        </div>
+      </section>
 
       {pendingForMe.length > 0 ? (
         <section>
           <SectionTitle>Waiting on you</SectionTitle>
-          <div className="space-y-2">
+          <Rows>
             {pendingForMe.map((swap) => (
-              <Card key={swap.id}>
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 text-muted">
-                    <IconSwap />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">
-                      {state.parents[swap.from].name} asked you to take{' '}
-                      {swap.dates.map((d) => friendlyDay(d)).join(', ')}
-                    </p>
-                    {swap.message ? (
-                      <p className="mt-1 text-sm text-muted">“{swap.message}”</p>
-                    ) : null}
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => actions.respondToSwap(swap.id, true)}
-                      >
-                        <IconCheck width={16} height={16} />
-                        Accept
-                      </Button>
-                      <Button size="sm" onClick={() => actions.respondToSwap(swap.id, false)}>
-                        Can&apos;t do it
-                      </Button>
-                    </div>
+              <Row key={swap.id}>
+                <span className="mt-0.5 text-muted">
+                  <IconSwap width={18} height={18} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm">
+                    {state.parents[swap.from].name} asked you to take{' '}
+                    {swap.dates.map((d) => friendlyDay(d)).join(' and ')}.
+                  </p>
+                  {swap.message ? (
+                    <p className="mt-1 text-sm text-muted italic">{swap.message}</p>
+                  ) : null}
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => actions.respondToSwap(swap.id, true)}
+                    >
+                      <IconCheck width={16} height={16} />
+                      Take those days
+                    </Button>
+                    <Button size="sm" onClick={() => actions.respondToSwap(swap.id, false)}>
+                      Can&rsquo;t do it
+                    </Button>
                   </div>
                 </div>
-              </Card>
+              </Row>
             ))}
-          </div>
+          </Rows>
         </section>
       ) : null}
 
-      <section className="grid grid-cols-2 gap-3">
-        <Stat
-          label={balance.debtor === null ? 'Settled up' : 'Balance'}
-          value={
-            balance.debtor === null ? 'All square' : formatMoney(balance.amountCents, state)
-          }
-          sub={
-            balance.debtor === null
-              ? 'Nothing outstanding'
-              : balance.debtor === me
-                ? `You owe ${state.parents[them].name}`
-                : `${state.parents[them].name} owes you`
-          }
-          tone={balance.debtor === null ? undefined : balance.creditor ?? undefined}
-        />
-        <Stat
-          label="Nights this month"
-          value={`${month.a} / ${month.b}`}
-          sub={`${state.parents.a.name} / ${state.parents.b.name}`}
-        />
-      </section>
-
-      <section>
-        <SectionTitle
-          action={
-            <Link to="/calendar" className="text-xs font-medium text-muted hover:text-ink">
-              Open calendar
-            </Link>
-          }
-        >
-          Next seven days
-        </SectionTitle>
-        <Card className="p-3">
-          <ol className="grid grid-cols-7 gap-1">
-            {week.map((day) => {
-              const date = parseISO(day.date)
-              return (
-                <li key={day.date} className="text-center">
-                  <p className="text-[0.625rem] font-medium tracking-wide text-faint uppercase">
-                    {date.toLocaleDateString(state.locale, { weekday: 'narrow' })}
-                  </p>
-                  <div
-                    className={cx(
-                      'mt-1 flex h-11 flex-col items-center justify-center rounded-lg text-sm font-semibold',
-                      homeStyles[day.parent].bg,
-                      homeStyles[day.parent].text,
-                    )}
-                  >
-                    {date.getDate()}
-                    {day.isHandover ? (
-                      <span className="mt-0.5 block size-1 rounded-full bg-current" aria-hidden />
-                    ) : null}
-                  </div>
-                </li>
-              )
-            })}
-          </ol>
-          <div className="mt-3 flex items-center justify-center gap-4 border-t border-line pt-3">
-            <HomeTag parent="a" name={state.parents.a.name} className="text-xs text-muted" />
-            <HomeTag parent="b" name={state.parents.b.name} className="text-xs text-muted" />
-            <span className="text-xs text-faint">• changeover</span>
-          </div>
-        </Card>
+      <section className="space-y-1.5">
+        <p className="text-[0.9375rem]">
+          {balance.debtor === null ? (
+            'Nothing is outstanding between the two homes.'
+          ) : balance.debtor === me ? (
+            <>
+              You owe {state.parents[them].name}{' '}
+              <Link to="/money" className="numeral font-semibold underline underline-offset-4">
+                {formatMoney(balance.amountCents, state)}
+              </Link>
+              .
+            </>
+          ) : (
+            <>
+              {state.parents[them].name} owes you{' '}
+              <Link to="/money" className="numeral font-semibold underline underline-offset-4">
+                {formatMoney(balance.amountCents, state)}
+              </Link>
+              .
+            </>
+          )}
+        </p>
+        <p className="text-[0.9375rem] text-muted">
+          This month you have <span className="numeral text-ink">{me === 'a' ? month.a : month.b}</span>{' '}
+          nights and {state.parents[them].name} has{' '}
+          <span className="numeral text-ink">{me === 'a' ? month.b : month.a}</span>.
+        </p>
       </section>
 
       {upcoming.length > 0 ? (
         <section>
-          <SectionTitle>Coming up</SectionTitle>
-          <ul className="space-y-2">
+          <SectionTitle
+            action={
+              <Link to="/calendar" className="text-sm text-muted hover:text-ink">
+                Calendar
+              </Link>
+            }
+          >
+            Coming up
+          </SectionTitle>
+          <Rows>
             {upcoming.map((event) => {
               const days = differenceInCalendarDays(parseISO(event.date), today)
-              const whoHas = assignmentFor(state, event.date).parent
-              const owner = event.owner ?? whoHas
+              const owner = event.owner ?? assignmentFor(state, event.date).parent
+              const kids = state.kids
+                .filter((k) => event.kidIds.includes(k.id))
+                .map((k) => k.name)
+                .join(' and ')
               return (
-                <Card as="li" key={event.id} className="flex items-center gap-3 py-3">
-                  <div className="w-14 shrink-0 text-center">
+                <Row key={event.id}>
+                  <div className="w-16 shrink-0">
                     <p className="text-xs text-muted">{friendlyDay(event.date)}</p>
                     {event.time ? (
-                      <p className="text-sm font-semibold">{prettyTime(event.time)}</p>
+                      <p className="numeral text-sm font-semibold">{prettyTime(event.time)}</p>
                     ) : null}
                   </div>
-                  <div className="min-w-0 flex-1 border-l border-line pl-3">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{event.title}</p>
                     <p className="truncate text-xs text-muted">
-                      {[
-                        event.location,
-                        state.kids
-                          .filter((k) => event.kidIds.includes(k.id))
-                          .map((k) => k.name)
-                          .join(', '),
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
+                      {kids}
+                      {event.location ? ` at ${event.location}` : ''}
                     </p>
                   </div>
                   <Pill tone={owner === 'a' ? 'a' : 'b'}>
-                    {days <= 0 ? 'today' : nameOf(state, owner)}
+                    {days <= 0 ? 'Today' : nameOf(state, owner)}
                   </Pill>
-                </Card>
+                </Row>
               )
             })}
-          </ul>
+          </Rows>
         </section>
       ) : null}
 
@@ -209,36 +207,33 @@ export default function Today() {
         <section>
           <SectionTitle
             action={
-              <Link to="/kids" className="text-xs font-medium text-muted hover:text-ink">
+              <Link to="/kids" className="text-sm text-muted hover:text-ink">
                 Edit list
               </Link>
             }
           >
-            Goes in the bag
+            Still to pack
           </SectionTitle>
-          <Card>
-            <p className="mb-3 flex items-center gap-2 text-sm text-muted">
-              <IconBag width={18} height={18} />
-              {unpacked.length} still to pack before {friendlyDay(handover.date).toLowerCase()}
-            </p>
-            <ul className="flex flex-wrap gap-2">
-              {unpacked.map((item) => {
-                const kid = state.kids.find((k) => k.id === item.kidId)
-                return (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      onClick={() => actions.toggleBagItem(item.id)}
-                      className="rounded-full border border-line px-3 py-1.5 text-sm hover:bg-sunken"
-                    >
-                      {item.label}
-                      {kid ? <span className="text-muted"> · {kid.name}</span> : null}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          </Card>
+          <p className="mb-3 text-sm text-muted">
+            Before {daySpoken(handover.date)}. Tap one once it is in the bag.
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {unpacked.map((item) => {
+              const kid = state.kids.find((k) => k.id === item.kidId)
+              return (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => actions.toggleBagItem(item.id)}
+                    className="rounded-full border border-line px-3 py-1.5 text-sm hover:bg-sunken"
+                  >
+                    {item.label}
+                    {kid ? <span className="text-muted"> for {kid.name}</span> : null}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
         </section>
       ) : null}
 
@@ -246,49 +241,36 @@ export default function Today() {
         <section>
           <SectionTitle
             action={
-              <Link to="/moments" className="text-xs font-medium text-muted hover:text-ink">
-                See all
+              <Link to="/moments" className="text-sm text-muted hover:text-ink">
+                All moments
               </Link>
             }
           >
             Latest moment
           </SectionTitle>
-          <Card className="flex gap-3">
+          <div className="flex gap-3">
             {latestMoment.photo ? (
               <img
                 src={latestMoment.photo}
                 alt=""
-                className="size-16 shrink-0 rounded-xl object-cover"
+                className={cx('size-16 shrink-0 rounded-card object-cover')}
               />
             ) : null}
             <div className="min-w-0">
-              <p className="text-sm">{latestMoment.caption}</p>
+              <p className="text-[0.9375rem]">{latestMoment.caption}</p>
               <p className="mt-1 text-xs text-muted">
-                {nameOf(state, latestMoment.by)} · {friendlyDay(latestMoment.date)}
+                {nameOf(state, latestMoment.by)}, {daySpoken(latestMoment.date)}
               </p>
             </div>
-          </Card>
+          </div>
         </section>
       ) : null}
 
       {pendingFromMe.length > 0 ? (
-        <p className="px-1 text-xs text-muted">
-          You have {pendingFromMe.length} request
-          {pendingFromMe.length === 1 ? '' : 's'} waiting on {state.parents[them].name}.
+        <p className="text-sm text-muted">
+          {pendingFromMe.length === 1 ? 'One request is' : `${pendingFromMe.length} requests are`}{' '}
+          waiting on {state.parents[them].name}.
         </p>
-      ) : null}
-
-      {state.kids.length === 0 ? (
-        <Card className="text-center">
-          <p className="text-sm text-muted">
-            Add your children to start tracking nights, costs and handovers.
-          </p>
-          <Link to="/kids" className="mt-3 inline-block">
-            <Button variant="primary" size="sm">
-              Add a child
-            </Button>
-          </Link>
-        </Card>
       ) : null}
     </div>
   )
