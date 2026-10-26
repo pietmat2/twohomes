@@ -1,5 +1,7 @@
 export type ParentId = 'a' | 'b'
 
+export type Lang = 'en' | 'da' | 'pl'
+
 export type PatternId =
   | 'alternating-weeks'
   | '2-2-3'
@@ -144,7 +146,10 @@ export interface AppState {
   /** Which parent is using this device. Everything is written from their side. */
   me: ParentId
   parents: Record<ParentId, Parent>
+  /** Drives the wording, and the Intl locale used for dates and numbers. */
+  language: Lang
   currency: string
+  /** Derived from `language`; kept in state so money formatting needs no hook. */
   locale: string
   theme: 'system' | 'light' | 'dark'
   schedule: ScheduleConfig

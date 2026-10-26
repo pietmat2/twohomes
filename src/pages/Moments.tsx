@@ -2,36 +2,38 @@ import { useRef, useState } from 'react'
 import { getISOWeek } from 'date-fns'
 import { IconCamera, IconPlus } from '../components/icons'
 import { Button, Card, EmptyState, Field, Pill, Sheet, cx } from '../components/ui'
-import { daySpoken } from '../lib/format'
+import { useI18n } from '../lib/i18n'
 import { toISO } from '../lib/schedule'
 import { fileToPhoto } from '../lib/storage'
 import { nameOf, useApp } from '../lib/store'
 
 /**
  * Low-effort, low-cost things to do with a child. Deliberately ordinary: the
- * point is a nudge, not a competition between the two homes.
+ * point is a nudge, not a competition between the two homes. The wording for
+ * each lives in the catalogues under `idea.1` … `idea.12`.
  */
-const IDEAS = [
-  'Cook one thing together where they do the measuring.',
-  'Walk a route neither of you has taken before.',
-  'Let them pick the music for the whole car journey.',
-  'Build something out of whatever is in the recycling.',
-  'Ask them to teach you a game they like.',
-  'Go somewhere with water, even just a puddle.',
-  'Draw each other without looking at the paper.',
-  'Make a list together of places to go this year.',
-  'Read the same book, five minutes each.',
-  'Find ten things outside of one colour.',
-  'Plan next weekend with them, out loud.',
-  'Do nothing in particular, with the screens off.',
-]
+const IDEA_KEYS = [
+  'idea.1',
+  'idea.2',
+  'idea.3',
+  'idea.4',
+  'idea.5',
+  'idea.6',
+  'idea.7',
+  'idea.8',
+  'idea.9',
+  'idea.10',
+  'idea.11',
+  'idea.12',
+] as const
 
 export default function Moments() {
   const { state, actions, me } = useApp()
+  const { t, daySpoken, joinList } = useI18n()
   const [open, setOpen] = useState(false)
   const [kidFilter, setKidFilter] = useState('all')
 
-  const idea = IDEAS[getISOWeek(new Date()) % IDEAS.length]
+  const idea = t(IDEA_KEYS[getISOWeek(new Date()) % IDEA_KEYS.length])
 
   const moments = [...state.moments]
     .filter((m) => kidFilter === 'all' || m.kidIds.includes(kidFilter))
@@ -41,25 +43,25 @@ export default function Moments() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">Moments</h1>
-          <p className="text-sm text-muted">
-            Ordinary days from whichever home they are in.
-          </p>
+          <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+            {t('moments.title')}
+          </h1>
+          <p className="text-sm text-muted">{t('moments.subtitle')}</p>
         </div>
         <Button size="sm" variant="primary" onClick={() => setOpen(true)}>
           <IconPlus width={16} height={16} />
-          Share
+          {t('moments.share')}
         </Button>
       </div>
 
       <div className="border-l-2 border-line pl-4">
         <p className="font-display text-[1.0625rem] italic">{idea}</p>
-        <p className="mt-1 text-sm text-faint">Something to do together this week.</p>
+        <p className="mt-1 text-sm text-faint">{t('moments.ideaCaption')}</p>
       </div>
 
       {state.kids.length > 1 ? (
         <div className="flex flex-wrap gap-2">
-          {[{ id: 'all', name: 'Everyone' }, ...state.kids].map((option) => (
+          {[{ id: 'all', name: t('common.everyone') }, ...state.kids].map((option) => (
             <button
               key={option.id}
               type="button"
@@ -79,11 +81,11 @@ export default function Moments() {
 
       {moments.length === 0 ? (
         <EmptyState
-          title="Nothing shared yet"
-          body="A photo and one line is enough. The other home sees the days they were not there for."
+          title={t('moments.emptyTitle')}
+          body={t('moments.emptyBody')}
           action={
             <Button variant="primary" size="sm" onClick={() => setOpen(true)}>
-              Share something
+              {t('moments.shareSomething')}
             </Button>
           }
         />
@@ -97,7 +99,7 @@ export default function Moments() {
                 {moment.photo ? (
                   <img
                     src={moment.photo}
-                    alt={moment.caption ?? 'Shared photo'}
+                    alt={moment.caption ?? t('moments.sharedPhoto')}
                     className="max-h-96 w-full object-cover"
                   />
                 ) : null}
@@ -107,10 +109,18 @@ export default function Moments() {
                   ) : null}
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
                     <span>
-                      {nameOf(state, moment.by)}, {daySpoken(moment.date)}
-                      {kids.length > 0 ? `, with ${kids.map((k) => k.name).join(' and ')}` : ''}
+                      {kids.length > 0
+                        ? t('moments.bylineWithKids', {
+                            name: nameOf(state, moment.by, t('common.you')),
+                            day: daySpoken(moment.date),
+                            kids: joinList(kids.map((k) => k.name)),
+                          })
+                        : t('moments.byline', {
+                            name: nameOf(state, moment.by, t('common.you')),
+                            day: daySpoken(moment.date),
+                          })}
                     </span>
-                    {!mine && !moment.seenByOther ? <Pill tone="warn">New</Pill> : null}
+                    {!mine && !moment.seenByOther ? <Pill tone="warn">{t('moments.new')}</Pill> : null}
                   </div>
                   <div className="mt-3 flex items-center gap-3">
                     {!mine && !moment.seenByOther ? (
@@ -119,7 +129,7 @@ export default function Moments() {
                         onClick={() => actions.markMomentSeen(moment.id)}
                         className="text-xs font-medium text-muted hover:text-ink"
                       >
-                        Mark as seen
+                        {t('moments.markSeen')}
                       </button>
                     ) : null}
                     {mine ? (
@@ -128,7 +138,7 @@ export default function Moments() {
                         onClick={() => actions.removeMoment(moment.id)}
                         className="text-xs text-muted hover:text-danger"
                       >
-                        Remove
+                        {t('common.remove')}
                       </button>
                     ) : null}
                   </div>
@@ -139,7 +149,7 @@ export default function Moments() {
         </ul>
       )}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Share a moment">
+      <Sheet open={open} onClose={() => setOpen(false)} title={t('moments.shareTitle')}>
         <MomentForm onDone={() => setOpen(false)} />
       </Sheet>
     </div>
@@ -148,6 +158,7 @@ export default function Moments() {
 
 function MomentForm({ onDone }: { onDone: () => void }) {
   const { state, actions, me } = useApp()
+  const { t } = useI18n()
   const [caption, setCaption] = useState('')
   const [photo, setPhoto] = useState<string | null>(null)
   const [kidIds, setKidIds] = useState<string[]>(state.kids.map((k) => k.id))
@@ -161,8 +172,8 @@ function MomentForm({ onDone }: { onDone: () => void }) {
     setError(null)
     try {
       setPhoto(await fileToPhoto(file))
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not use that image.')
+    } catch {
+      setError(t('moments.photoFailed'))
     } finally {
       setBusy(false)
     }
@@ -200,7 +211,7 @@ function MomentForm({ onDone }: { onDone: () => void }) {
               onClick={() => setPhoto(null)}
               className="absolute top-2 right-2 rounded-lg bg-black/55 px-2 py-1 text-xs text-white"
             >
-              Remove
+              {t('common.remove')}
             </button>
           </div>
         ) : (
@@ -211,24 +222,26 @@ function MomentForm({ onDone }: { onDone: () => void }) {
             className="flex w-full flex-col items-center gap-2 rounded-xl border border-dashed border-line py-8 text-muted hover:bg-sunken"
           >
             <IconCamera />
-            <span className="text-sm">{busy ? 'Working…' : 'Add a photo'}</span>
+            <span className="text-sm">
+              {busy ? t('common.working') : t('moments.addPhoto')}
+            </span>
           </button>
         )}
         {error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
       </div>
 
-      <Field label="Say something" hint="One line is plenty.">
+      <Field label={t('moments.saySomething')} hint={t('moments.saySomethingHint')}>
         <textarea
           className="field"
           rows={3}
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
-          placeholder="She finally landed the cartwheel."
+          placeholder={t('moments.captionPlaceholder')}
         />
       </Field>
 
       {state.kids.length > 0 ? (
-        <Field label="Who is in it">
+        <Field label={t('moments.whoIsInIt')}>
           <div className="flex flex-wrap gap-2">
             {state.kids.map((kid) => {
               const on = kidIds.includes(kid.id)
@@ -255,11 +268,9 @@ function MomentForm({ onDone }: { onDone: () => void }) {
       ) : null}
 
       <Button type="submit" variant="primary" block disabled={!caption.trim() && !photo}>
-        Share with {state.parents[me === 'a' ? 'b' : 'a'].name}
+        {t('moments.shareWith', { name: state.parents[me === 'a' ? 'b' : 'a'].name })}
       </Button>
-      <p className="text-center text-xs text-muted">
-        Photos stay on this device in this build. Nothing is uploaded anywhere.
-      </p>
+      <p className="text-center text-xs text-muted">{t('moments.localOnly')}</p>
     </form>
   )
 }

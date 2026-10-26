@@ -1,3 +1,4 @@
+import { langFromLocale, localeOf } from './i18n-locale'
 import type { AppState } from './types'
 
 const KEY = 'twohomes.state.v1'
@@ -24,18 +25,16 @@ export function loadState(): AppState | null {
   }
 }
 
-export function saveState(state: AppState): { ok: true } | { ok: false; error: string } {
+/** A reason code rather than a sentence, so the UI can translate it. */
+export type SaveError = 'quota' | 'unknown'
+
+export function saveState(state: AppState): { ok: true } | { ok: false; error: SaveError } {
   try {
     localStorage.setItem(KEY, JSON.stringify(state))
     return { ok: true }
   } catch (error) {
     const isQuota = error instanceof DOMException && error.name.includes('Quota')
-    return {
-      ok: false,
-      error: isQuota
-        ? 'This device is out of local storage. Remove a few photos and try again.'
-        : 'Could not save to this device.',
-    }
+    return { ok: false, error: isQuota ? 'quota' : 'unknown' }
   }
 }
 
@@ -45,9 +44,13 @@ export function clearState() {
 
 /** Fill in anything a state written by an older build is missing. */
 function migrate(state: AppState): AppState {
+  // Before languages existed, only an Intl locale was stored.
+  const language = state.language ?? langFromLocale(state.locale)
   return {
     ...state,
     version: STATE_VERSION,
+    language,
+    locale: state.locale ?? localeOf(language),
     overrides: state.overrides ?? [],
     swaps: state.swaps ?? [],
     kids: state.kids ?? [],
@@ -57,7 +60,6 @@ function migrate(state: AppState): AppState {
     bag: state.bag ?? [],
     moments: state.moments ?? [],
     theme: state.theme ?? 'system',
-    locale: state.locale ?? 'en-GB',
   }
 }
 

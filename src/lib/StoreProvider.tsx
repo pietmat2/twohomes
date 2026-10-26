@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { otherParent } from './schedule'
 import { demoState, newId } from './seed'
+import { localeOf } from './i18n-locale'
 import { loadState, saveState } from './storage'
 import { StoreContext, type Actions, type StoreValue, type Updater } from './store'
 import type { AppState, DayOverride, SwapRequest } from './types'
+import type { SaveError } from './storage'
 
 /**
  * Holds the whole app state and every mutation. Kept in its own file so React
@@ -12,7 +14,7 @@ import type { AppState, DayOverride, SwapRequest } from './types'
  */
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => loadState() ?? demoState())
-  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<SaveError | null>(null)
   const firstRender = useRef(true)
 
   useEffect(() => {
@@ -31,6 +33,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     else root.setAttribute('data-theme', state.theme)
   }, [state.theme])
 
+  useEffect(() => {
+    // Screen readers and hyphenation both key off this.
+    document.documentElement.lang = state.language
+  }, [state.language])
+
   const update = useCallback((fn: Updater) => setState((prev) => fn(prev)), [])
 
   const actions = useMemo<Actions>(() => {
@@ -45,6 +52,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         update((s) => ({ ...s, parents: { ...s.parents, [id]: { ...s.parents[id], ...patch } } })),
 
       setPreferences: (patch) => update((s) => ({ ...s, ...patch })),
+
+      setLanguage: (lang) =>
+        update((s) => ({ ...s, language: lang, locale: localeOf(lang) })),
 
       setSchedule: (patch) => update((s) => ({ ...s, schedule: { ...s.schedule, ...patch } })),
 

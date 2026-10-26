@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import type { SaveError } from './storage'
 import type {
   AppState,
   BagItem,
@@ -6,6 +7,7 @@ import type {
   Kid,
   KidEvent,
   Moment,
+  Lang,
   ParentId,
   ScheduleConfig,
   Settlement,
@@ -17,7 +19,9 @@ export interface Actions {
   update: (fn: Updater) => void
   setMe: (id: ParentId) => void
   setParent: (id: ParentId, patch: Partial<AppState['parents'][ParentId]>) => void
-  setPreferences: (patch: Partial<Pick<AppState, 'currency' | 'locale' | 'theme'>>) => void
+  setPreferences: (patch: Partial<Pick<AppState, 'currency' | 'theme'>>) => void
+  /** Sets the wording and the matching Intl locale together. */
+  setLanguage: (lang: Lang) => void
   setSchedule: (patch: Partial<ScheduleConfig>) => void
 
   setDayParent: (date: string, parent: ParentId, reason?: string) => void
@@ -60,7 +64,7 @@ export interface StoreValue {
   /** The parent using this device, and the one at the other home. */
   me: ParentId
   them: ParentId
-  saveError: string | null
+  saveError: SaveError | null
 }
 
 export const StoreContext = createContext<StoreValue | null>(null)
@@ -76,6 +80,6 @@ export function useApp(): StoreValue {
  * Only for subject position — anywhere the sentence needs a verb to agree,
  * branch on the id instead, or you get "You owes you".
  */
-export function nameOf(state: AppState, id: ParentId): string {
-  return id === state.me ? 'You' : state.parents[id].name
+export function nameOf(state: AppState, id: ParentId, you = 'You'): string {
+  return id === state.me ? you : state.parents[id].name
 }

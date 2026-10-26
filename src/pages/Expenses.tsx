@@ -13,7 +13,7 @@ import {
   cx,
   homeStyles,
 } from '../components/ui'
-import { friendlyDay } from '../lib/format'
+import { useI18n } from '../lib/i18n'
 import {
   balanceView,
   formatMoney,
@@ -26,22 +26,21 @@ import { toISO } from '../lib/schedule'
 import { nameOf, useApp } from '../lib/store'
 import type { ExpenseCategory, ParentId } from '../lib/types'
 
-const CATEGORIES: { value: ExpenseCategory; label: string }[] = [
-  { value: 'childcare', label: 'Childcare' },
-  { value: 'school', label: 'School' },
-  { value: 'health', label: 'Health' },
-  { value: 'clothing', label: 'Clothing' },
-  { value: 'activities', label: 'Activities' },
-  { value: 'travel', label: 'Travel' },
-  { value: 'food', label: 'Food' },
-  { value: 'gifts', label: 'Gifts' },
-  { value: 'other', label: 'Other' },
+const CATEGORIES: ExpenseCategory[] = [
+  'childcare',
+  'school',
+  'health',
+  'clothing',
+  'activities',
+  'travel',
+  'food',
+  'gifts',
+  'other',
 ]
-
-const categoryLabel = (value: string) => CATEGORIES.find((c) => c.value === value)?.label ?? 'Other'
 
 export default function Expenses() {
   const { state, actions, me, them } = useApp()
+  const { t, friendlyDay } = useI18n()
   const [sheet, setSheet] = useState<'none' | 'expense' | 'settle'>('none')
   const [kidFilter, setKidFilter] = useState<string>('all')
 
@@ -75,16 +74,16 @@ export default function Expenses() {
         {balance.debtor === null ? (
           <>
             <h1 className="font-display text-[2rem] leading-tight font-semibold">
-              You&rsquo;re square
+              {t('money.square')}
             </h1>
-            <p className="mt-1 text-sm text-muted">Nothing is outstanding between the two homes.</p>
+            <p className="mt-1 text-sm text-muted">{t('money.squareBody')}</p>
           </>
         ) : (
           <>
             <p className="text-sm text-muted">
               {balance.debtor === me
-                ? `You owe ${state.parents[them].name}`
-                : `${state.parents[them].name} owes you`}
+                ? t('money.youOwe', { name: state.parents[them].name })
+                : t('money.owesYou', { name: state.parents[them].name })}
             </p>
             <h1
               className={cx(
@@ -99,11 +98,11 @@ export default function Expenses() {
         <div className="mt-4 flex gap-2">
           <Button variant="primary" size="sm" onClick={() => setSheet('expense')}>
             <IconPlus width={15} height={15} />
-            Add expense
+            {t('money.addExpense')}
           </Button>
           {balance.debtor !== null ? (
             <Button size="sm" onClick={() => setSheet('settle')}>
-              Record a payment
+              {t('money.recordPayment')}
             </Button>
           ) : null}
         </div>
@@ -112,14 +111,14 @@ export default function Expenses() {
       {state.expenses.length > 0 ? (
         <section className="grid gap-5 sm:grid-cols-2">
           <div>
-            <p className="mb-2 text-sm text-muted">Paid out so far</p>
+            <p className="mb-2 text-sm text-muted">{t('money.paidOut')}</p>
             <div className="space-y-2">
               {(['a', 'b'] as ParentId[]).map((id) => {
                 const share = totalSpend === 0 ? 0 : Math.round((paid[id] / totalSpend) * 100)
                 return (
                   <div key={id}>
                     <div className="flex items-baseline justify-between text-sm">
-                      <span>{nameOf(state, id)}</span>
+                      <span>{nameOf(state, id, t('common.you'))}</span>
                       <span className="numeral">{formatMoney(paid[id], state)}</span>
                     </div>
                     <div className="mt-1 h-1 overflow-hidden rounded-full bg-sunken">
@@ -134,11 +133,11 @@ export default function Expenses() {
             </div>
           </div>
           <div>
-            <p className="mb-2 text-sm text-muted">Biggest categories</p>
+            <p className="mb-2 text-sm text-muted">{t('money.biggestCategories')}</p>
             <ul className="space-y-1.5 text-sm">
               {categories.map((entry) => (
                 <li key={entry.category} className="flex items-baseline justify-between gap-2">
-                  <span className="truncate">{categoryLabel(entry.category)}</span>
+                  <span className="truncate">{t(`category.${entry.category}`)}</span>
                   <span className="numeral shrink-0 text-muted">
                     {formatMoney(entry.cents, state)}
                   </span>
@@ -154,21 +153,21 @@ export default function Expenses() {
           value={kidFilter}
           onChange={setKidFilter}
           options={[
-            { value: 'all', label: 'Everyone' },
+            { value: 'all', label: t('common.everyone') },
             ...state.kids.map((kid) => ({ value: kid.id, label: kid.name })),
           ]}
         />
       ) : null}
 
       <section>
-        <SectionTitle>Ledger</SectionTitle>
+        <SectionTitle>{t('money.ledger')}</SectionTitle>
         {ledger.length === 0 ? (
           <EmptyState
-            title="No costs logged yet"
-            body="Add the first shared expense and the balance keeps itself up to date."
+            title={t('money.noCostsTitle')}
+            body={t('money.noCostsBody')}
             action={
               <Button variant="primary" size="sm" onClick={() => setSheet('expense')}>
-                Add expense
+                {t('money.addExpense')}
               </Button>
             }
           />
@@ -180,15 +179,23 @@ export default function Expenses() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[0.9375rem] font-medium">{entry.data.title}</p>
                     <p className="mt-0.5 text-sm text-muted">
-                      {nameOf(state, entry.data.paidBy)} paid, {friendlyDay(entry.data.date)}
+                      {entry.data.paidBy === me
+                        ? t('money.youPaidOn', { day: friendlyDay(entry.data.date) })
+                        : t('money.paidOn', {
+                            name: state.parents[entry.data.paidBy].name,
+                            day: friendlyDay(entry.data.date),
+                          })}
                     </p>
                     <p className="mt-1 text-sm text-muted">
                       {entry.data.payerSharePct === 50
-                        ? 'Split evenly, so '
-                        : `Split ${entry.data.payerSharePct}/${100 - entry.data.payerSharePct}, so `}
+                        ? t('money.splitEvenly')
+                        : t('money.splitUneven', {
+                            payer: entry.data.payerSharePct,
+                            other: 100 - entry.data.payerSharePct,
+                          })}{' '}
                       {entry.data.paidBy === me
-                        ? `${state.parents[them].name} owes `
-                        : 'you owe '}
+                        ? t('money.theyOwe', { name: state.parents[them].name })
+                        : t('money.youOweAmount')}{' '}
                       <span className="numeral text-ink">
                         {formatMoney(owedOnExpense(entry.data), state)}
                       </span>
@@ -206,7 +213,7 @@ export default function Expenses() {
                       onClick={() => actions.removeExpense(entry.data.id)}
                       className="mt-1 text-sm text-faint hover:text-danger"
                     >
-                      Remove
+                      {t('common.remove')}
                     </button>
                   </div>
                 </Row>
@@ -215,10 +222,13 @@ export default function Expenses() {
                   <div className="min-w-0 flex-1">
                     <p className="text-[0.9375rem]">
                       {entry.data.from === me
-                        ? `You paid ${state.parents[entry.data.to].name}`
-                        : `${state.parents[entry.data.from].name} paid ${
-                            entry.data.to === me ? 'you' : state.parents[entry.data.to].name
-                          }`}
+                        ? t('money.youPaidName', { name: state.parents[entry.data.to].name })
+                        : entry.data.to === me
+                          ? t('money.namePaidYou', { name: state.parents[entry.data.from].name })
+                          : t('money.namePaidName', {
+                              from: state.parents[entry.data.from].name,
+                              to: state.parents[entry.data.to].name,
+                            })}
                     </p>
                     <p className="mt-0.5 text-sm text-muted">
                       {friendlyDay(entry.data.date)}
@@ -234,7 +244,7 @@ export default function Expenses() {
                       onClick={() => actions.removeSettlement(entry.data.id)}
                       className="mt-1 text-sm text-faint hover:text-danger"
                     >
-                      Remove
+                      {t('common.remove')}
                     </button>
                   </div>
                 </Row>
@@ -244,11 +254,19 @@ export default function Expenses() {
         )}
       </section>
 
-      <Sheet open={sheet === 'expense'} onClose={() => setSheet('none')} title="Add an expense">
+      <Sheet
+        open={sheet === 'expense'}
+        onClose={() => setSheet('none')}
+        title={t('money.addExpense')}
+      >
         <ExpenseForm onDone={() => setSheet('none')} />
       </Sheet>
 
-      <Sheet open={sheet === 'settle'} onClose={() => setSheet('none')} title="Record a payment">
+      <Sheet
+        open={sheet === 'settle'}
+        onClose={() => setSheet('none')}
+        title={t('money.recordPayment')}
+      >
         <SettleForm onDone={() => setSheet('none')} />
       </Sheet>
     </div>
@@ -257,6 +275,7 @@ export default function Expenses() {
 
 function ExpenseForm({ onDone }: { onDone: () => void }) {
   const { state, actions, me } = useApp()
+  const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(() => toISO(new Date()))
@@ -289,18 +308,18 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
         onDone()
       }}
     >
-      <Field label="What was it for">
+      <Field label={t('money.whatFor')}>
         <input
           className="field"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Winter boots"
+          placeholder={t('money.whatForPlaceholder')}
           autoFocus
         />
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label={`Amount in ${state.currency}`}>
+        <Field label={t('money.amountIn', { currency: state.currency })}>
           <input
             className="field numeral"
             inputMode="decimal"
@@ -309,7 +328,7 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
             placeholder="699,00"
           />
         </Field>
-        <Field label="Date">
+        <Field label={t('money.date')}>
           <input
             type="date"
             className="field"
@@ -319,21 +338,21 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
         </Field>
       </div>
 
-      <Field label="Category">
+      <Field label={t('money.category')}>
         <select
           className="field"
           value={category}
           onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
         >
           {CATEGORIES.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
+            <option key={option} value={option}>
+              {t(`category.${option}`)}
             </option>
           ))}
         </select>
       </Field>
 
-      <Field label="Who paid">
+      <Field label={t('money.whoPaid')}>
         <Segmented<ParentId>
           value={paidBy}
           onChange={setPaidBy}
@@ -345,11 +364,11 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
       </Field>
 
       <Field
-        label="Split"
+        label={t('money.split')}
         hint={
           owed === null
-            ? 'The payer carries the first share, the other home owes the rest.'
-            : `${otherName} owes ${formatMoney(owed, state)}.`
+            ? t('money.splitHint')
+            : t('money.splitOwes', { name: otherName, amount: formatMoney(owed, state) })
         }
       >
         <div className="flex items-center gap-3">
@@ -368,21 +387,21 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
         </div>
       </Field>
 
-      <Field label="Who it is for">
+      <Field label={t('money.whoFor')}>
         <KidPicker value={kidIds} onChange={setKidIds} />
       </Field>
 
-      <Field label="Note">
+      <Field label={t('money.note')}>
         <input
           className="field"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Receipt in the shared folder"
+          placeholder={t('money.notePlaceholder')}
         />
       </Field>
 
       <Button type="submit" variant="primary" block disabled={!title.trim() || !cents}>
-        Add expense
+        {t('money.addExpense')}
       </Button>
     </form>
   )
@@ -390,6 +409,7 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
 
 function SettleForm({ onDone }: { onDone: () => void }) {
   const { state, actions } = useApp()
+  const { t } = useI18n()
   const balance = balanceView(state.expenses, state.settlements)
   const [amount, setAmount] = useState(() =>
     balance.amountCents ? (balance.amountCents / 100).toFixed(2) : '',
@@ -412,11 +432,13 @@ function SettleForm({ onDone }: { onDone: () => void }) {
       }}
     >
       <p className="text-sm text-muted">
-        This records money that already moved from {state.parents[from].name} to{' '}
-        {state.parents[to].name}. Twohomes does not move money itself.
+        {t('money.settleExplainer', {
+          from: state.parents[from].name,
+          to: state.parents[to].name,
+        })}
       </p>
       <div className="grid grid-cols-2 gap-3">
-        <Field label={`Amount in ${state.currency}`}>
+        <Field label={t('money.amountIn', { currency: state.currency })}>
           <input
             className="field numeral"
             inputMode="decimal"
@@ -425,7 +447,7 @@ function SettleForm({ onDone }: { onDone: () => void }) {
             autoFocus
           />
         </Field>
-        <Field label="Date">
+        <Field label={t('money.date')}>
           <input
             type="date"
             className="field"
@@ -434,16 +456,16 @@ function SettleForm({ onDone }: { onDone: () => void }) {
           />
         </Field>
       </div>
-      <Field label="How it was paid">
+      <Field label={t('money.howPaid')}>
         <input
           className="field"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="MobilePay"
+          placeholder={t('money.howPaidPlaceholder')}
         />
       </Field>
       <Button type="submit" variant="primary" block disabled={!cents}>
-        Record payment
+        {t('money.recordPaymentAction')}
       </Button>
     </form>
   )
