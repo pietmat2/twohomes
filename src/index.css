@@ -1,0 +1,145 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: ui-sans-serif, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+
+  /* Surfaces and text. Overridden wholesale in dark mode below. */
+  --color-paper: #faf8f5;
+  --color-surface: #ffffff;
+  --color-sunken: #f2eee7;
+  --color-line: #e7e0d6;
+  --color-ink: #1b1a17;
+  --color-muted: #6e6960;
+  --color-faint: #9a948a;
+
+  /* One colour per household. Used everywhere a day or cost is attributed. */
+  --color-home-a: #2f7d6e;
+  --color-home-a-soft: #dceeea;
+  --color-home-b: #bf6b36;
+  --color-home-b-soft: #f8e5d6;
+
+  --color-positive: #2f7d6e;
+  --color-warn: #b4791f;
+  --color-danger: #b23b3b;
+
+  --radius-card: 1.125rem;
+}
+
+:root[data-theme='dark'] {
+  --color-paper: #141311;
+  --color-surface: #1e1c19;
+  --color-sunken: #262320;
+  --color-line: #332f2a;
+  --color-ink: #f3efe8;
+  --color-muted: #a8a197;
+  --color-faint: #7b746a;
+  --color-home-a: #5cc0aa;
+  --color-home-a-soft: #1d3a35;
+  --color-home-b: #e2945f;
+  --color-home-b-soft: #3d2a1b;
+  --color-positive: #5cc0aa;
+  --color-warn: #d9a441;
+  --color-danger: #e07a7a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-paper: #141311;
+    --color-surface: #1e1c19;
+    --color-sunken: #262320;
+    --color-line: #332f2a;
+    --color-ink: #f3efe8;
+    --color-muted: #a8a197;
+    --color-faint: #7b746a;
+    --color-home-a: #5cc0aa;
+    --color-home-a-soft: #1d3a35;
+    --color-home-b: #e2945f;
+    --color-home-b-soft: #3d2a1b;
+    --color-positive: #5cc0aa;
+    --color-warn: #d9a441;
+    --color-danger: #e07a7a;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  /* Inputs inherit the theme rather than the user agent's defaults. */
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input[type='date'],
+  input[type='time'] {
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] input[type='date'],
+  :root[data-theme='dark'] input[type='time'] {
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) input[type='date'],
+    :root:not([data-theme='light']) input[type='time'] {
+      color-scheme: dark;
+    }
+  }
+
+  ::selection {
+    background: var(--color-home-a-soft);
+  }
+}
+
+@layer components {
+  .field {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.9375rem;
+    outline: none;
+  }
+
+  .field:focus {
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ink) 12%, transparent);
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-sheet {
+  animation: sheet-in 0.18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet {
+    animation: none;
+  }
+}
