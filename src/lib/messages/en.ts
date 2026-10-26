@@ -65,7 +65,6 @@ export const en = {
   'today.thenThem': 'Then {name} has them.',
   'today.changedByHand': 'Today was changed by hand.',
   'today.changedByHandReason': 'Today was changed by hand: {reason}.',
-  'today.ribbonCaption': 'The next fortnight, one block per stay.',
   'today.waitingOnYou': 'Waiting on you',
   'today.askedYouToTake': '{name} asked you to take {days}.',
   'today.takeThoseDays': 'Take those days',

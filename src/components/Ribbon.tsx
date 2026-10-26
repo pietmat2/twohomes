@@ -71,7 +71,7 @@ export function Ribbon({
           >
             <p
               className={cx(
-                'truncate text-[0.625rem] leading-tight font-semibold',
+                'truncate text-nano leading-tight font-semibold',
                 homeStyles[stay.parent].text,
               )}
             >
@@ -79,7 +79,7 @@ export function Ribbon({
             </p>
             <p
               className={cx(
-                'numeral mt-1 truncate text-[0.625rem] leading-none',
+                'numeral mt-1 truncate text-nano leading-none',
                 homeStyles[stay.parent].text,
               )}
             >

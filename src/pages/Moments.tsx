@@ -55,7 +55,7 @@ export default function Moments() {
       </div>
 
       <div className="border-l-2 border-line pl-4">
-        <p className="font-display text-[1.0625rem] italic">{idea}</p>
+        <p className="font-display text-xl italic">{idea}</p>
         <p className="mt-1 text-sm text-faint">{t('moments.ideaCaption')}</p>
       </div>
 
@@ -105,7 +105,7 @@ export default function Moments() {
                 ) : null}
                 <div className="p-4">
                   {moment.caption ? (
-                    <p className="text-[0.9375rem] leading-relaxed">{moment.caption}</p>
+                    <p className="text-base leading-relaxed">{moment.caption}</p>
                   ) : null}
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
                     <span>

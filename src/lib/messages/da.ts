@@ -46,7 +46,6 @@ export const da: Catalogue = {
   'today.thenThem': 'Så har {name} dem.',
   'today.changedByHand': 'Dagen er ændret manuelt.',
   'today.changedByHandReason': 'Dagen er ændret manuelt: {reason}.',
-  'today.ribbonCaption': 'De næste fjorten dage, én blok per ophold.',
   'today.waitingOnYou': 'Venter på dig',
   'today.askedYouToTake': '{name} har spurgt, om du kan tage {days}.',
   'today.takeThoseDays': 'Tag de dage',

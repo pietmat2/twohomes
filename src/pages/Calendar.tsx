@@ -175,7 +175,7 @@ export default function CalendarPage() {
                         >
                           <span
                             className={cx(
-                              'numeral flex size-6 items-center justify-center text-[0.8125rem]',
+                              'numeral flex size-6 items-center justify-center text-sm',
                               isToday(date) &&
                                 cx(
                                   'rounded-full font-bold text-paper',

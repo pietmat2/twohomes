@@ -73,7 +73,7 @@ export default function Expenses() {
       <section>
         {balance.debtor === null ? (
           <>
-            <h1 className="font-display text-[2rem] leading-tight font-semibold">
+            <h1 className="font-display text-display font-semibold">
               {t('money.square')}
             </h1>
             <p className="mt-1 text-sm text-muted">{t('money.squareBody')}</p>
@@ -87,7 +87,7 @@ export default function Expenses() {
             </p>
             <h1
               className={cx(
-                'numeral mt-1 text-[2.5rem] leading-none font-semibold',
+                'numeral mt-1 text-hero font-semibold',
                 balance.creditor ? homeStyles[balance.creditor].text : '',
               )}
             >
@@ -177,7 +177,7 @@ export default function Expenses() {
               entry.kind === 'expense' ? (
                 <Row key={entry.data.id}>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[0.9375rem] font-medium">{entry.data.title}</p>
+                    <p className="truncate text-base font-medium">{entry.data.title}</p>
                     <p className="mt-0.5 text-sm text-muted">
                       {entry.data.paidBy === me
                         ? t('money.youPaidOn', { day: friendlyDay(entry.data.date) })
@@ -205,7 +205,7 @@ export default function Expenses() {
                     ) : null}
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="numeral text-[0.9375rem] font-semibold">
+                    <p className="numeral text-base font-semibold">
                       {formatMoney(entry.data.amountCents, state)}
                     </p>
                     <button
@@ -220,7 +220,7 @@ export default function Expenses() {
               ) : (
                 <Row key={entry.data.id}>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[0.9375rem]">
+                    <p className="text-base">
                       {entry.data.from === me
                         ? t('money.youPaidName', { name: state.parents[entry.data.to].name })
                         : entry.data.to === me
@@ -236,7 +236,7 @@ export default function Expenses() {
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="numeral text-[0.9375rem] font-semibold text-positive">
+                    <p className="numeral text-base font-semibold text-positive">
                       {formatMoney(entry.data.amountCents, state)}
                     </p>
                     <button
