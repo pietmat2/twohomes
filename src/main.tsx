@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import './index.css'
 import App from './App'
-import { StoreProvider } from './lib/store'
+import { StoreProvider } from './lib/StoreProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
