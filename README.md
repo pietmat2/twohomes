@@ -65,6 +65,40 @@ npm run build
 # then drop dist/ on Vercel, Netlify, Cloudflare Pages, GitHub Pages or any bucket
 ```
 
+## Languages
+
+English, Danish and Polish, picked from the browser on first open and changeable in
+Settings. There is no i18n library: `src/lib/messages/en.ts` is the source catalogue and
+the others are typed `Record<MessageKey, Message>`, so **a missing or stale translation
+is a compile error**, not a blank label.
+
+Three things that are easy to get wrong and are handled here:
+
+- **Plurals.** Chosen with `Intl.PluralRules`, because Polish needs three forms —
+  1 noc, 2 noce, 5 nocy — where English and Danish need two. A sentence holding two
+  different counts formats each phrase separately (`common.nights`) rather than trying
+  to interpolate two plurals into one template.
+- **Declension.** Parent names are user-entered and cannot be inflected, so no Polish
+  string puts one after a preposition. They sit in a parenthesis, after a colon or
+  before a dash, where Polish takes the nominative — *"Do oddania (Marek): 250,00 zł"*.
+  The same trick keeps weekdays grammatical: *"Na termin: środa"*, never *"do środa"*.
+- **Gender.** The app does not know whether the reader is a mother or a father, so the
+  Polish catalogue avoids gendered past-tense verbs entirely — *"Zapłacone przez
+  Ciebie"*, not *"Zapłaciłeś/Zapłaciłaś"*.
+
+Dates use the matching date-fns locale, including Polish's distinction between the
+standalone month (`LLLL` → *październik 2026*) and the genitive used inside a date
+(`MMMM` → *26 października*). Lists join through `Intl.ListFormat`, so *"Mila and
+Oscar"* becomes *"Mila i Oscar"*. `<html lang>` follows the setting.
+
+Currency is deliberately **independent** of language: a Polish speaker living in Denmark
+pays in DKK. The demo data is localised too, so a first open does not show *Winter boots*
+to a Polish reader.
+
+To add a language: add `src/lib/messages/<code>.ts` typed as `Catalogue`, register it in
+`src/lib/i18n.ts` and `src/lib/i18n-locale.ts`, and add its demo content in `seed.ts`.
+TypeScript will list every string you still owe.
+
 ## Where the data lives
 
 **On the device, in `localStorage`. Nothing is uploaded anywhere.** That includes

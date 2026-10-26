@@ -8,7 +8,9 @@ import {
   IconSettings,
 } from './components/icons'
 import { cx } from './components/ui'
+import { useI18n } from './lib/i18n'
 import { useApp } from './lib/store'
+import type { MessageKey } from './lib/messages/en'
 import Today from './pages/Today'
 import CalendarPage from './pages/Calendar'
 import Expenses from './pages/Expenses'
@@ -16,16 +18,17 @@ import Moments from './pages/Moments'
 import Kids from './pages/Kids'
 import Settings from './pages/Settings'
 
-const NAV = [
-  { to: '/today', label: 'Today', Icon: IconHome },
-  { to: '/calendar', label: 'Calendar', Icon: IconCalendar },
-  { to: '/money', label: 'Money', Icon: IconMoney },
-  { to: '/moments', label: 'Moments', Icon: IconMoments },
-  { to: '/kids', label: 'Kids', Icon: IconKids },
+const NAV: { to: string; label: MessageKey; Icon: typeof IconHome }[] = [
+  { to: '/today', label: 'nav.today', Icon: IconHome },
+  { to: '/calendar', label: 'nav.calendar', Icon: IconCalendar },
+  { to: '/money', label: 'nav.money', Icon: IconMoney },
+  { to: '/moments', label: 'nav.moments', Icon: IconMoments },
+  { to: '/kids', label: 'nav.kids', Icon: IconKids },
 ]
 
 function TopBar() {
   const { state } = useApp()
+  const { t } = useI18n()
   const { pathname } = useLocation()
   const current = NAV.find((item) => pathname.startsWith(item.to))
 
@@ -35,7 +38,7 @@ function TopBar() {
         <span className="font-display text-lg font-semibold tracking-[-0.01em]">
           Twohomes
           <span className="ml-2 text-sm font-normal text-faint">
-            {current?.label ?? 'Settings'}
+            {t(current?.label ?? 'nav.settings')}
           </span>
         </span>
         <div className="flex items-center gap-2">
@@ -44,7 +47,7 @@ function TopBar() {
           </span>
           <NavLink
             to="/settings"
-            aria-label="Settings"
+            aria-label={t('nav.settings')}
             className={({ isActive }) =>
               cx('rounded-md p-1.5 transition-colors', isActive ? 'text-ink' : 'text-faint hover:text-ink')
             }
@@ -58,6 +61,7 @@ function TopBar() {
 }
 
 function BottomNav() {
+  const { t } = useI18n()
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur-md">
       <div className="mx-auto grid max-w-2xl grid-cols-5 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
@@ -75,7 +79,7 @@ function BottomNav() {
             {({ isActive }) => (
               <>
                 <Icon width={20} height={20} strokeWidth={isActive ? 2 : 1.5} />
-                <span>{label}</span>
+                <span>{t(label)}</span>
               </>
             )}
           </NavLink>
@@ -87,12 +91,13 @@ function BottomNav() {
 
 export default function App() {
   const { saveError } = useApp()
+  const { t } = useI18n()
 
   return (
     <div className="min-h-dvh">
       <TopBar />
       {saveError ? (
-        <p className="mx-auto max-w-2xl px-5 pt-3 text-sm text-danger">{saveError}</p>
+        <p className="mx-auto max-w-2xl px-5 pt-3 text-sm text-danger">{t(saveError === 'quota' ? 'common.saveFailedQuota' : 'common.saveFailed')}</p>
       ) : null}
       <main className="mx-auto max-w-2xl px-5 pt-5 pb-28">
         <Routes>

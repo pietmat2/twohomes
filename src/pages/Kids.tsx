@@ -9,31 +9,35 @@ import {
   Sheet,
   cx,
 } from '../components/ui'
-import { ageFrom, initials, pluralise } from '../lib/format'
+import { ageFrom, initials } from '../lib/format'
+import { useI18n } from '../lib/i18n'
 import { useApp } from '../lib/store'
 import type { Kid } from '../lib/types'
 
 export default function Kids() {
   const { state, actions } = useApp()
+  const { t } = useI18n()
   const [editing, setEditing] = useState<Kid | 'new' | null>(null)
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">Children</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+          {t('kids.title')}
+        </h1>
         <Button size="sm" onClick={() => setEditing('new')}>
           <IconPlus width={16} height={16} />
-          Add
+          {t('common.add')}
         </Button>
       </div>
 
       {state.kids.length === 0 ? (
         <EmptyState
-          title="No children added"
-          body="Everything else in the app hangs off this: nights, costs, events and the bag list."
+          title={t('kids.emptyTitle')}
+          body={t('kids.emptyBody')}
           action={
             <Button variant="primary" size="sm" onClick={() => setEditing('new')}>
-              Add a child
+              {t('kids.addChild')}
             </Button>
           }
         />
@@ -56,20 +60,20 @@ export default function Kids() {
                         onClick={() => setEditing(kid)}
                         className="shrink-0 text-xs text-muted hover:text-ink"
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                     </div>
                     {age !== null ? (
-                      <p className="text-xs text-muted">{pluralise(age, 'year old', 'years old')}</p>
+                      <p className="text-xs text-muted">{t('kids.yearsOld', { count: age })}</p>
                     ) : null}
 
                     <dl className="mt-3 space-y-1.5 text-sm">
-                      {kid.school ? <Detail label="School" value={kid.school} /> : null}
-                      {kid.doctor ? <Detail label="Doctor" value={kid.doctor} /> : null}
+                      {kid.school ? <Detail label={t('kids.school')} value={kid.school} /> : null}
+                      {kid.doctor ? <Detail label={t('kids.doctor')} value={kid.doctor} /> : null}
                       {kid.allergies ? (
-                        <Detail label="Allergies" value={kid.allergies} emphasis />
+                        <Detail label={t('kids.allergies')} value={kid.allergies} emphasis />
                       ) : null}
-                      {kid.notes ? <Detail label="Notes" value={kid.notes} /> : null}
+                      {kid.notes ? <Detail label={t('kids.notes')} value={kid.notes} /> : null}
                     </dl>
                   </div>
                 </div>
@@ -87,14 +91,14 @@ export default function Kids() {
           onClick={actions.resetBag}
           className="w-full px-1 text-center text-xs text-muted hover:text-ink"
         >
-          Clear all packed ticks for the next handover
+          {t('kids.clearPacked')}
         </button>
       ) : null}
 
       <Sheet
         open={editing !== null}
         onClose={() => setEditing(null)}
-        title={editing === 'new' ? 'Add a child' : 'Edit details'}
+        title={editing === 'new' ? t('kids.addChild') : t('kids.editDetails')}
       >
         {editing !== null ? (
           <KidForm
@@ -135,6 +139,7 @@ function BagList({
   items: { id: string; label: string; packed: boolean }[]
 }) {
   const { actions } = useApp()
+  const { t } = useI18n()
   const [adding, setAdding] = useState('')
 
   return (
@@ -142,7 +147,7 @@ function BagList({
       <SectionTitle>
         <span className="flex items-center gap-1.5">
           <IconBag width={14} height={14} />
-          Travels between homes
+          {t('kids.travelsBetweenHomes')}
         </span>
       </SectionTitle>
       {items.length > 0 ? (
@@ -169,7 +174,7 @@ function BagList({
                 type="button"
                 onClick={() => actions.removeBagItem(item.id)}
                 className="px-1 text-xs text-faint hover:text-danger"
-                aria-label={`Remove ${item.label}`}
+                aria-label={t('kids.removeItem', { label: item.label })}
               >
                 ×
               </button>
@@ -189,7 +194,7 @@ function BagList({
           className="field py-1.5 text-sm"
           value={adding}
           onChange={(e) => setAdding(e.target.value)}
-          placeholder="Add an item…"
+          placeholder={t('kids.addItem')}
         />
       </form>
     </div>
@@ -198,6 +203,7 @@ function BagList({
 
 function KidForm({ kid, onDone }: { kid: Kid | null; onDone: () => void }) {
   const { actions } = useApp()
+  const { t } = useI18n()
   const [form, setForm] = useState({
     name: kid?.name ?? '',
     birthdate: kid?.birthdate ?? '',
@@ -232,7 +238,7 @@ function KidForm({ kid, onDone }: { kid: Kid | null; onDone: () => void }) {
       }}
     >
       <div className="grid grid-cols-[1fr_5rem] gap-3">
-        <Field label="Name">
+        <Field label={t('kids.name')}>
           <input
             className="field"
             value={form.name}
@@ -240,7 +246,7 @@ function KidForm({ kid, onDone }: { kid: Kid | null; onDone: () => void }) {
             autoFocus
           />
         </Field>
-        <Field label="Initial">
+        <Field label={t('kids.initial')}>
           <input
             className="field text-center"
             maxLength={2}
@@ -250,7 +256,7 @@ function KidForm({ kid, onDone }: { kid: Kid | null; onDone: () => void }) {
           />
         </Field>
       </div>
-      <Field label="Date of birth">
+      <Field label={t('kids.dateOfBirth')}>
         <input
           type="date"
           className="field"
@@ -258,39 +264,39 @@ function KidForm({ kid, onDone }: { kid: Kid | null; onDone: () => void }) {
           onChange={(e) => set('birthdate')(e.target.value)}
         />
       </Field>
-      <Field label="School or nursery">
+      <Field label={t('kids.schoolOrNursery')}>
         <input
           className="field"
           value={form.school}
           onChange={(e) => set('school')(e.target.value)}
         />
       </Field>
-      <Field label="Doctor">
+      <Field label={t('kids.doctor')}>
         <input
           className="field"
           value={form.doctor}
           onChange={(e) => set('doctor')(e.target.value)}
         />
       </Field>
-      <Field label="Allergies and medication" hint="Shown to both homes, in red.">
+      <Field label={t('kids.allergiesLabel')} hint={t('kids.allergiesHint')}>
         <input
           className="field"
           value={form.allergies}
           onChange={(e) => set('allergies')(e.target.value)}
         />
       </Field>
-      <Field label="Notes">
+      <Field label={t('kids.notes')}>
         <textarea
           className="field"
           rows={3}
           value={form.notes}
           onChange={(e) => set('notes')(e.target.value)}
-          placeholder="Routines, comfort items, anything that helps the other home."
+          placeholder={t('kids.notesPlaceholder')}
         />
       </Field>
       <div className="flex gap-2">
         <Button type="submit" variant="primary" block>
-          {kid ? 'Save' : 'Add child'}
+          {kid ? t('common.save') : t('kids.addChild')}
         </Button>
         {kid ? (
           <Button
@@ -301,7 +307,7 @@ function KidForm({ kid, onDone }: { kid: Kid | null; onDone: () => void }) {
               onDone()
             }}
           >
-            Remove
+            {t('common.remove')}
           </Button>
         ) : null}
       </div>

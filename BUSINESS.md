@@ -85,6 +85,46 @@ administrative one, it is what makes a parent open the app on a day they have no
 logistics to check, and it is the natural free-tier hook with an obvious paid ceiling
 (storage, video, grandparent access). It is built — see the Moments screen.
 
+**"Divorced mothers and fathers have different mindsets"** — this is the sharpest thing
+anyone has said about the product so far, and it should shape the roadmap.
+
+The suggestion was that a strong motivator for separated fathers is wanting **equal
+standing in raising the child**, and wanting to **see what is actually going on** day to
+day. That is not a marketing angle, it is a feature specification, and three things
+already in the build serve it:
+
+- **The nights count.** An even split, counted and visible to both homes, is the
+  clearest possible answer to "am I being treated as half of this?" Make it more
+  prominent, not less, and never editorialise about it.
+- **Moments.** The direct answer to wanting to see what is happening. A parent who has
+  the child four nights a fortnight is missing ten days of ordinary life, and this is
+  the only feature that gives any of it back.
+- **Kid profiles.** Allergies, school, doctor — the same information in both homes means
+  neither parent is dependent on the other to know their own child's medical details.
+
+The honest caution: do not turn this into gendered marketing. Build for the *need*
+(equal standing, visibility) rather than the demographic, because the same need is felt
+by whichever parent has fewer nights, and that is not always the father. Two landing
+pages split by gender would be a bad idea for a product whose whole promise is
+even-handedness. One product, described in terms of what it gives both homes.
+
+**"There's a lot of money in it, and divorced mums spend a lot — tell them it matters
+for their child"** — half right, half a trap.
+
+The willingness to pay is real, and it is already in the pricing section above. But
+"explain to them that it is important for their child" as a *lever to extract spend* is
+the one tactic I would rule out, on practical grounds as much as ethical ones. A product
+in this category lives or dies on trust: these are people handing you their children's
+medical details and their custody arrangement, at the worst point in their adult lives.
+Guilt-based upselling is the fastest way to end up as the app people warn each other
+about in separation support groups, and those groups are exactly your distribution
+channel.
+
+The legitimate version of the same idea is narrower and stronger: say a feature helps
+the child **when it actually does**, and let that be checkable. The memory book really is
+for the child. Shared allergy information really does protect them. A paid tier that
+unlocks "premium peace of mind" does not, and parents can smell the difference.
+
 **"Challenges for spending time"** — handle with care. A weekly activity nudge is in the
 build. Anything scored, streaked, or comparative between two homes turns the app into a
 scoreboard in a competition the child loses. Keep it a suggestion, never a metric.

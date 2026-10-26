@@ -1,4 +1,4 @@
-import type { AppState, Expense, ParentId, Settlement } from './types'
+import type { AppState, Expense, ExpenseCategory, ParentId, Settlement } from './types'
 
 /** What the other home owes the payer for a single expense. */
 export function owedOnExpense(expense: Expense): number {
@@ -51,8 +51,10 @@ export function paidTotals(expenses: Expense[]): Record<ParentId, number> {
   )
 }
 
-export function spendByCategory(expenses: Expense[]): { category: string; cents: number }[] {
-  const map = new Map<string, number>()
+export function spendByCategory(
+  expenses: Expense[],
+): { category: ExpenseCategory; cents: number }[] {
+  const map = new Map<ExpenseCategory, number>()
   for (const expense of expenses) {
     map.set(expense.category, (map.get(expense.category) ?? 0) + expense.amountCents)
   }

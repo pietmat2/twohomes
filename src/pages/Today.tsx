@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom'
 import { Ribbon } from '../components/Ribbon'
 import { Button, EmptyState, Pill, Row, Rows, SectionTitle, cx, homeStyles } from '../components/ui'
 import { IconCheck, IconSwap } from '../components/icons'
-import { daySpoken, friendlyDay, longDay, prettyTime } from '../lib/format'
+import { useI18n } from '../lib/i18n'
 import { balanceView, formatMoney } from '../lib/money'
 import { assignmentFor, assignmentsForRange, nextHandover, nightsSplit, toISO } from '../lib/schedule'
 import { nameOf, useApp } from '../lib/store'
 
 export default function Today() {
   const { state, actions, me, them } = useApp()
+  const { t, tNode, friendlyDay, daySpoken, longDay, joinList } = useI18n()
+
   const today = new Date()
   const todayIso = toISO(today)
   const assignment = assignmentFor(state, todayIso)
@@ -33,12 +35,12 @@ export default function Today() {
   if (state.kids.length === 0) {
     return (
       <EmptyState
-        title="Start with your children"
-        body="Nights, costs, events and the bag list all hang off this."
+        title={t('today.noKidsTitle')}
+        body={t('today.noKidsBody')}
         action={
           <Link to="/kids">
             <Button variant="primary" size="sm">
-              Add a child
+              {t('kids.addChild')}
             </Button>
           </Link>
         }
@@ -52,34 +54,40 @@ export default function Today() {
       <section>
         <p className="text-sm text-muted">{longDay(todayIso)}</p>
         <h1 className="mt-1 font-display text-[2rem] leading-[1.15] font-semibold tracking-[-0.015em]">
-          {withMe ? (
-            <>They&rsquo;re with you</>
-          ) : (
-            <>
-              They&rsquo;re with{' '}
-              <span className={homeStyles[assignment.parent].text}>
-                {state.parents[assignment.parent].name}
-              </span>
-            </>
-          )}
+          {withMe
+            ? t('today.withYou')
+            : tNode('today.withParent', {
+                name: (
+                  <span className={homeStyles[assignment.parent].text}>
+                    {state.parents[assignment.parent].name}
+                  </span>
+                ),
+              })}
           {handover ? (
             <span className="text-muted">
               {' '}
-              until {daySpoken(handover.date)} at{' '}
-              {prettyTime(state.schedule.handoverTime)}
+              {t('today.until', {
+                day: daySpoken(handover.date),
+                time: state.schedule.handoverTime,
+              })}
             </span>
           ) : null}
         </h1>
         {handover && state.schedule.handoverPlace ? (
           <p className="mt-2 text-sm text-muted">
-            Changeover at {state.schedule.handoverPlace}, then{' '}
-            {handover.parent === me ? 'they come to you' : `${state.parents[handover.parent].name} has them`}.
+            {handover.parent === me
+              ? t('today.handoverThenYou', { place: state.schedule.handoverPlace })
+              : t('today.handoverThenThem', {
+                  place: state.schedule.handoverPlace,
+                  name: state.parents[handover.parent].name,
+                })}
           </p>
         ) : null}
         {assignment.override ? (
           <p className="mt-2 text-sm text-muted">
-            Today was changed by hand
-            {assignment.override.reason ? `: ${assignment.override.reason}` : ''}.
+            {assignment.override.reason
+              ? t('today.changedByHandReason', { reason: assignment.override.reason })
+              : t('today.changedByHand')}
           </p>
         ) : null}
 
@@ -89,13 +97,13 @@ export default function Today() {
             names={{ a: state.parents.a.name, b: state.parents.b.name }}
             todayIso={todayIso}
           />
-          <p className="mt-2 text-xs text-faint">The next fortnight, one block per stay.</p>
+          <p className="mt-2 text-xs text-faint">{t('today.ribbonCaption')}</p>
         </div>
       </section>
 
       {pendingForMe.length > 0 ? (
         <section>
-          <SectionTitle>Waiting on you</SectionTitle>
+          <SectionTitle>{t('today.waitingOnYou')}</SectionTitle>
           <Rows>
             {pendingForMe.map((swap) => (
               <Row key={swap.id}>
@@ -104,8 +112,10 @@ export default function Today() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm">
-                    {state.parents[swap.from].name} asked you to take{' '}
-                    {swap.dates.map((d) => friendlyDay(d)).join(' and ')}.
+                    {t('today.askedYouToTake', {
+                      name: state.parents[swap.from].name,
+                      days: joinList(swap.dates.map((d) => friendlyDay(d))),
+                    })}
                   </p>
                   {swap.message ? (
                     <p className="mt-1 text-sm text-muted italic">{swap.message}</p>
@@ -117,10 +127,10 @@ export default function Today() {
                       onClick={() => actions.respondToSwap(swap.id, true)}
                     >
                       <IconCheck width={16} height={16} />
-                      Take those days
+                      {t('today.takeThoseDays')}
                     </Button>
                     <Button size="sm" onClick={() => actions.respondToSwap(swap.id, false)}>
-                      Can&rsquo;t do it
+                      {t('today.cantDoIt')}
                     </Button>
                   </div>
                 </div>
@@ -133,29 +143,24 @@ export default function Today() {
       <section className="space-y-1.5">
         <p className="text-[0.9375rem]">
           {balance.debtor === null ? (
-            'Nothing is outstanding between the two homes.'
-          ) : balance.debtor === me ? (
-            <>
-              You owe {state.parents[them].name}{' '}
-              <Link to="/money" className="numeral font-semibold underline underline-offset-4">
-                {formatMoney(balance.amountCents, state)}
-              </Link>
-              .
-            </>
+            t('today.allSquare')
           ) : (
             <>
-              {state.parents[them].name} owes you{' '}
+              {balance.debtor === me
+                ? t('today.youOwe', { name: state.parents[them].name })
+                : t('today.owesYou', { name: state.parents[them].name })}{' '}
               <Link to="/money" className="numeral font-semibold underline underline-offset-4">
                 {formatMoney(balance.amountCents, state)}
               </Link>
-              .
             </>
           )}
         </p>
         <p className="text-[0.9375rem] text-muted">
-          This month you have <span className="numeral text-ink">{me === 'a' ? month.a : month.b}</span>{' '}
-          nights and {state.parents[them].name} has{' '}
-          <span className="numeral text-ink">{me === 'a' ? month.b : month.a}</span>.
+          {t('today.nightsThisMonth', {
+            mine: t('common.nights', { count: me === 'a' ? month.a : month.b }),
+            theirs: t('common.nights', { count: me === 'a' ? month.b : month.a }),
+            name: state.parents[them].name,
+          })}
         </p>
       </section>
 
@@ -164,37 +169,37 @@ export default function Today() {
           <SectionTitle
             action={
               <Link to="/calendar" className="text-sm text-muted hover:text-ink">
-                Calendar
+                {t('nav.calendar')}
               </Link>
             }
           >
-            Coming up
+            {t('today.comingUp')}
           </SectionTitle>
           <Rows>
             {upcoming.map((event) => {
               const days = differenceInCalendarDays(parseISO(event.date), today)
               const owner = event.owner ?? assignmentFor(state, event.date).parent
-              const kids = state.kids
-                .filter((k) => event.kidIds.includes(k.id))
-                .map((k) => k.name)
-                .join(' and ')
+              const kids = joinList(
+                state.kids.filter((k) => event.kidIds.includes(k.id)).map((k) => k.name),
+              )
               return (
                 <Row key={event.id}>
                   <div className="w-16 shrink-0">
                     <p className="text-xs text-muted">{friendlyDay(event.date)}</p>
                     {event.time ? (
-                      <p className="numeral text-sm font-semibold">{prettyTime(event.time)}</p>
+                      <p className="numeral text-sm font-semibold">{event.time}</p>
                     ) : null}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{event.title}</p>
                     <p className="truncate text-xs text-muted">
-                      {kids}
-                      {event.location ? ` at ${event.location}` : ''}
+                      {[kids, event.location ? t('calendar.atPlace', { place: event.location }) : '']
+                        .filter(Boolean)
+                        .join(', ')}
                     </p>
                   </div>
                   <Pill tone={owner === 'a' ? 'a' : 'b'}>
-                    {days <= 0 ? 'Today' : nameOf(state, owner)}
+                    {days <= 0 ? t('date.today') : nameOf(state, owner, t('common.you'))}
                   </Pill>
                 </Row>
               )
@@ -208,14 +213,14 @@ export default function Today() {
           <SectionTitle
             action={
               <Link to="/kids" className="text-sm text-muted hover:text-ink">
-                Edit list
+                {t('today.editList')}
               </Link>
             }
           >
-            Still to pack
+            {t('today.stillToPack')}
           </SectionTitle>
           <p className="mb-3 text-sm text-muted">
-            Before {daySpoken(handover.date)}. Tap one once it is in the bag.
+            {t('today.packBefore', { day: daySpoken(handover.date) })}
           </p>
           <ul className="flex flex-wrap gap-2">
             {unpacked.map((item) => {
@@ -228,7 +233,9 @@ export default function Today() {
                     className="rounded-full border border-line px-3 py-1.5 text-sm hover:bg-sunken"
                   >
                     {item.label}
-                    {kid ? <span className="text-muted"> for {kid.name}</span> : null}
+                    {kid ? (
+                      <span className="text-muted"> {t('today.packFor', { name: kid.name })}</span>
+                    ) : null}
                   </button>
                 </li>
               )
@@ -242,11 +249,11 @@ export default function Today() {
           <SectionTitle
             action={
               <Link to="/moments" className="text-sm text-muted hover:text-ink">
-                All moments
+                {t('today.allMoments')}
               </Link>
             }
           >
-            Latest moment
+            {t('today.latestMoment')}
           </SectionTitle>
           <div className="flex gap-3">
             {latestMoment.photo ? (
@@ -259,7 +266,10 @@ export default function Today() {
             <div className="min-w-0">
               <p className="text-[0.9375rem]">{latestMoment.caption}</p>
               <p className="mt-1 text-xs text-muted">
-                {nameOf(state, latestMoment.by)}, {daySpoken(latestMoment.date)}
+                {t('moments.byline', {
+                  name: nameOf(state, latestMoment.by, t('common.you')),
+                  day: daySpoken(latestMoment.date),
+                })}
               </p>
             </div>
           </div>
@@ -268,8 +278,10 @@ export default function Today() {
 
       {pendingFromMe.length > 0 ? (
         <p className="text-sm text-muted">
-          {pendingFromMe.length === 1 ? 'One request is' : `${pendingFromMe.length} requests are`}{' '}
-          waiting on {state.parents[them].name}.
+          {t('today.requestsWaiting', {
+            count: pendingFromMe.length,
+            name: state.parents[them].name,
+          })}
         </p>
       ) : null}
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useI18n } from '../lib/i18n'
 import type { ParentId } from '../lib/types'
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
@@ -227,6 +228,8 @@ export function Sheet({
   children: ReactNode
   footer?: ReactNode
 }) {
+  const { t } = useI18n()
+
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
@@ -247,7 +250,7 @@ export function Sheet({
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <button
         type="button"
-        aria-label="Close"
+        aria-label={t('common.close')}
         onClick={onClose}
         className="absolute inset-0 bg-black/50"
       />
@@ -264,7 +267,7 @@ export function Sheet({
             onClick={onClose}
             className="-mr-2 rounded-md px-2 py-1 text-muted hover:text-ink"
           >
-            Close
+            {t('common.close')}
           </button>
         </header>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>

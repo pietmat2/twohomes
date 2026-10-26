@@ -1,26 +1,20 @@
 import { useRef, useState } from 'react'
 import { Button, Card, Field, SectionTitle, Segmented, cx } from '../components/ui'
-import { PATTERNS, getPattern, nightsSplit } from '../lib/schedule'
+import { LANGUAGES, useI18n } from '../lib/i18n'
+import { PATTERNS, nightsSplit } from '../lib/schedule'
 import { blankState, demoState } from '../lib/seed'
 import { exportState, importState, storageFootprintKb } from '../lib/storage'
 import { useApp } from '../lib/store'
-import type { ParentId, PatternId } from '../lib/types'
+import type { Lang, ParentId, PatternId } from '../lib/types'
 
-const CURRENCIES = ['DKK', 'EUR', 'SEK', 'NOK', 'GBP', 'USD', 'PLN']
-const LOCALES = [
-  { value: 'da-DK', label: 'Danish' },
-  { value: 'en-GB', label: 'English (UK)' },
-  { value: 'en-US', label: 'English (US)' },
-  { value: 'sv-SE', label: 'Swedish' },
-  { value: 'pl-PL', label: 'Polish' },
-  { value: 'de-DE', label: 'German' },
-]
+/** Kept independent of the language: a Polish speaker in Denmark pays in DKK. */
+const CURRENCIES = ['DKK', 'PLN', 'EUR', 'SEK', 'NOK', 'GBP', 'USD']
 
 export default function Settings() {
   const { state, actions, me } = useApp()
-  const [importError, setImportError] = useState<string | null>(null)
+  const { t } = useI18n()
+  const [importError, setImportError] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
-  const pattern = getPattern(state.schedule.patternId)
   const split = nightsSplit(state, new Date(), 28)
 
   function download() {
@@ -37,19 +31,21 @@ export default function Settings() {
     if (!file) return
     const next = importState(await file.text())
     if (!next) {
-      setImportError('That file is not a Twohomes export.')
+      setImportError(true)
       return
     }
-    setImportError(null)
+    setImportError(false)
     actions.replaceState(next)
   }
 
   return (
     <div className="space-y-7">
-      <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">Settings</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+        {t('settings.title')}
+      </h1>
 
       <section>
-        <SectionTitle>The two homes</SectionTitle>
+        <SectionTitle>{t('settings.twoHomes')}</SectionTitle>
         <Card className="space-y-4">
           {(['a', 'b'] as ParentId[]).map((id) => (
             <div key={id} className="flex items-center gap-3">
@@ -64,11 +60,13 @@ export default function Settings() {
                 className="field"
                 value={state.parents[id].name}
                 onChange={(e) => actions.setParent(id, { name: e.target.value })}
-                aria-label={id === 'a' ? 'First parent name' : 'Second parent name'}
+                aria-label={t(
+                  id === 'a' ? 'settings.firstParentName' : 'settings.secondParentName',
+                )}
               />
             </div>
           ))}
-          <Field label="I am" hint="Switch sides to see the app as the other parent.">
+          <Field label={t('settings.iAm')} hint={t('settings.iAmHint')}>
             <Segmented<ParentId>
               value={me}
               onChange={actions.setMe}
@@ -82,9 +80,12 @@ export default function Settings() {
       </section>
 
       <section>
-        <SectionTitle>Schedule</SectionTitle>
+        <SectionTitle>{t('settings.schedule')}</SectionTitle>
         <Card className="space-y-4">
-          <Field label="Pattern" hint={pattern.summary}>
+          <Field
+            label={t('settings.pattern')}
+            hint={t(`pattern.${state.schedule.patternId}.summary`)}
+          >
             <select
               className="field"
               value={state.schedule.patternId}
@@ -92,14 +93,17 @@ export default function Settings() {
             >
               {PATTERNS.map((option) => (
                 <option key={option.id} value={option.id}>
-                  {option.label}
+                  {t(`pattern.${option.id}.label`)}
                 </option>
               ))}
             </select>
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Cycle starts" hint={pattern.anchorHint}>
+            <Field
+              label={t('settings.cycleStarts')}
+              hint={t(`pattern.${state.schedule.patternId}.anchor`)}
+            >
               <input
                 type="date"
                 className="field"
@@ -107,7 +111,7 @@ export default function Settings() {
                 onChange={(e) => actions.setSchedule({ anchorDate: e.target.value })}
               />
             </Field>
-            <Field label="Changeover time">
+            <Field label={t('settings.changeoverTime')}>
               <input
                 type="time"
                 className="field"
@@ -117,7 +121,7 @@ export default function Settings() {
             </Field>
           </div>
 
-          <Field label="Starting home" hint="Who has the children on the first day of the cycle.">
+          <Field label={t('settings.startingHome')} hint={t('settings.startingHomeHint')}>
             <Segmented<ParentId>
               value={state.schedule.startParent}
               onChange={(next) => actions.setSchedule({ startParent: next })}
@@ -128,62 +132,63 @@ export default function Settings() {
             />
           </Field>
 
-          <Field label="Changeover place">
+          <Field label={t('settings.changeoverPlace')}>
             <input
               className="field"
               value={state.schedule.handoverPlace ?? ''}
               onChange={(e) => actions.setSchedule({ handoverPlace: e.target.value })}
-              placeholder="School gate"
+              placeholder={t('settings.changeoverPlacePlaceholder')}
             />
           </Field>
 
-          <p className="rounded-xl bg-sunken px-3 py-2 text-xs text-muted">
-            Over the next four weeks this gives {state.parents.a.name} {split.a} nights and{' '}
-            {state.parents.b.name} {split.b}. Individual days changed on the calendar stay as they
-            are.
+          <p className="rounded-lg bg-sunken px-3 py-2 text-xs text-muted">
+            {t('settings.splitPreview', {
+              nameA: state.parents.a.name,
+              nightsA: t('common.nights', { count: split.a }),
+              nameB: state.parents.b.name,
+              nightsB: t('common.nights', { count: split.b }),
+            })}
           </p>
         </Card>
       </section>
 
       <section>
-        <SectionTitle>Display</SectionTitle>
+        <SectionTitle>{t('settings.display')}</SectionTitle>
         <Card className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Currency">
-              <select
-                className="field"
-                value={state.currency}
-                onChange={(e) => actions.setPreferences({ currency: e.target.value })}
-              >
-                {CURRENCIES.map((code) => (
-                  <option key={code} value={code}>
-                    {code}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Date and number format">
-              <select
-                className="field"
-                value={state.locale}
-                onChange={(e) => actions.setPreferences({ locale: e.target.value })}
-              >
-                {LOCALES.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-          <Field label="Theme">
+          <Field label={t('settings.language')} hint={t('settings.languageHint')}>
+            <select
+              className="field"
+              value={state.language}
+              onChange={(e) => actions.setLanguage(e.target.value as Lang)}
+            >
+              {LANGUAGES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={t('settings.currency')} hint={t('settings.currencyHint')}>
+            <select
+              className="field"
+              value={state.currency}
+              onChange={(e) => actions.setPreferences({ currency: e.target.value })}
+            >
+              {CURRENCIES.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={t('settings.theme')}>
             <Segmented
               value={state.theme}
               onChange={(theme) => actions.setPreferences({ theme })}
               options={[
-                { value: 'system', label: 'System' },
-                { value: 'light', label: 'Light' },
-                { value: 'dark', label: 'Dark' },
+                { value: 'system', label: t('settings.themeSystem') },
+                { value: 'light', label: t('settings.themeLight') },
+                { value: 'dark', label: t('settings.themeDark') },
               ]}
             />
           </Field>
@@ -191,21 +196,18 @@ export default function Settings() {
       </section>
 
       <section>
-        <SectionTitle>Your data</SectionTitle>
+        <SectionTitle>{t('settings.yourData')}</SectionTitle>
         <Card className="space-y-3">
-          <p className="text-sm text-muted">
-            Everything lives in this browser, on this device. Nothing is sent anywhere. Export to
-            move it, or to keep a copy.
-          </p>
+          <p className="text-sm text-muted">{t('settings.dataBody')}</p>
           <p className="text-xs text-faint">
-            Currently holding about {storageFootprintKb(state)} KB.
+            {t('settings.storageSize', { size: storageFootprintKb(state) })}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={download}>
-              Export a copy
+              {t('settings.exportCopy')}
             </Button>
             <Button size="sm" onClick={() => fileRef.current?.click()}>
-              Import a file
+              {t('settings.importFile')}
             </Button>
             <input
               ref={fileRef}
@@ -215,34 +217,33 @@ export default function Settings() {
               onChange={(e) => void upload(e.target.files?.[0])}
             />
           </div>
-          {importError ? <p className="text-sm text-danger">{importError}</p> : null}
+          {importError ? (
+            <p className="text-sm text-danger">{t('settings.importFailed')}</p>
+          ) : null}
           <div className="flex flex-wrap gap-2 border-t border-line pt-3">
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => actions.replaceState(demoState())}
+              onClick={() => actions.replaceState(demoState(state.language))}
             >
-              Reload the demo data
+              {t('settings.reloadDemo')}
             </Button>
             <Button
               size="sm"
               variant="danger"
               onClick={() => {
-                if (confirm('Clear everything on this device and start empty?')) {
-                  actions.replaceState(blankState())
+                if (confirm(t('settings.startEmptyConfirm'))) {
+                  actions.replaceState(blankState(state.language))
                 }
               }}
             >
-              Start empty
+              {t('settings.startEmpty')}
             </Button>
           </div>
         </Card>
       </section>
 
-      <p className="px-1 pb-4 text-xs text-faint">
-        Twohomes is a planning tool, not legal advice. It records what the two of you agree; it does
-        not decide anything.
-      </p>
+      <p className="pb-4 text-xs text-faint">{t('settings.disclaimer')}</p>
     </div>
   )
 }
