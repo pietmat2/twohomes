@@ -75,7 +75,7 @@ export function Row({
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
     <div className="mb-2 flex items-baseline justify-between gap-3">
-      <h2 className="font-display text-[1.0625rem] font-semibold">{children}</h2>
+      <h2 className="font-display text-xl font-semibold">{children}</h2>
       {action}
     </div>
   )
@@ -96,7 +96,7 @@ export function Button({
 }: ButtonProps) {
   const base =
     'inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors disabled:pointer-events-none disabled:opacity-40'
-  const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-4 py-2.5 text-[0.9375rem]' }
+  const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-4 py-2.5 text-base' }
   const variants = {
     primary: 'bg-ink text-paper hover:opacity-85',
     secondary: 'border border-line bg-surface hover:bg-sunken',

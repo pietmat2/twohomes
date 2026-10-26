@@ -59,7 +59,6 @@ export const pl: Catalogue = {
   'today.thenThem': 'Potem dzieci są w drugim domu ({name}).',
   'today.changedByHand': 'Ten dzień został zmieniony ręcznie.',
   'today.changedByHandReason': 'Ten dzień został zmieniony ręcznie: {reason}.',
-  'today.ribbonCaption': 'Najbliższe dwa tygodnie, jeden blok na pobyt.',
   'today.waitingOnYou': 'Czeka na Ciebie',
   'today.askedYouToTake': '{name} prosi o: {days}.',
   'today.takeThoseDays': 'Wezmę te dni',

@@ -53,7 +53,7 @@ export default function Today() {
       {/* The question the app exists to answer, written as a sentence. */}
       <section>
         <p className="text-sm text-muted">{longDay(todayIso)}</p>
-        <h1 className="mt-1 font-display text-[2rem] leading-[1.15] font-semibold tracking-[-0.015em]">
+        <h1 className="mt-1 font-display text-display font-semibold tracking-[-0.015em]">
           {withMe
             ? t('today.withYou')
             : tNode('today.withParent', {
@@ -67,7 +67,7 @@ export default function Today() {
         {/* The "when" is its own line: folded into the headline it ran to four
             lines in Polish and buried the answer. */}
         {handover ? (
-          <p className="mt-2 text-[0.9375rem] text-muted">
+          <p className="mt-2 text-base text-muted">
             {state.schedule.handoverPlace
               ? t('today.changeoverAt', {
                   day: daySpoken(handover.date),
@@ -97,7 +97,6 @@ export default function Today() {
             names={{ a: state.parents.a.name, b: state.parents.b.name }}
             todayIso={todayIso}
           />
-          <p className="mt-2 text-xs text-faint">{t('today.ribbonCaption')}</p>
         </div>
       </section>
 
@@ -141,7 +140,7 @@ export default function Today() {
       ) : null}
 
       <section className="space-y-1.5">
-        <p className="text-[0.9375rem]">
+        <p className="text-base">
           {balance.debtor === null ? (
             t('today.allSquare')
           ) : (
@@ -155,7 +154,7 @@ export default function Today() {
             </>
           )}
         </p>
-        <p className="text-[0.9375rem] text-muted">
+        <p className="text-base text-muted">
           {t('today.nightsThisMonth', {
             mine: t('common.nights', { count: me === 'a' ? month.a : month.b }),
             theirs: t('common.nights', { count: me === 'a' ? month.b : month.a }),
@@ -266,7 +265,7 @@ export default function Today() {
               />
             ) : null}
             <div className="min-w-0">
-              <p className="text-[0.9375rem]">{latestMoment.caption}</p>
+              <p className="text-base">{latestMoment.caption}</p>
               <p className="mt-1 text-xs text-muted">
                 {t('moments.byline', {
                   name: nameOf(state, latestMoment.by, t('common.you')),

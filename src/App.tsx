@@ -71,7 +71,7 @@ function BottomNav() {
             to={to}
             className={({ isActive }) =>
               cx(
-                'flex flex-col items-center gap-1 py-1 text-[0.6875rem] transition-colors',
+                'flex flex-col items-center gap-1 py-1 text-micro transition-colors',
                 isActive ? 'font-semibold text-ink' : 'text-faint hover:text-muted',
               )
             }

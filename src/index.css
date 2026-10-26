@@ -8,27 +8,47 @@
   --font-sans: 'Figtree', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Faustina', ui-serif, Georgia, 'Times New Roman', serif;
 
-  /* Light is the base; the dark set below is the one the app is designed for. */
-  --color-paper: #f6f7f9;
+  /*
+   * One scale, named by role: 10 / 11 / 12 / 14 / 16 / 20 / 24 / 32 / 40.
+   * Tailwind's xs, sm, base, xl and 2xl already land on 12, 14, 16, 20 and 24,
+   * so only the ends need defining. `nano` exists for one job: a fortnight of
+   * stays on a 320px phone leaves no room for anything larger.
+   */
+  --text-nano: 0.625rem;
+  --text-nano--line-height: 1.1;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.2;
+  --text-display: 2rem;
+  --text-display--line-height: 1.15;
+  --text-hero: 2.5rem;
+  --text-hero--line-height: 1;
+
+  /*
+   * Light is not an inversion of dark, it has its own job. The app gets opened
+   * late at night with the children asleep, and one-handed in daylight on the
+   * way to a handover. This set is built for the second: more contrast, visible
+   * hairlines, and fills with enough saturation to survive glare.
+   */
+  --color-paper: #eef0f2;
   --color-surface: #ffffff;
-  --color-sunken: #eceef2;
-  --color-line: #dfe3e9;
-  --color-ink: #15171c;
-  --color-muted: #5e6672;
-  --color-faint: #949ba6;
+  --color-sunken: #dfe4e9;
+  --color-line: #c8d0d8;
+  --color-ink: #0f1317;
+  --color-muted: #515b66;
+  --color-faint: #808b96;
 
   /*
    * One colour per home, warm against cool. They must read as equal: neither
    * parent gets the better colour, and neither is the "alert" colour.
    */
-  --color-home-a: #a86c0c;
-  --color-home-a-soft: #fbeacf;
-  --color-home-b: #0f7260;
-  --color-home-b-soft: #d4efe7;
+  --color-home-a: #8a5300;
+  --color-home-a-soft: #f7dca8;
+  --color-home-b: #055f4e;
+  --color-home-b-soft: #a8dccd;
 
-  --color-positive: #0f7260;
-  --color-warn: #a86c0c;
-  --color-danger: #b4332f;
+  --color-positive: #055f4e;
+  --color-warn: #8a5300;
+  --color-danger: #a62c28;
 
   /* Radius encodes hierarchy instead of being one value on everything. */
   --radius-card: 0.5rem;
