@@ -20,7 +20,7 @@ export default function Kids() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold tracking-tight">Children</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">Children</h1>
         <Button size="sm" onClick={() => setEditing('new')}>
           <IconPlus width={16} height={16} />
           Add

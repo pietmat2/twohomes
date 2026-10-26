@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { getISOWeek } from 'date-fns'
 import { IconCamera, IconPlus } from '../components/icons'
 import { Button, Card, EmptyState, Field, Pill, Sheet, cx } from '../components/ui'
-import { friendlyDay } from '../lib/format'
+import { daySpoken } from '../lib/format'
 import { toISO } from '../lib/schedule'
 import { fileToPhoto } from '../lib/storage'
 import { nameOf, useApp } from '../lib/store'
@@ -41,7 +41,7 @@ export default function Moments() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold tracking-tight">Moments</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">Moments</h1>
           <p className="text-sm text-muted">
             Ordinary days from whichever home they are in.
           </p>
@@ -52,12 +52,10 @@ export default function Moments() {
         </Button>
       </div>
 
-      <Card className="bg-sunken border-0">
-        <p className="text-xs font-medium tracking-[0.08em] text-muted uppercase">
-          Idea for this week
-        </p>
-        <p className="mt-1.5 text-[0.9375rem]">{idea}</p>
-      </Card>
+      <div className="border-l-2 border-line pl-4">
+        <p className="font-display text-[1.0625rem] italic">{idea}</p>
+        <p className="mt-1 text-sm text-faint">Something to do together this week.</p>
+      </div>
 
       {state.kids.length > 1 ? (
         <div className="flex flex-wrap gap-2">
@@ -107,16 +105,11 @@ export default function Moments() {
                   {moment.caption ? (
                     <p className="text-[0.9375rem] leading-relaxed">{moment.caption}</p>
                   ) : null}
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
-                    <span>{nameOf(state, moment.by)}</span>
-                    <span aria-hidden>·</span>
-                    <span>{friendlyDay(moment.date)}</span>
-                    {kids.length > 0 ? (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>{kids.map((k) => k.name).join(', ')}</span>
-                      </>
-                    ) : null}
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+                    <span>
+                      {nameOf(state, moment.by)}, {daySpoken(moment.date)}
+                      {kids.length > 0 ? `, with ${kids.map((k) => k.name).join(' and ')}` : ''}
+                    </span>
                     {!mine && !moment.seenByOther ? <Pill tone="warn">New</Pill> : null}
                   </div>
                   <div className="mt-3 flex items-center gap-3">

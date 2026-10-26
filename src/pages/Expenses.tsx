@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { IconPlus } from '../components/icons'
+import { KidPicker } from './Calendar'
 import {
   Button,
-  Card,
   EmptyState,
   Field,
-  Pill,
+  Row,
+  Rows,
   SectionTitle,
   Segmented,
   Sheet,
@@ -37,8 +38,7 @@ const CATEGORIES: { value: ExpenseCategory; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
-const categoryLabel = (value: string) =>
-  CATEGORIES.find((c) => c.value === value)?.label ?? 'Other'
+const categoryLabel = (value: string) => CATEGORIES.find((c) => c.value === value)?.label ?? 'Other'
 
 export default function Expenses() {
   const { state, actions, me, them } = useApp()
@@ -58,7 +58,7 @@ export default function Expenses() {
   const categories = spendByCategory(state.expenses).slice(0, 4)
   const totalSpend = state.expenses.reduce((sum, e) => sum + e.amountCents, 0)
 
-  // Expenses and settlements interleaved, so the running total is auditable.
+  // Expenses and payments interleaved, so the running total stays auditable.
   const ledger = useMemo(() => {
     const entries = [
       ...expenses.map((e) => ({ kind: 'expense' as const, date: e.date, data: e })),
@@ -70,29 +70,35 @@ export default function Expenses() {
   }, [expenses, state.settlements, kidFilter])
 
   return (
-    <div className="space-y-6">
-      <Card
-        className={cx(
-          'border-0 p-5',
-          balance.creditor ? homeStyles[balance.creditor].bg : 'bg-sunken',
+    <div className="space-y-7">
+      <section>
+        {balance.debtor === null ? (
+          <>
+            <h1 className="font-display text-[2rem] leading-tight font-semibold">
+              You&rsquo;re square
+            </h1>
+            <p className="mt-1 text-sm text-muted">Nothing is outstanding between the two homes.</p>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted">
+              {balance.debtor === me
+                ? `You owe ${state.parents[them].name}`
+                : `${state.parents[them].name} owes you`}
+            </p>
+            <h1
+              className={cx(
+                'numeral mt-1 text-[2.5rem] leading-none font-semibold',
+                balance.creditor ? homeStyles[balance.creditor].text : '',
+              )}
+            >
+              {formatMoney(balance.amountCents, state)}
+            </h1>
+          </>
         )}
-      >
-        <p className="text-sm text-muted">
-          {balance.debtor === null ? 'Nothing outstanding' : 'Current balance'}
-        </p>
-        <p className="mt-1 text-3xl font-semibold tracking-tight">
-          {balance.debtor === null ? 'All square' : formatMoney(balance.amountCents, state)}
-        </p>
-        {balance.debtor ? (
-          <p className="mt-1 text-sm text-muted">
-            {balance.debtor === me
-              ? `You owe ${state.parents[them].name}`
-              : `${state.parents[them].name} owes you`}
-          </p>
-        ) : null}
         <div className="mt-4 flex gap-2">
           <Button variant="primary" size="sm" onClick={() => setSheet('expense')}>
-            <IconPlus width={16} height={16} />
+            <IconPlus width={15} height={15} />
             Add expense
           </Button>
           {balance.debtor !== null ? (
@@ -101,22 +107,22 @@ export default function Expenses() {
             </Button>
           ) : null}
         </div>
-      </Card>
+      </section>
 
       {state.expenses.length > 0 ? (
-        <section className="grid grid-cols-2 gap-3">
-          <Card className="py-3">
-            <p className="text-xs font-medium tracking-wide text-muted uppercase">Paid out</p>
-            <div className="mt-2 space-y-1.5">
+        <section className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <p className="mb-2 text-sm text-muted">Paid out so far</p>
+            <div className="space-y-2">
               {(['a', 'b'] as ParentId[]).map((id) => {
                 const share = totalSpend === 0 ? 0 : Math.round((paid[id] / totalSpend) * 100)
                 return (
                   <div key={id}>
                     <div className="flex items-baseline justify-between text-sm">
-                      <span className="text-muted">{state.parents[id].name}</span>
-                      <span className="font-medium">{formatMoney(paid[id], state)}</span>
+                      <span>{nameOf(state, id)}</span>
+                      <span className="numeral">{formatMoney(paid[id], state)}</span>
                     </div>
-                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-sunken">
+                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-sunken">
                       <div
                         className={cx('h-full rounded-full', homeStyles[id].solid)}
                         style={{ width: `${share}%` }}
@@ -126,18 +132,20 @@ export default function Expenses() {
                 )
               })}
             </div>
-          </Card>
-          <Card className="py-3">
-            <p className="text-xs font-medium tracking-wide text-muted uppercase">Where it goes</p>
-            <ul className="mt-2 space-y-1 text-sm">
+          </div>
+          <div>
+            <p className="mb-2 text-sm text-muted">Biggest categories</p>
+            <ul className="space-y-1.5 text-sm">
               {categories.map((entry) => (
                 <li key={entry.category} className="flex items-baseline justify-between gap-2">
-                  <span className="truncate text-muted">{categoryLabel(entry.category)}</span>
-                  <span className="shrink-0 font-medium">{formatMoney(entry.cents, state)}</span>
+                  <span className="truncate">{categoryLabel(entry.category)}</span>
+                  <span className="numeral shrink-0 text-muted">
+                    {formatMoney(entry.cents, state)}
+                  </span>
                 </li>
               ))}
             </ul>
-          </Card>
+          </div>
         </section>
       ) : null}
 
@@ -165,90 +173,78 @@ export default function Expenses() {
             }
           />
         ) : (
-          <ul className="space-y-2">
+          <Rows>
             {ledger.map((entry) =>
               entry.kind === 'expense' ? (
-                <Card as="li" key={entry.data.id} className="py-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{entry.data.title}</p>
-                      <p className="mt-0.5 text-xs text-muted">
-                        {friendlyDay(entry.data.date)} · {categoryLabel(entry.data.category)} ·{' '}
-                        {nameOf(state, entry.data.paidBy)} paid
-                      </p>
-                      {entry.data.note ? (
-                        <p className="mt-1 text-xs text-muted">{entry.data.note}</p>
-                      ) : null}
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <Pill tone={entry.data.paidBy === 'a' ? 'a' : 'b'}>
-                          {entry.data.payerSharePct === 50
-                            ? 'Split evenly'
-                            : `${entry.data.payerSharePct}% / ${100 - entry.data.payerSharePct}%`}
-                        </Pill>
-                        <span className="text-xs text-muted">
-                          {entry.data.paidBy === me
-                            ? `${state.parents[them].name} owes `
-                            : 'You owe '}
-                          {formatMoney(owedOnExpense(entry.data), state)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-sm font-semibold">
-                        {formatMoney(entry.data.amountCents, state)}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => actions.removeExpense(entry.data.id)}
-                        className="mt-1 text-xs text-muted hover:text-danger"
-                      >
-                        Remove
-                      </button>
-                    </div>
+                <Row key={entry.data.id}>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[0.9375rem] font-medium">{entry.data.title}</p>
+                    <p className="mt-0.5 text-sm text-muted">
+                      {nameOf(state, entry.data.paidBy)} paid, {friendlyDay(entry.data.date)}
+                    </p>
+                    <p className="mt-1 text-sm text-muted">
+                      {entry.data.payerSharePct === 50
+                        ? 'Split evenly, so '
+                        : `Split ${entry.data.payerSharePct}/${100 - entry.data.payerSharePct}, so `}
+                      {entry.data.paidBy === me
+                        ? `${state.parents[them].name} owes `
+                        : 'you owe '}
+                      <span className="numeral text-ink">
+                        {formatMoney(owedOnExpense(entry.data), state)}
+                      </span>
+                    </p>
+                    {entry.data.note ? (
+                      <p className="mt-1 text-sm text-faint">{entry.data.note}</p>
+                    ) : null}
                   </div>
-                </Card>
+                  <div className="shrink-0 text-right">
+                    <p className="numeral text-[0.9375rem] font-semibold">
+                      {formatMoney(entry.data.amountCents, state)}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => actions.removeExpense(entry.data.id)}
+                      className="mt-1 text-sm text-faint hover:text-danger"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </Row>
               ) : (
-                <li
-                  key={entry.data.id}
-                  className="flex items-center justify-between rounded-card border border-dashed border-line px-4 py-2.5"
-                >
-                  <div>
-                    <p className="text-sm">
+                <Row key={entry.data.id}>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[0.9375rem]">
                       {entry.data.from === me
                         ? `You paid ${state.parents[entry.data.to].name}`
                         : `${state.parents[entry.data.from].name} paid ${
                             entry.data.to === me ? 'you' : state.parents[entry.data.to].name
                           }`}
                     </p>
-                    <p className="text-xs text-muted">
+                    <p className="mt-0.5 text-sm text-muted">
                       {friendlyDay(entry.data.date)}
-                      {entry.data.note ? ` · ${entry.data.note}` : ''}
+                      {entry.data.note ? `, ${entry.data.note}` : ''}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-positive">
+                  <div className="shrink-0 text-right">
+                    <p className="numeral text-[0.9375rem] font-semibold text-positive">
                       {formatMoney(entry.data.amountCents, state)}
                     </p>
                     <button
                       type="button"
                       onClick={() => actions.removeSettlement(entry.data.id)}
-                      className="text-xs text-muted hover:text-danger"
+                      className="mt-1 text-sm text-faint hover:text-danger"
                     >
                       Remove
                     </button>
                   </div>
-                </li>
+                </Row>
               ),
             )}
-          </ul>
+          </Rows>
         )}
       </section>
 
-      <Sheet
-        open={sheet === 'expense'}
-        onClose={() => setSheet('none')}
-        title="Add a shared expense"
-      >
+      <Sheet open={sheet === 'expense'} onClose={() => setSheet('none')} title="Add an expense">
         <ExpenseForm onDone={() => setSheet('none')} />
       </Sheet>
 
@@ -304,9 +300,9 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label={`Amount (${state.currency})`}>
+        <Field label={`Amount in ${state.currency}`}>
           <input
-            className="field"
+            className="field numeral"
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -352,7 +348,7 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
         label="Split"
         hint={
           owed === null
-            ? 'The payer carries the first share; the rest is owed by the other home.'
+            ? 'The payer carries the first share, the other home owes the rest.'
             : `${otherName} owes ${formatMoney(owed, state)}.`
         }
       >
@@ -366,38 +362,15 @@ function ExpenseForm({ onDone }: { onDone: () => void }) {
             onChange={(e) => setSharePct(Number(e.target.value))}
             className="flex-1 accent-[var(--color-ink)]"
           />
-          <span className="w-20 shrink-0 text-right text-sm tabular-nums">
+          <span className="numeral w-16 shrink-0 text-right text-sm">
             {sharePct}/{100 - sharePct}
           </span>
         </div>
       </Field>
 
-      {state.kids.length > 0 ? (
-        <Field label="Who it is for">
-          <div className="flex flex-wrap gap-2">
-            {state.kids.map((kid) => {
-              const on = kidIds.includes(kid.id)
-              return (
-                <button
-                  key={kid.id}
-                  type="button"
-                  onClick={() =>
-                    setKidIds((prev) =>
-                      on ? prev.filter((id) => id !== kid.id) : [...prev, kid.id],
-                    )
-                  }
-                  className={cx(
-                    'rounded-full border px-3 py-1.5 text-sm transition',
-                    on ? 'border-ink bg-ink text-paper' : 'border-line text-muted hover:bg-sunken',
-                  )}
-                >
-                  {kid.name}
-                </button>
-              )
-            })}
-          </div>
-        </Field>
-      ) : null}
+      <Field label="Who it is for">
+        <KidPicker value={kidIds} onChange={setKidIds} />
+      </Field>
 
       <Field label="Note">
         <input
@@ -439,13 +412,13 @@ function SettleForm({ onDone }: { onDone: () => void }) {
       }}
     >
       <p className="text-sm text-muted">
-        Logs money moving from {state.parents[from].name} to {state.parents[to].name}. It does not
-        move any money by itself.
+        This records money that already moved from {state.parents[from].name} to{' '}
+        {state.parents[to].name}. Twohomes does not move money itself.
       </p>
       <div className="grid grid-cols-2 gap-3">
-        <Field label={`Amount (${state.currency})`}>
+        <Field label={`Amount in ${state.currency}`}>
           <input
-            className="field"
+            className="field numeral"
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}

@@ -46,7 +46,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-7">
-      <h1 className="text-lg font-semibold tracking-tight">Settings</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">Settings</h1>
 
       <section>
         <SectionTitle>The two homes</SectionTitle>
