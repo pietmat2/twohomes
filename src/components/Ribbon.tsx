@@ -22,21 +22,25 @@ export function toStays(days: DayAssignment[]): Stay[] {
   return stays
 }
 
+const dayNumber = (iso: string) => parseISO(iso).getDate()
+
 /**
  * The shape of the schedule, not a row of identical boxes: a long block is a
  * long stay. Week-on/week-off reads as two bars, 2-2-3 as a stutter.
+ *
+ * Each block is labelled once, with the dates the stay spans — a fortnight on
+ * a 320px phone leaves about 19px per day, which is far too little for a
+ * numeral per day, and labelling the stay is truer to the idea anyway.
  */
 export function Ribbon({
   days,
   names,
   todayIso,
-  onSelect,
   animate = true,
 }: {
   days: DayAssignment[]
   names: Record<ParentId, string>
   todayIso?: string
-  onSelect?: (iso: string) => void
   animate?: boolean
 }) {
   const stays = toStays(days)
@@ -45,18 +49,21 @@ export function Ribbon({
     <div className="flex gap-1" role="list">
       {stays.map((stay, index) => {
         const holdsToday = todayIso ? stay.days.some((d) => d.date === todayIso) : false
-        const nights = stay.days.length
+        const first = dayNumber(stay.days[0].date)
+        const last = dayNumber(stay.days[stay.days.length - 1].date)
+        const label = stay.days.length === 1 ? `${first}` : `${first}–${last}`
+
         return (
           <div
             key={stay.days[0].date}
             role="listitem"
             style={{
-              flexGrow: nights,
+              flexGrow: stay.days.length,
               flexBasis: 0,
               animationDelay: animate ? `${index * 55}ms` : undefined,
             }}
             className={cx(
-              'rounded-stay px-2 py-2.5 min-w-0',
+              'min-w-0 rounded-stay px-1 py-2',
               homeStyles[stay.parent].bg,
               animate && 'animate-stay',
               holdsToday && 'ring-1 ring-ink',
@@ -64,45 +71,20 @@ export function Ribbon({
           >
             <p
               className={cx(
-                'truncate text-[0.6875rem] font-semibold',
+                'truncate text-[0.625rem] leading-tight font-semibold',
                 homeStyles[stay.parent].text,
               )}
             >
               {names[stay.parent]}
             </p>
-            <div className="mt-1.5 flex gap-0.5">
-              {stay.days.map((day) => {
-                const isToday = day.date === todayIso
-                const cell = (
-                  <span
-                    className={cx(
-                      'numeral block rounded-sm py-0.5 text-center text-[0.6875rem] leading-none',
-                      isToday
-                        ? cx(homeStyles[stay.parent].solid, 'text-paper font-semibold')
-                        : homeStyles[stay.parent].text,
-                    )}
-                  >
-                    {parseISO(day.date).getDate()}
-                  </span>
-                )
-                return (
-                  <span key={day.date} className="min-w-0 flex-1">
-                    {onSelect ? (
-                      <button
-                        type="button"
-                        onClick={() => onSelect(day.date)}
-                        className="block w-full"
-                        aria-label={day.date}
-                      >
-                        {cell}
-                      </button>
-                    ) : (
-                      cell
-                    )}
-                  </span>
-                )
-              })}
-            </div>
+            <p
+              className={cx(
+                'numeral mt-1 truncate text-[0.625rem] leading-none',
+                homeStyles[stay.parent].text,
+              )}
+            >
+              {label}
+            </p>
           </div>
         )
       })}

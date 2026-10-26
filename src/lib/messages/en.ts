@@ -59,9 +59,10 @@ export const en = {
 
   'today.withYou': 'They’re with you',
   'today.withParent': 'They’re with {name}',
-  'today.until': 'until {day} at {time}',
-  'today.handoverThenYou': 'Changeover at {place}, then they come to you.',
-  'today.handoverThenThem': 'Changeover at {place}, then {name} has them.',
+  'today.changeover': 'Changeover {day} at {time}.',
+  'today.changeoverAt': 'Changeover {day} at {time}, {place}.',
+  'today.thenYou': 'Then they come to you.',
+  'today.thenThem': 'Then {name} has them.',
   'today.changedByHand': 'Today was changed by hand.',
   'today.changedByHandReason': 'Today was changed by hand: {reason}.',
   'today.ribbonCaption': 'The next fortnight, one block per stay.',

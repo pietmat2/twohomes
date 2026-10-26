@@ -142,6 +142,11 @@ picks up again on the next row. The shape carries the information: week-on/week-
 reads as two long bars, 2-2-3 as a stutter. You can see the rhythm of an arrangement
 before reading a single number.
 
+Each block is labelled once, with the home and the dates the stay spans — *Marek,
+26–27*. A fortnight on a 320px phone leaves about 19px per day, far too little for a
+numeral on every one, and labelling the stay rather than the day is truer to the idea
+anyway.
+
 **Two homes, two colours, equal weight.** Amber and mint — warm against cool, so they
 separate instantly, and neither is the "good" colour or the alert colour. Which parent
 gets which is arbitrary and fixed; the colour then holds everywhere, from calendar days
