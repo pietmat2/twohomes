@@ -40,9 +40,10 @@ export const da: Catalogue = {
 
   'today.withYou': 'Børnene er hos dig',
   'today.withParent': 'Børnene er hos {name}',
-  'today.until': 'indtil {day} kl. {time}',
-  'today.handoverThenYou': 'Skifte ved {place}, så kommer de til dig.',
-  'today.handoverThenThem': 'Skifte ved {place}, så har {name} dem.',
+  'today.changeover': 'Skifte {day} kl. {time}.',
+  'today.changeoverAt': 'Skifte {day} kl. {time}, {place}.',
+  'today.thenYou': 'Så kommer de til dig.',
+  'today.thenThem': 'Så har {name} dem.',
   'today.changedByHand': 'Dagen er ændret manuelt.',
   'today.changedByHandReason': 'Dagen er ændret manuelt: {reason}.',
   'today.ribbonCaption': 'De næste fjorten dage, én blok per ophold.',

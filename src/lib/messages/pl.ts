@@ -53,9 +53,10 @@ export const pl: Catalogue = {
 
   'today.withYou': 'Dzieci są u Ciebie',
   'today.withParent': 'Dzieci są w drugim domu ({name})',
-  'today.until': 'do zmiany: {day}, godz. {time}',
-  'today.handoverThenYou': 'Miejsce zmiany: {place}. Potem dzieci wracają do Ciebie.',
-  'today.handoverThenThem': 'Miejsce zmiany: {place}. Potem dzieci są w drugim domu ({name}).',
+  'today.changeover': 'Zmiana: {day}, godz. {time}.',
+  'today.changeoverAt': 'Zmiana: {day}, godz. {time}, {place}.',
+  'today.thenYou': 'Potem dzieci wracają do Ciebie.',
+  'today.thenThem': 'Potem dzieci są w drugim domu ({name}).',
   'today.changedByHand': 'Ten dzień został zmieniony ręcznie.',
   'today.changedByHandReason': 'Ten dzień został zmieniony ręcznie: {reason}.',
   'today.ribbonCaption': 'Najbliższe dwa tygodnie, jeden blok na pobyt.',

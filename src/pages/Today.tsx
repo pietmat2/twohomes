@@ -63,24 +63,24 @@ export default function Today() {
                   </span>
                 ),
               })}
-          {handover ? (
-            <span className="text-muted">
-              {' '}
-              {t('today.until', {
-                day: daySpoken(handover.date),
-                time: state.schedule.handoverTime,
-              })}
-            </span>
-          ) : null}
         </h1>
-        {handover && state.schedule.handoverPlace ? (
-          <p className="mt-2 text-sm text-muted">
-            {handover.parent === me
-              ? t('today.handoverThenYou', { place: state.schedule.handoverPlace })
-              : t('today.handoverThenThem', {
+        {/* The "when" is its own line: folded into the headline it ran to four
+            lines in Polish and buried the answer. */}
+        {handover ? (
+          <p className="mt-2 text-[0.9375rem] text-muted">
+            {state.schedule.handoverPlace
+              ? t('today.changeoverAt', {
+                  day: daySpoken(handover.date),
+                  time: state.schedule.handoverTime,
                   place: state.schedule.handoverPlace,
-                  name: state.parents[handover.parent].name,
-                })}
+                })
+              : t('today.changeover', {
+                  day: daySpoken(handover.date),
+                  time: state.schedule.handoverTime,
+                })}{' '}
+            {handover.parent === me
+              ? t('today.thenYou')
+              : t('today.thenThem', { name: state.parents[handover.parent].name })}
           </p>
         ) : null}
         {assignment.override ? (
@@ -191,7 +191,9 @@ export default function Today() {
                     ) : null}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{event.title}</p>
+                    {/* Wraps rather than truncates: Polish and Danish titles
+                        lose too much at phone width. */}
+                    <p className="text-sm font-medium">{event.title}</p>
                     <p className="truncate text-xs text-muted">
                       {[kids, event.location ? t('calendar.atPlace', { place: event.location }) : '']
                         .filter(Boolean)
