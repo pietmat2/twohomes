@@ -5,6 +5,7 @@ import { Button, EmptyState, Pill, Row, Rows, SectionTitle, cx, homeStyles } fro
 import { IconCheck, IconSwap } from '../components/icons'
 import { recentChanges, type ChangeEntry } from '../lib/changes'
 import { topicOfTheWeek } from '../lib/guide'
+import { upcomingBreaks } from '../lib/holidays'
 import { useI18n } from '../lib/i18n'
 import { balanceView, formatMoney } from '../lib/money'
 import { assignmentFor, assignmentsForRange, nextHandover, nightsSplit, toISO } from '../lib/schedule'
@@ -12,7 +13,7 @@ import { nameOf, useApp } from '../lib/store'
 
 export default function Today() {
   const { state, actions, me, them } = useApp()
-  const { t, tNode, friendlyDay, daySpoken, longDay, joinList } = useI18n()
+  const { t, tNode, friendlyDay, daySpoken, longDay, joinList, holidayName, dayRange } = useI18n()
 
   const today = new Date()
   const todayIso = toISO(today)
@@ -29,6 +30,10 @@ export default function Today() {
     .filter((event) => event.date >= todayIso)
     .sort((x, y) => (x.date + (x.time ?? '')).localeCompare(y.date + (y.time ?? '')))
     .slice(0, 4)
+
+  // School breaks under way, or starting in the next three weeks: when the
+  // two homes most need to have agreed who has the children.
+  const breaks = upcomingBreaks(state.holidays, todayIso, 21)
 
   const changes = recentChanges(state, 5)
   const topic = topicOfTheWeek()
@@ -207,7 +212,7 @@ export default function Today() {
         </p>
       </section>
 
-      {upcoming.length > 0 ? (
+      {upcoming.length > 0 || breaks.length > 0 ? (
         <section>
           <SectionTitle
             action={
@@ -219,6 +224,27 @@ export default function Today() {
             {t('today.comingUp')}
           </SectionTitle>
           <Rows>
+            {breaks.map((holiday) => {
+              const underway = holiday.start <= todayIso
+              return (
+                <Row key={`${holiday.key}-${holiday.start}`}>
+                  <div className="w-16 shrink-0">
+                    <p className="text-xs text-muted">
+                      {underway ? t('date.today') : friendlyDay(holiday.start)}
+                    </p>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{holidayName(holiday)}</p>
+                    <p className="text-xs text-muted">
+                      {underway
+                        ? t('today.holidayUntil', { day: friendlyDay(holiday.end) })
+                        : dayRange(holiday.start, holiday.end)}
+                    </p>
+                  </div>
+                  <Pill>{t('calendar.schoolBreak')}</Pill>
+                </Row>
+              )
+            })}
             {upcoming.map((event) => {
               const days = differenceInCalendarDays(parseISO(event.date), today)
               const owner = event.owner ?? assignmentFor(state, event.date).parent

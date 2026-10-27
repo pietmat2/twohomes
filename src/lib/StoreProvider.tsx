@@ -67,6 +67,8 @@ export function StoreProvider({
 
       setSchedule: (patch) => update((s) => ({ ...s, schedule: { ...s.schedule, ...patch } })),
 
+      setHolidays: (holidays) => update((s) => ({ ...s, holidays })),
+
       setDayParent: (date, parent, reason) =>
         update((s) => {
           const override: DayOverride = {

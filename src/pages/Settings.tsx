@@ -10,6 +10,7 @@ import { demoState } from '../lib/seed'
 import { parseImport, storageFootprintKb } from '../lib/storage'
 import { useApp } from '../lib/store'
 import type { Lang, ParentId, PatternId } from '../lib/types'
+import { PL_VOIVODESHIPS, type HolidaySettings } from '../lib/holidays'
 import { WrongPasscodeError, type VaultRecord } from '../lib/vault'
 
 /** Kept independent of the language: a Polish speaker in Denmark pays in DKK. */
@@ -156,6 +157,8 @@ export default function Settings() {
               placeholder={t('settings.changeoverPlacePlaceholder')}
             />
           </Field>
+
+          <HolidayFields />
 
           <p className="text-sm text-muted">
             {t('settings.splitPreview', {
@@ -343,5 +346,62 @@ export default function Settings() {
 
       <p className="pb-4 text-sm text-faint">{t('settings.disclaimer')}</p>
     </div>
+  )
+}
+
+/**
+ * Which school holidays to show. Denmark varies by the week of winter break,
+ * Poland by voivodeship; both homes see the same choice.
+ */
+function HolidayFields() {
+  const { state, actions } = useApp()
+  const { t } = useI18n()
+  const current: HolidaySettings = state.holidays ?? { country: 'none' }
+  const choice = current.country === 'dk' ? `dk${current.region}` : current.country
+
+  return (
+    <>
+      <Field
+        label={t('settings.holidays')}
+        hint={
+          current.country === 'dk'
+            ? t('settings.holidaysHintDk')
+            : current.country === 'pl'
+              ? t('settings.holidaysHintPl')
+              : undefined
+        }
+      >
+        <select
+          className="field"
+          value={choice}
+          onChange={(e) => {
+            const value = e.target.value
+            if (value === 'dk7' || value === 'dk8') actions.setHolidays({ country: 'dk', region: value.slice(2) })
+            else if (value === 'pl') actions.setHolidays({ country: 'pl', region: 'mazowieckie' })
+            else actions.setHolidays({ country: 'none' })
+          }}
+        >
+          <option value="none">{t('settings.holidaysNone')}</option>
+          <option value="dk7">{t('settings.holidaysDk7')}</option>
+          <option value="dk8">{t('settings.holidaysDk8')}</option>
+          <option value="pl">{t('settings.holidaysPl')}</option>
+        </select>
+      </Field>
+      {current.country === 'pl' ? (
+        <Field label={t('settings.voivodeship')}>
+          <select
+            className="field"
+            value={current.region}
+            onChange={(e) => actions.setHolidays({ country: 'pl', region: e.target.value })}
+          >
+            {Object.entries(PL_VOIVODESHIPS).map(([slug, name]) => (
+              <option key={slug} value={slug}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </Field>
+      ) : null}
+    </>
   )
 }

@@ -48,7 +48,7 @@ export const COLLECTIONS = [
 export type Collection = (typeof COLLECTIONS)[number]
 
 /** Shared by both homes. Language, theme and which parent this is stay per device. */
-export const SINGLETONS = ['parents/a', 'parents/b', 'schedule', 'currency'] as const
+export const SINGLETONS = ['parents/a', 'parents/b', 'schedule', 'currency', 'holidays'] as const
 type Singleton = (typeof SINGLETONS)[number]
 
 /** New records in these go first, the way the actions add them locally. */
@@ -90,6 +90,8 @@ function singleton(state: AppState, key: Singleton): unknown {
       return state.schedule
     case 'currency':
       return state.currency
+    case 'holidays':
+      return state.holidays ?? { country: 'none' }
   }
 }
 
@@ -236,6 +238,7 @@ function applyOne(state: AppState, op: Op): AppState | null {
     if (value === null) return null
     if (op.key === 'schedule') return { ...state, schedule: value as AppState['schedule'] }
     if (op.key === 'currency') return { ...state, currency: value as string }
+    if (op.key === 'holidays') return { ...state, holidays: value as AppState['holidays'] }
     const id = op.key === 'parents/a' ? 'a' : 'b'
     return { ...state, parents: { ...state.parents, [id]: value as AppState['parents']['a'] } }
   }

@@ -26,6 +26,7 @@ import {
   homeStyles,
 } from '../components/ui'
 import { prettyTime } from '../lib/format'
+import { holidaysBetween, holidaysOn, type Holiday } from '../lib/holidays'
 import { useI18n } from '../lib/i18n'
 import { assignmentFor, nightsSplit, otherParent, toISO, type DayAssignment } from '../lib/schedule'
 import { useApp } from '../lib/store'
@@ -74,7 +75,7 @@ function runsForWeek(days: DayAssignment[], nextDay: DayAssignment | null): Week
 
 export default function CalendarPage() {
   const { state } = useApp()
-  const { t, monthTitle, weekdayNarrow } = useI18n()
+  const { t, monthTitle, weekdayNarrow, holidayName, dayRange } = useI18n()
   const [cursor, setCursor] = useState(() => new Date())
   const [selected, setSelected] = useState<string | null>(null)
 
@@ -94,6 +95,19 @@ export default function CalendarPage() {
   }, [weekdayNarrow])
 
   const pendingSwaps = state.swaps.filter((s) => s.status === 'pending')
+
+  // Holidays across the whole grid, including the days of the months either side.
+  const gridHolidays = useMemo(
+    () => holidaysBetween(state.holidays, toISO(weeks[0][0]), toISO(weeks[weeks.length - 1][6])),
+    [state.holidays, weeks],
+  )
+  const monthHolidays = holidaysBetween(
+    state.holidays,
+    toISO(startOfMonth(cursor)),
+    toISO(endOfMonth(cursor)),
+  )
+  const on = (date: string, kind: Holiday['kind']) =>
+    gridHolidays.some((h) => h.kind === kind && h.start <= date && h.end >= date)
 
   return (
     <div className="space-y-12">
@@ -162,6 +176,8 @@ export default function CalendarPage() {
                       const inMonth = isSameMonth(date, cursor)
                       const events = state.events.filter((e) => e.date === day.date)
                       const awaiting = pendingSwaps.some((s) => s.dates.includes(day.date))
+                      const publicHoliday = on(day.date, 'public')
+                      const schoolBreak = on(day.date, 'school')
                       return (
                         <button
                           key={day.date}
@@ -181,11 +197,17 @@ export default function CalendarPage() {
                                   'rounded-full font-bold text-paper',
                                   homeStyles[run.parent].solid,
                                 ),
+                              // A public holiday is underlined, like a red day in a printed calendar.
+                              publicHoliday && 'underline decoration-1 underline-offset-[3px]',
                             )}
                           >
                             {date.getDate()}
                           </span>
                           <span className="mt-1 flex h-1.5 items-center gap-1">
+                            {/* A dash: the children are off school. */}
+                            {schoolBreak ? (
+                              <span className="h-0.5 w-2.5 rounded-full bg-current opacity-70" aria-hidden />
+                            ) : null}
                             {events.length > 0 ? (
                               <span className="size-1.5 rounded-full bg-current" aria-hidden />
                             ) : null}
@@ -225,8 +247,41 @@ export default function CalendarPage() {
               nights: t('common.nights', { count: split.b }),
             })}
           />
+          {monthHolidays.some((h) => h.kind === 'school') ? (
+            <span className="inline-flex items-center gap-2">
+              <span className="h-0.5 w-2.5 rounded-full bg-ink opacity-70" aria-hidden />
+              {t('calendar.schoolBreak')}
+            </span>
+          ) : null}
+          {monthHolidays.some((h) => h.kind === 'public') ? (
+            <span className="inline-flex items-center gap-2">
+              <span className="numeral underline decoration-1 underline-offset-[3px]" aria-hidden>
+                1
+              </span>
+              {t('calendar.publicHoliday')}
+            </span>
+          ) : null}
         </div>
       </div>
+
+      {monthHolidays.length > 0 ? (
+        <section>
+          <SectionTitle>{t('calendar.holidays')}</SectionTitle>
+          <Rows>
+            {monthHolidays.map((holiday) => (
+              <Row key={`${holiday.key}-${holiday.start}`}>
+                <p className="numeral w-24 shrink-0 text-sm text-muted">
+                  {dayRange(holiday.start, holiday.end)}
+                </p>
+                <p className="min-w-0 flex-1 text-sm font-medium">{holidayName(holiday)}</p>
+                <span className="shrink-0 text-xs text-faint">
+                  {t(holiday.kind === 'school' ? 'calendar.schoolBreak' : 'calendar.publicHoliday')}
+                </span>
+              </Row>
+            ))}
+          </Rows>
+        </section>
+      ) : null}
 
       <SwapRequests />
 
@@ -326,8 +381,9 @@ function SwapRequests() {
 
 function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
   const { state, actions, me } = useApp()
-  const { t, longDay, joinList } = useI18n()
+  const { t, longDay, joinList, holidayName } = useI18n()
   const assignment = assignmentFor(state, date)
+  const holidays = holidaysOn(state.holidays, date)
   const events = state.events.filter((e) => e.date === date)
   const [mode, setMode] = useState<'overview' | 'event' | 'swap'>('overview')
 
@@ -363,6 +419,9 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
                   ? t('calendar.changedFromPatternReason', { reason: assignment.override.reason })
                   : t('calendar.changedFromPattern')}
               </p>
+            ) : null}
+            {holidays.length > 0 ? (
+              <p className="mt-1 text-sm text-muted">{holidays.map(holidayName).join(' \u00b7 ')}</p>
             ) : null}
           </div>
 

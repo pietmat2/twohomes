@@ -1,3 +1,4 @@
+import { validHolidays } from './holidays'
 import { isLang, localeOf } from './i18n-locale'
 import { PATTERNS } from './schedule'
 import { STATE_VERSION } from './storage'
@@ -47,6 +48,7 @@ export function sanitizeState(input: unknown): AppState | null {
     currency: typeof raw.currency === 'string' && /^[A-Z]{3}$/.test(raw.currency) ? raw.currency : 'EUR',
     theme: raw.theme === 'light' || raw.theme === 'dark' ? raw.theme : 'system',
     schedule,
+    holidays: validHolidays(raw.holidays) ?? undefined,
     overrides: list(raw.overrides, sanitizeOverride),
     swaps: list(raw.swaps, sanitizeSwap),
     kids: list(raw.kids, sanitizeKid),
@@ -89,9 +91,10 @@ export function sanitizeRecord(collection: Collection, value: unknown): unknown 
 }
 
 export function sanitizeSingleton(
-  key: 'parents/a' | 'parents/b' | 'schedule' | 'currency',
+  key: 'parents/a' | 'parents/b' | 'schedule' | 'currency' | 'holidays',
   value: unknown,
 ): unknown {
+  if (key === 'holidays') return validHolidays(value)
   if (key === 'schedule') return sanitizeSchedule(value)
   if (key === 'currency') return typeof value === 'string' && /^[A-Z]{3}$/.test(value) ? value : null
   return sanitizeParent(value, key === 'parents/a' ? 'a' : 'b')

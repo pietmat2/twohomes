@@ -1,3 +1,4 @@
+import type { HolidaySettings } from './holidays'
 import type { Op, Stamp } from './sync/engine'
 
 export type ParentId = 'a' | 'b'
@@ -166,6 +167,8 @@ export interface AppState {
   bag: BagItem[]
   moments: Moment[]
   /** Present once this device shares with the other home. See sync/engine.ts. */
+  /** Which school holidays and public holidays to show. Shared by both homes. */
+  holidays?: HolidaySettings
   sync?: SyncState
 }
 

@@ -10,6 +10,7 @@ import {
   type Locale,
 } from 'date-fns'
 import { da as daDates, enGB, pl as plDates } from 'date-fns/locale'
+import type { Holiday } from './holidays'
 import { isLang, langFromLocale, localeOf } from './i18n-locale'
 import { en, type Catalogue, type Message, type MessageKey, type Plural } from './messages/en'
 import { da } from './messages/da'
@@ -129,6 +130,21 @@ export function useI18n() {
 
       weekdayShort(date: Date): string {
         return date.toLocaleDateString(locale, { weekday: 'short' })
+      },
+
+      /** "12–16 Oct", or "21 Dec – 1 Jan" when the range crosses a month. */
+      dayRange(start: string, end: string): string {
+        const from = parseISO(start)
+        const to = parseISO(end)
+        if (start === end) return format(to, 'd MMM', { locale: dates })
+        if (start.slice(0, 7) === end.slice(0, 7)) {
+          return `${format(from, 'd', { locale: dates })}–${format(to, 'd MMM', { locale: dates })}`
+        }
+        return `${format(from, 'd MMM', { locale: dates })} – ${format(to, 'd MMM', { locale: dates })}`
+      },
+
+      holidayName(holiday: Holiday): string {
+        return holiday.kind === 'school' ? t(`holiday.break.${holiday.key}`) : t(`holiday.day.${holiday.key}`)
       },
 
       /** "Mila and Oscar", "Mila i Oscar", "Mila og Oscar". */

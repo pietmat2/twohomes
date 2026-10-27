@@ -28,6 +28,22 @@ A pattern is a repeating cycle anchored to one date. Any individual day can be
 overridden by hand, and overrides always win — so the pattern describes the agreement
 while real life stays editable.
 
+### School holidays
+
+Pick a country in Settings and the calendar shows its school breaks and public holidays:
+a dash under days off school, an underline on public holidays, and a list for the month.
+Today lists breaks under way or starting in the next three weeks, when the two homes most
+need to have agreed who has the children. The choice is shared by both homes.
+
+- **Denmark:** Københavns Kommune's guide plan for 2026/27 and 2027/28, with winter break
+  in week 7 or week 8, since municipalities split between the two.
+- **Poland:** the Ministry of Education's dates, with winter break by voivodeship for
+  2026/27 and 2027/28.
+
+Public holidays are computed from the date of Easter, so they work for any year. School
+breaks come from published tables (`src/lib/holidays.ts`, with sources) and stop where the
+tables do; extend them each spring when the next year is announced.
+
 ### Swap requests
 
 Asking for a day does not take it. A request sits as pending until the other home

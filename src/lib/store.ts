@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 import type { SaveError } from './storage'
 import type { Op } from './sync/engine'
+import type { HolidaySettings } from './holidays'
 import type {
   AppState,
   BagItem,
@@ -23,6 +24,7 @@ export interface Actions {
   /** Sets the wording and the matching Intl locale together. */
   setLanguage: (lang: Lang) => void
   setSchedule: (patch: Partial<ScheduleConfig>) => void
+  setHolidays: (holidays: HolidaySettings) => void
 
   setDayParent: (date: string, parent: ParentId, reason?: string) => void
   clearOverride: (date: string) => void

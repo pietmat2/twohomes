@@ -2,6 +2,7 @@ import { addDays, startOfWeek, subDays } from 'date-fns'
 import { detectLang, localeOf } from './i18n-locale'
 import { otherParent, patternParent, toISO } from './schedule'
 import { STATE_VERSION } from './storage'
+import type { HolidaySettings } from './holidays'
 import type { AppState, Lang } from './types'
 
 export function newId(prefix = 'id'): string {
@@ -151,6 +152,12 @@ const DEMO: Record<Lang, DemoContent> = {
 }
 
 /** A believable week of history so the app has something to show on first open. */
+const DEMO_HOLIDAYS: Record<Lang, HolidaySettings> = {
+  en: { country: 'none' },
+  da: { country: 'dk', region: '7' },
+  pl: { country: 'pl', region: 'mazowieckie' },
+}
+
 export function demoState(lang: Lang = detectLang()): AppState {
   const content = DEMO[lang]
   const today = new Date()
@@ -192,6 +199,8 @@ export function demoState(lang: Lang = detectLang()): AppState {
     },
     language: lang,
     currency: content.currency,
+    // A Danish or Polish demo shows that country's school holidays.
+    holidays: DEMO_HOLIDAYS[lang],
     locale: localeOf(lang),
     theme: 'system',
     schedule,
