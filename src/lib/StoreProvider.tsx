@@ -66,6 +66,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             parent,
             reason,
             createdAt: now(),
+            by: s.me,
+            source: 'manual',
           }
           return {
             ...s,
@@ -110,8 +112,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             id: newId('ovr'),
             date,
             parent: swap.to,
-            reason: 'Agreed swap',
             createdAt: now(),
+            by: swap.to,
+            source: 'swap',
           }))
           const kept = s.overrides.filter((o) => !swap.dates.includes(o.date))
           return { ...s, swaps, overrides: [...kept, ...added] }

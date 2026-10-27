@@ -40,10 +40,10 @@ export default function Moments() {
     .sort((x, y) => y.createdAt.localeCompare(x.createdAt))
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+          <h1 className="wide text-2xl font-semibold tracking-[-0.015em]">
             {t('moments.title')}
           </h1>
           <p className="text-sm text-muted">{t('moments.subtitle')}</p>
@@ -55,7 +55,7 @@ export default function Moments() {
       </div>
 
       <div className="border-l-2 border-line pl-4">
-        <p className="font-display text-xl italic">{idea}</p>
+        <p className="wide text-xl italic">{idea}</p>
         <p className="mt-1 text-sm text-faint">{t('moments.ideaCaption')}</p>
       </div>
 

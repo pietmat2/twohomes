@@ -69,11 +69,11 @@ export default function Expenses() {
   }, [expenses, state.settlements, kidFilter])
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-12">
       <section>
         {balance.debtor === null ? (
           <>
-            <h1 className="font-display text-display font-semibold">
+            <h1 className="wide text-display font-semibold">
               {t('money.square')}
             </h1>
             <p className="mt-1 text-sm text-muted">{t('money.squareBody')}</p>

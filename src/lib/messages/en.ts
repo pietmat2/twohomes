@@ -87,6 +87,15 @@ export const en = {
   'today.noKidsTitle': 'Start with your children',
   'today.noKidsBody': 'Nights, costs, events and the bag list all hang off this.',
 
+  'changes.title': 'Changes',
+  'changes.none': 'Nothing has changed since the plan was set.',
+  'changes.moved': '{day} is now with {home}. Changed by {who}.',
+  'changes.movedReason': '{day} is now with {home}. Changed by {who}: {reason}.',
+  'changes.movedUnattributed': '{day} is now with {home}.',
+  'changes.asked': '{who} asked about {days}.',
+  'changes.agreed': '{who} agreed to take {days}.',
+  'changes.declined': '{who} could not take {days}.',
+
   'calendar.today': 'Today',
   'calendar.previousMonth': 'Previous month',
   'calendar.nextMonth': 'Next month',

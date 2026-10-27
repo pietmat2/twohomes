@@ -147,13 +147,26 @@ Each block is labelled once, with the home and the dates the stay spans — *Mar
 numeral on every one, and labelling the stay rather than the day is truer to the idea
 anyway.
 
-**Two homes, two colours, equal weight.** Amber and mint — warm against cool, so they
-separate instantly, and neither is the "good" colour or the alert colour. Which parent
-gets which is arbitrary and fixed; the colour then holds everywhere, from calendar days
-to the balance figure.
+**Two homes, two colours, equal weight.** Ochre and baltic blue — muted earth against
+muted sea, warm against cool, so they separate instantly and neither is the "good"
+colour or the alert colour. Which parent gets which is arbitrary and fixed; the colour
+then holds everywhere, from calendar days to the balance figure. Deliberately not a
+terracotta: sand plus clay is the commonest generated-page signature there is, and the
+brief asked for the sand, not the clay.
 
-**A dark ground, not cream.** This app is opened at 22:00 by someone checking tomorrow's
-handover. Faustina carries dates, names and amounts; Figtree carries the interface.
+**Chalk and sand, no shadows anywhere.** Scandinavian minimalism: depth comes from
+space, not elevation, and there are no cards — a hairline marks where one thing ends and
+the next begins. Dark mode is the same room after dark (winter dusk, warm charcoal)
+rather than an inversion of the light one.
+
+**One typeface, worked across its width axis.** Archivo carries a real `wdth` axis, so
+hierarchy is set by width as much as by size: headings run at `wdth 120`, everything
+else sits at 100 and stays quiet.
+
+**Every change is attributed.** Moving a day records who moved it, and Today carries a
+plain chronological list of what has changed since the plan was set — moves, requests,
+agreements, refusals — in neutral past tense. On the calendar, a day moved off the
+pattern carries a hollow dot. Nobody should have to ask "did you change Thursday?"
 
 **One moment of motion:** the ribbon wipes in once on Today. Everything else moves only
 in response to a tap, and all of it is off under `prefers-reduced-motion`.

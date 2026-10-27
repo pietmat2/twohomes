@@ -26,8 +26,8 @@ export const homeStyles: Record<
 }
 
 /**
- * A plain bounded area. Deliberately flat: elevation is reserved for things
- * that actually lift off the page, which in this app is only the sheet.
+ * A group of related content. There are no cards in this app: a rule marks
+ * where one thing ends and the next begins, and space does the rest.
  */
 export function Card({
   children,
@@ -38,18 +38,12 @@ export function Card({
   className?: string
   as?: 'div' | 'section' | 'li'
 }) {
-  return (
-    <Tag className={cx('rounded-card border border-line bg-surface p-4', className)}>
-      {children}
-    </Tag>
-  )
+  return <Tag className={cx('border-t border-line pt-5', className)}>{children}</Tag>
 }
 
 /** A list whose items are separated by hairlines rather than boxed one by one. */
 export function Rows({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <ul className={cx('divide-y divide-line border-y border-line', className)}>{children}</ul>
-  )
+  return <ul className={cx('divide-y divide-line border-y border-line', className)}>{children}</ul>
 }
 
 export function Row({
@@ -61,7 +55,7 @@ export function Row({
   className?: string
   onClick?: () => void
 }) {
-  const content = <div className={cx('flex items-start gap-3 py-3', className)}>{children}</div>
+  const content = <div className={cx('flex items-start gap-4 py-4', className)}>{children}</div>
   if (!onClick) return <li>{content}</li>
   return (
     <li>
@@ -74,8 +68,8 @@ export function Row({
 
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
-    <div className="mb-2 flex items-baseline justify-between gap-3">
-      <h2 className="font-display text-xl font-semibold">{children}</h2>
+    <div className="mb-4 flex items-baseline justify-between gap-4">
+      <h2 className="wide text-xl font-semibold">{children}</h2>
       {action}
     </div>
   )
@@ -95,11 +89,11 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors disabled:pointer-events-none disabled:opacity-40'
-  const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-4 py-2.5 text-base' }
+    'inline-flex items-center justify-center gap-2 rounded-card font-medium transition-colors disabled:pointer-events-none disabled:opacity-40'
+  const sizes = { sm: 'px-4 py-2 text-sm', md: 'px-5 py-3 text-base' }
   const variants = {
     primary: 'bg-ink text-paper hover:opacity-85',
-    secondary: 'border border-line bg-surface hover:bg-sunken',
+    secondary: 'border border-line hover:bg-sunken',
     ghost: 'text-muted hover:text-ink',
     danger: 'border border-line text-danger hover:bg-sunken',
   }
@@ -122,9 +116,9 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-medium">{label}</span>
+      <span className="mb-1 block text-sm text-muted">{label}</span>
       {children}
-      {hint ? <span className="mt-1.5 block text-xs text-muted">{hint}</span> : null}
+      {hint ? <span className="mt-2 block text-sm text-faint">{hint}</span> : null}
     </label>
   )
 }
@@ -139,7 +133,7 @@ export function Segmented<T extends string>({
   options: { value: T; label: ReactNode }[]
 }) {
   return (
-    <div className="flex gap-1 rounded-lg border border-line p-1">
+    <div className="flex gap-2">
       {options.map((option) => (
         <button
           key={option.value}
@@ -147,8 +141,10 @@ export function Segmented<T extends string>({
           onClick={() => onChange(option.value)}
           aria-pressed={value === option.value}
           className={cx(
-            'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-            value === option.value ? 'bg-ink text-paper' : 'text-muted hover:text-ink',
+            'flex-1 rounded-card border px-3 py-2 text-sm transition-colors',
+            value === option.value
+              ? 'border-ink bg-ink text-paper'
+              : 'border-line text-muted hover:text-ink',
           )}
         >
           {option.label}
@@ -169,7 +165,7 @@ export function HomeTag({
   className?: string
 }) {
   return (
-    <span className={cx('inline-flex items-center gap-1.5 text-sm', className)}>
+    <span className={cx('inline-flex items-center gap-2 text-sm', className)}>
       <span className={cx('size-2 rounded-full', homeStyles[parent].solid)} aria-hidden />
       <span>{name}</span>
     </span>
@@ -190,9 +186,7 @@ export function Pill({
     warn: 'border-warn text-warn',
   }
   return (
-    <span className={cx('rounded-full border px-2 py-0.5 text-xs font-medium', tones[tone])}>
-      {children}
-    </span>
+    <span className={cx('rounded-card border px-2 py-0.5 text-xs', tones[tone])}>{children}</span>
   )
 }
 
@@ -206,10 +200,10 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="border-y border-line py-10 text-center">
-      <p className="font-display text-lg">{title}</p>
-      <p className="mx-auto mt-1 max-w-[32ch] text-sm text-muted">{body}</p>
-      {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
+    <div className="border-t border-line py-14">
+      <p className="wide text-xl font-semibold">{title}</p>
+      <p className="mt-2 max-w-[40ch] text-base text-muted">{body}</p>
+      {action ? <div className="mt-6">{action}</div> : null}
     </div>
   )
 }
@@ -252,26 +246,26 @@ export function Sheet({
         type="button"
         aria-label={t('common.close')}
         onClick={onClose}
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-ink/35"
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="animate-sheet relative flex max-h-[88vh] w-full flex-col rounded-t-sheet border border-line bg-surface sm:max-w-lg sm:rounded-sheet"
+        className="animate-sheet relative flex max-h-[88vh] w-full flex-col rounded-t-sheet border border-line bg-paper sm:max-w-lg sm:rounded-sheet"
       >
-        <header className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h2 className="font-display text-lg font-semibold">{title}</h2>
+        <header className="flex items-center justify-between border-b border-line px-6 py-5">
+          <h2 className="wide text-xl font-semibold">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="-mr-2 rounded-md px-2 py-1 text-muted hover:text-ink"
+            className="-mr-2 px-2 py-1 text-sm text-muted hover:text-ink"
           >
             {t('common.close')}
           </button>
         </header>
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer ? <div className="border-t border-line px-5 py-3">{footer}</div> : null}
+        <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
+        {footer ? <div className="border-t border-line px-6 py-4">{footer}</div> : null}
       </div>
     </div>
   )

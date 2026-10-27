@@ -69,14 +69,16 @@ export function Ribbon({
               holdsToday && 'ring-1 ring-ink',
             )}
           >
-            <p
-              className={cx(
-                'truncate text-nano leading-tight font-semibold',
-                homeStyles[stay.parent].text,
-              )}
-            >
-              {names[stay.parent]}
-            </p>
+            {stay.days.length > 1 ? (
+              <p
+                className={cx(
+                  'truncate text-nano leading-tight font-semibold',
+                  homeStyles[stay.parent].text,
+                )}
+              >
+                {names[stay.parent]}
+              </p>
+            ) : null}
             <p
               className={cx(
                 'numeral mt-1 truncate text-nano leading-none',

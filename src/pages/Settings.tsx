@@ -39,8 +39,8 @@ export default function Settings() {
   }
 
   return (
-    <div className="space-y-7">
-      <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+    <div className="space-y-12">
+      <h1 className="wide text-2xl font-semibold tracking-[-0.015em]">
         {t('settings.title')}
       </h1>
 
