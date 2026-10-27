@@ -42,3 +42,6 @@ ios/App/build
 ios/DerivedData
 *.keystore
 !debug.keystore
+
+# Strategy notes stay on this machine, never in the repository.
+BUSINESS.md
