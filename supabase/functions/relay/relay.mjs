@@ -5,12 +5,13 @@
  * can't read them: the key never reaches it. What it does enforce:
  *  - a family is only usable with its token (it keeps a SHA-256 of it);
  *  - a family has at most two devices, one per home;
- *  - only a registered device can post.
+ *  - only a registered device can post;
+ *  - size caps, so one family or a flood of new ones can't fill the database.
  *
  * Written against the standard Request/Response API, so the same handler runs
- * under Node (dev.mjs), Deno or Supabase Edge Functions, and Cloudflare
- * Workers. Storage is behind a small interface; `memoryStore` and the file
- * store in dev.mjs are for development.
+ * under Node (relay/dev.mjs) and as this Supabase Edge Function (index.ts).
+ * Anything that must be atomic — joining, appending — is the store's job, so
+ * a store backed by a database can do it in one statement.
  */
 
 export const LIMITS = {
@@ -18,8 +19,10 @@ export const LIMITS = {
   opBytes: 2 * 1024 * 1024,
   opsPerPost: 500,
   opsPerPage: 500,
-  opsPerFamily: 200_000,
   devicesPerFamily: 2,
+  /** A year of heavy use, photos included, is a few megabytes. */
+  bytesPerFamily: 25 * 1024 * 1024,
+  families: 5_000,
 }
 
 const ID = /^[\w-]{16,64}$/
@@ -29,8 +32,10 @@ const ID = /^[\w-]{16,64}$/
  * @typedef {{ seq: number, device: string, body: string }} StoredOp
  * @typedef {{
  *   getFamily(id: string): Promise<Family | null>,
- *   putFamily(id: string, family: Family): Promise<void>,
- *   appendOps(id: string, ops: StoredOp[]): Promise<void>,
+ *   createFamily(id: string, tokenHash: string, maxFamilies: number): Promise<'created' | 'exists' | 'full'>,
+ *   addDevice(id: string, device: string, max: number): Promise<'joined' | 'already' | 'full'>,
+ *   removeDevice(id: string, device: string): Promise<void>,
+ *   appendOps(id: string, device: string, bodies: string[], maxBytes: number): Promise<number | 'not_a_member' | 'full'>,
  *   listOps(id: string, after: number, limit: number): Promise<StoredOp[]>,
  * }} Store
  */
@@ -52,12 +57,13 @@ export async function handle(request, store) {
 
   // PUT /v1/families/:id — create on first use, or check the token.
   if (parts.length === 3 && request.method === 'PUT') {
+    const result = await store.createFamily(familyId, tokenHash, LIMITS.families)
+    if (result === 'created') return reply(201, { created: true })
+    if (result === 'full') return reply(507, { error: 'relay_full' })
     const existing = await store.getFamily(familyId)
-    if (!existing) {
-      await store.putFamily(familyId, { tokenHash, devices: [], seq: 0 })
-      return reply(201, { created: true })
-    }
-    return equal(existing.tokenHash, tokenHash) ? reply(200, { created: false }) : reply(401, { error: 'unauthorized' })
+    return existing && equal(existing.tokenHash, tokenHash)
+      ? reply(200, { created: false })
+      : reply(401, { error: 'unauthorized' })
   }
 
   const family = await store.getFamily(familyId)
@@ -68,15 +74,14 @@ export async function handle(request, store) {
     const body = await readJson(request)
     const device = body?.device
     if (typeof device !== 'string' || !ID.test(device)) return reply(400, { error: 'bad_device' })
-    if (family.devices.includes(device)) return reply(200, { joined: true })
-    if (family.devices.length >= LIMITS.devicesPerFamily) return reply(409, { error: 'full' })
-    await store.putFamily(familyId, { ...family, devices: [...family.devices, device] })
-    return reply(201, { joined: true })
+    const result = await store.addDevice(familyId, device, LIMITS.devicesPerFamily)
+    if (result === 'full') return reply(409, { error: 'full' })
+    return reply(result === 'joined' ? 201 : 200, { joined: true })
   }
 
   // DELETE /v1/families/:id/devices/:device — leave, freeing the slot.
   if (parts[3] === 'devices' && parts.length === 5 && request.method === 'DELETE') {
-    await store.putFamily(familyId, { ...family, devices: family.devices.filter((d) => d !== parts[4]) })
+    await store.removeDevice(familyId, parts[4])
     return reply(204)
   }
 
@@ -86,14 +91,12 @@ export async function handle(request, store) {
       const body = await readJson(request)
       if (!body) return reply(413, { error: 'too_large' })
       const { device, ops } = body
-      if (!family.devices.includes(device)) return reply(403, { error: 'not_a_member' })
-      if (!Array.isArray(ops) || ops.length > LIMITS.opsPerPost) return reply(400, { error: 'bad_ops' })
+      if (!Array.isArray(ops) || ops.length === 0 || ops.length > LIMITS.opsPerPost) return reply(400, { error: 'bad_ops' })
       if (!ops.every((op) => typeof op === 'string' && op.length <= LIMITS.opBytes)) return reply(400, { error: 'bad_ops' })
-      if (family.seq + ops.length > LIMITS.opsPerFamily) return reply(507, { error: 'family_full' })
-      const stored = ops.map((op, i) => ({ seq: family.seq + i + 1, device, body: op }))
-      await store.appendOps(familyId, stored)
-      await store.putFamily(familyId, { ...family, seq: family.seq + ops.length })
-      return reply(200, { last: family.seq + ops.length })
+      const last = await store.appendOps(familyId, String(device), ops, LIMITS.bytesPerFamily)
+      if (last === 'not_a_member') return reply(403, { error: 'not_a_member' })
+      if (last === 'full') return reply(507, { error: 'family_full' })
+      return reply(200, { last })
     }
     // GET ?after=N — everything since the reader's cursor, a page at a time.
     if (request.method === 'GET') {
@@ -106,19 +109,47 @@ export async function handle(request, store) {
   return reply(404, { error: 'not_found' })
 }
 
-/** @returns {Store} */
+/**
+ * The store logic for anything single-threaded: tests, and the dev server,
+ * which handles one request at a time. Persistence is up to `save`.
+ * @returns {Store & { families: Map<string, Family & { bytes: number }>, logs: Map<string, StoredOp[]> }}
+ */
 export function memoryStore() {
   const families = new Map()
   const logs = new Map()
   return {
+    families,
+    logs,
     async getFamily(id) {
       return families.get(id) ?? null
     },
-    async putFamily(id, family) {
-      families.set(id, family)
+    async createFamily(id, tokenHash, maxFamilies) {
+      if (families.has(id)) return 'exists'
+      if (families.size >= maxFamilies) return 'full'
+      families.set(id, { tokenHash, devices: [], seq: 0, bytes: 0 })
+      return 'created'
     },
-    async appendOps(id, ops) {
+    async addDevice(id, device, max) {
+      const family = families.get(id)
+      if (family.devices.includes(device)) return 'already'
+      if (family.devices.length >= max) return 'full'
+      family.devices = [...family.devices, device]
+      return 'joined'
+    },
+    async removeDevice(id, device) {
+      const family = families.get(id)
+      family.devices = family.devices.filter((d) => d !== device)
+    },
+    async appendOps(id, device, bodies, maxBytes) {
+      const family = families.get(id)
+      if (!family.devices.includes(device)) return 'not_a_member'
+      const bytes = bodies.reduce((sum, body) => sum + body.length, 0)
+      if (family.bytes + bytes > maxBytes) return 'full'
+      const ops = bodies.map((body, i) => ({ seq: family.seq + i + 1, device, body }))
       logs.set(id, [...(logs.get(id) ?? []), ...ops])
+      family.seq += bodies.length
+      family.bytes += bytes
+      return family.seq
     },
     async listOps(id, after, limit) {
       return (logs.get(id) ?? []).filter((op) => op.seq > after).slice(0, limit)
@@ -132,7 +163,7 @@ const CORS = {
   // which relay it talks to.
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'authorization, content-type',
+  'access-control-allow-headers': 'authorization, content-type, apikey, x-client-info',
   'access-control-max-age': '86400',
 }
 

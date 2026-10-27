@@ -62,9 +62,27 @@ To try sharing between two homes locally, run the relay in a second terminal:
 npm run relay
 ```
 
-The dev server talks to it at `http://localhost:8787`. A production build shares only
-when `VITE_RELAY_URL` names a relay; without one, sharing is switched off and the app
-makes no connections at all.
+The dev server talks to it at `http://localhost:8787`. Production builds use the hosted
+relay named in `.env.production`; a build with no `VITE_RELAY_URL` switches sharing off
+and makes no connections at all.
+
+### The hosted relay
+
+A Supabase Edge Function in Frankfurt (project `twohomes-relay`, Free plan), with its
+tables in a private `relay` schema. The function is `supabase/functions/relay/`: its
+`relay.mjs` is the same handler the local relay runs. To redeploy after changing it:
+
+```bash
+npx supabase functions deploy relay --project-ref aqkxpauandobwvjymxyl --no-verify-jwt
+```
+
+JWT verification stays off: requests carry the family's relay token, which the handler
+checks itself. The schema is `supabase/migrations/`.
+
+Free-plan limits worth knowing: the project **pauses after about a week without
+activity** (resume it from the dashboard; the app shows "the relay could not be reached"
+until then), 500,000 function calls a month, and a 500 MB database. The relay caps each
+family at 25 MB and the whole relay at 5,000 families.
 
 ## Hosting
 
@@ -145,6 +163,8 @@ src/
     sanitize.ts   validation for anything imported
     SecurityProvider.tsx  lock screen, auto-lock, encrypted saves
     sync/         two homes in step: operations, merge, signing, the relay client
+relay/            the relay for local development, and its tests
+supabase/         the hosted relay: Edge Function and schema
     store.tsx     single state tree, all mutations, display-name helper
     seed.ts       demo data, generated relative to today
     format.ts     dates, names, ages
@@ -201,5 +221,4 @@ are reading it. The hero is a sentence — *"They're with Jonas until Wednesday 
 
 ## Not included
 
-No accounts, no notifications, no file uploads, no court-admissible message log. Sync
-needs a relay to be hosted before anyone outside this machine can use it. Twohomes is a planning tool, not legal advice, and it does not decide anything.
+No accounts, no notifications, no file uploads, no court-admissible message log. Twohomes is a planning tool, not legal advice, and it does not decide anything.

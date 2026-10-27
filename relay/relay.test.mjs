@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { handle, memoryStore } from './relay.mjs'
+import { handle, memoryStore } from '../supabase/functions/relay/relay.mjs'
 
 const FAMILY = 'family-0123456789abcdef'
 const call = (store, method, path, token, body) =>
