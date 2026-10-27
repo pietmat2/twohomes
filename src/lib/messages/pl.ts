@@ -328,8 +328,51 @@ export const pl: Catalogue = {
   'settings.importFile': 'Wczytaj plik',
   'settings.importFailed': 'Ten plik nie jest eksportem z Twohomes.',
   'settings.reloadDemo': 'Wczytaj dane demo ponownie',
-  'settings.startEmpty': 'Zacznij od zera',
-  'settings.startEmptyConfirm': 'Wyczyścić wszystko na tym urządzeniu i zacząć od zera?',
+  'settings.exportEncrypted': 'Kopia jest zaszyfrowana kodem dostępu.',
+  'settings.exportPlain': 'Bez kodu dostępu wyeksportowany plik może przeczytać każdy, kto go ma.',
+  'settings.importConfirm': 'Zastąpić wszystko na tym urządzeniu zawartością pliku?',
+  'settings.importEncrypted': 'Ta kopia jest zaszyfrowana. Wpisz kod, którym ją zapisano.',
+  'settings.importOpen': 'Otwórz i zaimportuj',
+  'settings.reloadDemoConfirm': 'Zastąpić wszystko na tym urządzeniu danymi demo?',
+
+  'security.title': 'Prywatność',
+  'security.offBody':
+    'Zablokuj Twohomes kodem dostępu. Wszystko, co aplikacja przechowuje na tym urządzeniu, zostanie wtedy zaszyfrowane kluczem, który otwiera tylko ten kod.',
+  'security.onBody':
+    'Zablokowane kodem i zaszyfrowane na tym urządzeniu. Aplikacja blokuje się ponownie po minucie poza nią albo po pięciu minutach bezczynności.',
+  'security.set': 'Ustaw kod',
+  'security.change': 'Zmień kod',
+  'security.turnOff': 'Wyłącz',
+  'security.lockNow': 'Zablokuj teraz',
+  'security.current': 'Obecny kod',
+  'security.new': 'Nowy kod',
+  'security.repeat': 'Powtórz go',
+  'security.hint': 'Co najmniej 6 znaków. Krótkie zdanie jest silniejsze niż liczba.',
+  'security.noRecovery':
+    'Kodu nie da się odzyskać. Jeśli go zapomnisz, jedyną drogą powrotu jest usunięcie danych z tego urządzenia.',
+  'security.tooShort': 'Użyj co najmniej 6 znaków.',
+  'security.mismatch': 'Kody się różnią.',
+  'security.turnOffBody': 'Dane zostaną na tym urządzeniu, ale nie będą już zaszyfrowane.',
+  'security.local':
+    'Nic, co tu wpisujesz, nie opuszcza tego urządzenia: bez konta, bez serwera, bez śledzenia. Zdjęcia są zapisywane bez lokalizacji i danych aparatu.',
+
+  'lock.title': 'Zablokowane',
+  'lock.body': 'Wpisz kod, aby otworzyć Twohomes.',
+  'lock.passcode': 'Kod dostępu',
+  'lock.unlock': 'Odblokuj',
+  'lock.wrong': 'To nie jest właściwy kod.',
+  'lock.wait': {
+    one: 'Za dużo prób. Spróbuj ponownie za {count} sekundę.',
+    few: 'Za dużo prób. Spróbuj ponownie za {count} sekundy.',
+    many: 'Za dużo prób. Spróbuj ponownie za {count} sekund.',
+    other: 'Za dużo prób. Spróbuj ponownie za {count} sekundy.',
+  },
+  'lock.encrypted': 'Wszystko, co Twohomes przechowuje na tym urządzeniu, jest zaszyfrowane.',
+  'lock.forgot': 'Nie pamiętasz kodu?',
+  'lock.forgotBody':
+    'Nie da się go odzyskać: kod nigdy nie opuszcza tego urządzenia, więc nie ma go nikt inny, łącznie z nami. Możesz usunąć wszystko i zacząć od nowa, a potem zaimportować wyeksportowaną kopię, jeśli ją masz.',
+  'lock.erase': 'Usuń dane z urządzenia',
+  'lock.eraseConfirm': 'Usunąć wszystko, co Twohomes przechowuje na tym urządzeniu? Tego nie można cofnąć.',
   'settings.disclaimer':
     'Twohomes to narzędzie do planowania, nie porada prawna. Zapisuje to, co ustalicie między sobą, i niczego nie rozstrzyga.',
 

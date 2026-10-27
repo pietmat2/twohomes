@@ -322,8 +322,49 @@ export const en = {
   'settings.importFile': 'Import a file',
   'settings.importFailed': 'That file is not a Twohomes export.',
   'settings.reloadDemo': 'Reload the demo data',
-  'settings.startEmpty': 'Start empty',
-  'settings.startEmptyConfirm': 'Clear everything on this device and start empty?',
+  'settings.exportEncrypted': 'The copy is encrypted with your passcode.',
+  'settings.exportPlain': 'Without a passcode, anyone who has the exported file can read it.',
+  'settings.importConfirm': 'Replace everything on this device with this file?',
+  'settings.importEncrypted': 'This copy is encrypted. Enter the passcode it was saved with.',
+  'settings.importOpen': 'Open and import',
+  'settings.reloadDemoConfirm': 'Replace everything on this device with the demo data?',
+
+  'security.title': 'Privacy',
+  'security.offBody':
+    'Lock Twohomes with a passcode. Everything it holds on this device is then encrypted with a key only that passcode opens.',
+  'security.onBody':
+    'Locked with a passcode and encrypted on this device. It locks again after a minute away, or five minutes untouched.',
+  'security.set': 'Set a passcode',
+  'security.change': 'Change passcode',
+  'security.turnOff': 'Turn off',
+  'security.lockNow': 'Lock now',
+  'security.current': 'Current passcode',
+  'security.new': 'New passcode',
+  'security.repeat': 'Repeat it',
+  'security.hint': 'At least 6 characters. A short phrase is stronger than a number.',
+  'security.noRecovery':
+    'There is no recovery. If you forget it, the only way back in is to erase this device.',
+  'security.tooShort': 'Use at least 6 characters.',
+  'security.mismatch': 'The two passcodes are not the same.',
+  'security.turnOffBody': 'Your data stays on this device, but is no longer encrypted.',
+  'security.local':
+    'Nothing you enter leaves this device: no account, no server, no tracking. Photos are saved without their location or camera details.',
+
+  'lock.title': 'Locked',
+  'lock.body': 'Enter your passcode to open Twohomes.',
+  'lock.passcode': 'Passcode',
+  'lock.unlock': 'Unlock',
+  'lock.wrong': 'That passcode is not right.',
+  'lock.wait': {
+    one: 'Too many tries. Try again in {count} second.',
+    other: 'Too many tries. Try again in {count} seconds.',
+  },
+  'lock.encrypted': 'Everything Twohomes holds on this device is encrypted.',
+  'lock.forgot': 'Forgot the passcode?',
+  'lock.forgotBody':
+    'It cannot be recovered: it never leaves this device, so nobody else has it, us included. You can erase everything here and start again, then import an exported copy if you have one.',
+  'lock.erase': 'Erase this device',
+  'lock.eraseConfirm': 'Erase everything Twohomes holds on this device? This cannot be undone.',
   'settings.disclaimer':
     'Twohomes is a planning tool, not legal advice. It records what the two of you agree; it does not decide anything.',
 

@@ -101,9 +101,15 @@ TypeScript will list every string you still owe.
 
 ## Where the data lives
 
-**On the device, in `localStorage`. Nothing is uploaded anywhere.** That includes
-photos, which are downscaled to roughly 900px and stored as JPEG data URLs inside the
-same blob.
+**On the device. Nothing is uploaded anywhere.** In a browser that is `localStorage`; in
+the native apps, Capacitor Preferences. Photos are downscaled to roughly 900px, stripped
+of their location and camera details, and stored as JPEG data URLs inside the same
+record.
+
+Set a passcode in Settings and all of it is encrypted at rest, with a key only that
+passcode opens; exports are then encrypted too. [SECURITY.md](SECURITY.md) covers what
+is held, the threats, and what answers each. [PRODUCT.md](PRODUCT.md) covers which
+features earn their place, and what stands between this build and an MVP.
 
 This is the honest limitation of the current build: it is a complete, usable
 single-player app, and the two-player half is simulated by switching sides in Settings.
@@ -122,6 +128,9 @@ src/
     schedule.ts   custody patterns, overrides, handovers, night counts
     money.ts      balance, splits, category totals, amount parsing
     storage.ts    persistence, migration, photo downscaling, export/import
+    vault.ts      encryption at rest: passcode-wrapped AES-GCM data key
+    sanitize.ts   validation for anything imported
+    SecurityProvider.tsx  lock screen, auto-lock, encrypted saves
     store.tsx     single state tree, all mutations, display-name helper
     seed.ts       demo data, generated relative to today
     format.ts     dates, names, ages

@@ -306,8 +306,49 @@ export const da: Catalogue = {
   'settings.importFile': 'Importer en fil',
   'settings.importFailed': 'Den fil er ikke en Twohomes-eksport.',
   'settings.reloadDemo': 'Indlæs demodata igen',
-  'settings.startEmpty': 'Start forfra',
-  'settings.startEmptyConfirm': 'Ryd alt på denne enhed og start forfra?',
+  'settings.exportEncrypted': 'Kopien er krypteret med din adgangskode.',
+  'settings.exportPlain': 'Uden adgangskode kan alle, der har den eksporterede fil, læse den.',
+  'settings.importConfirm': 'Erstatte alt på denne enhed med indholdet af filen?',
+  'settings.importEncrypted': 'Kopien er krypteret. Skriv den adgangskode, den blev gemt med.',
+  'settings.importOpen': 'Åbn og importér',
+  'settings.reloadDemoConfirm': 'Erstatte alt på denne enhed med demodata?',
+
+  'security.title': 'Privatliv',
+  'security.offBody':
+    'Lås Twohomes med en adgangskode. Alt, hvad appen gemmer på denne enhed, bliver så krypteret med en nøgle, som kun den adgangskode kan åbne.',
+  'security.onBody':
+    'Låst med adgangskode og krypteret på denne enhed. Appen låser igen efter et minut væk eller fem minutter uden brug.',
+  'security.set': 'Vælg en adgangskode',
+  'security.change': 'Skift adgangskode',
+  'security.turnOff': 'Slå fra',
+  'security.lockNow': 'Lås nu',
+  'security.current': 'Nuværende adgangskode',
+  'security.new': 'Ny adgangskode',
+  'security.repeat': 'Gentag den',
+  'security.hint': 'Mindst 6 tegn. En kort sætning er stærkere end et tal.',
+  'security.noRecovery':
+    'Den kan ikke gendannes. Glemmer du den, er den eneste vej tilbage at slette alt på denne enhed.',
+  'security.tooShort': 'Brug mindst 6 tegn.',
+  'security.mismatch': 'De to adgangskoder er ikke ens.',
+  'security.turnOffBody': 'Dine data bliver på denne enhed, men er ikke længere krypteret.',
+  'security.local':
+    'Intet af det, du skriver, forlader denne enhed: ingen konto, ingen server, ingen sporing. Billeder gemmes uden placering og kameraoplysninger.',
+
+  'lock.title': 'Låst',
+  'lock.body': 'Skriv din adgangskode for at åbne Twohomes.',
+  'lock.passcode': 'Adgangskode',
+  'lock.unlock': 'Lås op',
+  'lock.wrong': 'Adgangskoden er forkert.',
+  'lock.wait': {
+    one: 'For mange forsøg. Prøv igen om {count} sekund.',
+    other: 'For mange forsøg. Prøv igen om {count} sekunder.',
+  },
+  'lock.encrypted': 'Alt, hvad Twohomes gemmer på denne enhed, er krypteret.',
+  'lock.forgot': 'Glemt adgangskoden?',
+  'lock.forgotBody':
+    'Den kan ikke gendannes: den forlader aldrig denne enhed, så ingen andre har den, heller ikke os. Du kan slette alt her og starte forfra og derefter importere en eksporteret kopi, hvis du har en.',
+  'lock.erase': 'Slet alt på enheden',
+  'lock.eraseConfirm': 'Slette alt, hvad Twohomes gemmer på denne enhed? Det kan ikke fortrydes.',
   'settings.disclaimer':
     'Twohomes er et planlægningsværktøj, ikke juridisk rådgivning. Den noterer, hvad I to aftaler, og bestemmer ingenting.',
 

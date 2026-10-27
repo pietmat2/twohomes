@@ -29,8 +29,6 @@ export interface Parent {
   id: ParentId
   name: string
   homeName: string
-  email?: string
-  phone?: string
 }
 
 export interface ScheduleConfig {

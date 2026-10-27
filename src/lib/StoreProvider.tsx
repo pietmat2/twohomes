@@ -1,20 +1,29 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { otherParent } from './schedule'
-import { demoState, newId } from './seed'
+import { newId } from './seed'
 import { localeOf } from './i18n-locale'
-import { loadState, saveState } from './storage'
 import { StoreContext, type Actions, type StoreValue, type Updater } from './store'
 import type { AppState, DayOverride, SwapRequest } from './types'
 import type { SaveError } from './storage'
 
 /**
- * Holds the whole app state and every mutation. Kept in its own file so React
- * Fast Refresh sees a module that exports only a component; the context and
- * hooks live in store.ts.
+ * Holds the whole app state, once unlocked, and every mutation. Kept in its
+ * own file so React Fast Refresh sees a module that exports only a component;
+ * the context and hooks live in store.ts.
  */
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AppState>(() => loadState() ?? demoState())
-  const [saveError, setSaveError] = useState<SaveError | null>(null)
+export function StoreProvider({
+  initial,
+  persist,
+  saveError,
+  children,
+}: {
+  initial: AppState
+  /** Saving, and whether it is encrypted, is SecurityProvider's business. */
+  persist: (state: AppState) => void
+  saveError: SaveError | null
+  children: ReactNode
+}) {
+  const [state, setState] = useState<AppState>(initial)
   const firstRender = useRef(true)
 
   useEffect(() => {
@@ -23,9 +32,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       firstRender.current = false
       return
     }
-    const result = saveState(state)
-    setSaveError(result.ok ? null : result.error)
-  }, [state])
+    persist(state)
+  }, [state, persist])
 
   useEffect(() => {
     const root = document.documentElement

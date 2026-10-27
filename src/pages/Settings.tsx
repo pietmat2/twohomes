@@ -1,12 +1,15 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { PasscodeSheet, type PasscodeMode } from '../components/PasscodeSheet'
 import { Button, Card, Field, SectionTitle, Segmented, cx } from '../components/ui'
 import { LANGUAGES, useI18n } from '../lib/i18n'
 import { PATTERNS, nightsSplit } from '../lib/schedule'
-import { blankState, demoState } from '../lib/seed'
-import { exportState, importState, storageFootprintKb } from '../lib/storage'
+import { useSecurity } from '../lib/security'
+import { demoState } from '../lib/seed'
+import { parseImport, storageFootprintKb } from '../lib/storage'
 import { useApp } from '../lib/store'
 import type { Lang, ParentId, PatternId } from '../lib/types'
+import { WrongPasscodeError, type VaultRecord } from '../lib/vault'
 
 /** Kept independent of the language: a Polish speaker in Denmark pays in DKK. */
 const CURRENCIES = ['DKK', 'PLN', 'EUR', 'SEK', 'NOK', 'GBP', 'USD']
@@ -14,12 +17,16 @@ const CURRENCIES = ['DKK', 'PLN', 'EUR', 'SEK', 'NOK', 'GBP', 'USD']
 export default function Settings() {
   const { state, actions, me } = useApp()
   const { t } = useI18n()
-  const [importError, setImportError] = useState(false)
+  const security = useSecurity()
+  const [importError, setImportError] = useState<'invalid' | 'wrong' | null>(null)
+  const [encryptedImport, setEncryptedImport] = useState<VaultRecord | null>(null)
+  const [importPasscode, setImportPasscode] = useState('')
+  const [passcodeMode, setPasscodeMode] = useState<PasscodeMode | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const split = nightsSplit(state, new Date(), 28)
 
-  function download() {
-    const blob = new Blob([exportState(state)], { type: 'application/json' })
+  async function download() {
+    const blob = new Blob([await security.exportFile()], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -29,14 +36,27 @@ export default function Settings() {
   }
 
   async function upload(file: File | undefined) {
+    if (fileRef.current) fileRef.current.value = ''
     if (!file) return
-    const next = importState(await file.text())
-    if (!next) {
-      setImportError(true)
-      return
+    const imported = parseImport(await file.text())
+    setImportError(imported.kind === 'invalid' ? 'invalid' : null)
+    if (imported.kind === 'vault') setEncryptedImport(imported.record)
+    if (imported.kind === 'plain' && confirm(t('settings.importConfirm'))) {
+      actions.replaceState(imported.state)
     }
-    setImportError(false)
-    actions.replaceState(next)
+  }
+
+  async function openEncryptedImport() {
+    if (!encryptedImport) return
+    try {
+      const next = await security.openImport(encryptedImport, importPasscode)
+      setImportPasscode('')
+      setEncryptedImport(null)
+      setImportError(null)
+      if (confirm(t('settings.importConfirm'))) actions.replaceState(next)
+    } catch (error) {
+      setImportError(error instanceof WrongPasscodeError ? 'wrong' : 'invalid')
+    }
   }
 
   return (
@@ -197,6 +217,36 @@ export default function Settings() {
       </section>
 
       <section>
+        <SectionTitle>{t('security.title')}</SectionTitle>
+        <Card className="space-y-6">
+          <p className="text-sm text-muted">
+            {t(security.hasPasscode ? 'security.onBody' : 'security.offBody')}
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {security.hasPasscode ? (
+              <>
+                <Button size="sm" onClick={() => void security.lockNow()}>
+                  {t('security.lockNow')}
+                </Button>
+                <Button size="sm" onClick={() => setPasscodeMode('change')}>
+                  {t('security.change')}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setPasscodeMode('remove')}>
+                  {t('security.turnOff')}
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" variant="primary" onClick={() => setPasscodeMode('set')}>
+                {t('security.set')}
+              </Button>
+            )}
+          </div>
+          <p className="text-sm text-faint">{t('security.local')}</p>
+        </Card>
+        <PasscodeSheet mode={passcodeMode} onClose={() => setPasscodeMode(null)} />
+      </section>
+
+      <section>
         <SectionTitle>{t('settings.yourData')}</SectionTitle>
         <Card className="space-y-6">
           <p className="text-sm text-muted">{t('settings.dataBody')}</p>
@@ -204,7 +254,7 @@ export default function Settings() {
             {t('settings.storageSize', { size: storageFootprintKb(state) })}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button size="sm" onClick={download}>
+            <Button size="sm" onClick={() => void download()}>
               {t('settings.exportCopy')}
             </Button>
             <Button size="sm" onClick={() => fileRef.current?.click()}>
@@ -218,14 +268,59 @@ export default function Settings() {
               onChange={(e) => void upload(e.target.files?.[0])}
             />
           </div>
+          <p className={cx('text-sm', security.hasPasscode ? 'text-faint' : 'text-warn')}>
+            {t(security.hasPasscode ? 'settings.exportEncrypted' : 'settings.exportPlain')}
+          </p>
+          {encryptedImport ? (
+            <form
+              className="space-y-4"
+              onSubmit={(event) => {
+                event.preventDefault()
+                void openEncryptedImport()
+              }}
+            >
+              <Field label={t('settings.importEncrypted')}>
+                <input
+                  type="password"
+                  className="field"
+                  autoComplete="off"
+                  autoFocus
+                  value={importPasscode}
+                  onChange={(event) => setImportPasscode(event.target.value)}
+                />
+              </Field>
+              <div className="flex flex-wrap gap-3">
+                <Button size="sm" type="submit" disabled={!importPasscode}>
+                  {t('settings.importOpen')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setEncryptedImport(null)
+                    setImportPasscode('')
+                    setImportError(null)
+                  }}
+                >
+                  {t('common.cancel')}
+                </Button>
+              </div>
+            </form>
+          ) : null}
           {importError ? (
-            <p className="text-sm text-danger">{t('settings.importFailed')}</p>
+            <p className="text-sm text-danger" role="alert">
+              {t(importError === 'wrong' ? 'lock.wrong' : 'settings.importFailed')}
+            </p>
           ) : null}
           <div className="flex flex-wrap gap-3 pt-2">
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => actions.replaceState(demoState(state.language))}
+              onClick={() => {
+                if (confirm(t('settings.reloadDemoConfirm'))) {
+                  actions.replaceState(demoState(state.language))
+                }
+              }}
             >
               {t('settings.reloadDemo')}
             </Button>
@@ -233,12 +328,10 @@ export default function Settings() {
               size="sm"
               variant="danger"
               onClick={() => {
-                if (confirm(t('settings.startEmptyConfirm'))) {
-                  actions.replaceState(blankState(state.language))
-                }
+                if (confirm(t('lock.eraseConfirm'))) void security.erase()
               }}
             >
-              {t('settings.startEmpty')}
+              {t('lock.erase')}
             </Button>
           </div>
         </Card>
