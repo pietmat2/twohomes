@@ -13,6 +13,58 @@ import type { Catalogue } from './en'
  * ("środa", not "do środy") grammatical.
  */
 export const pl: Catalogue = {
+  'guide.title': 'Co pomaga dzieciom',
+  'guide.intro':
+    'Sześć rzeczy, do których terapeuci rodzinni wracają najczęściej. Żadna z nich nie dotyczy tego, kto miał rację.',
+  'guide.allNotes': 'Wszystkie',
+  'guide.tipsLabel': 'Spróbuj tak',
+  'guide.disclaimer':
+    'Ogólne informacje, nie terapia i nie porada prawna. Każda rodzina jest inna.',
+  'guide.safety':
+    'Jeśli ktoś w rodzinie się boi albo dziecku dzieje się krzywda, to nie jest właściwe narzędzie. Skontaktuj się z lokalnym ośrodkiem pomocy rodzinie, a w sytuacji zagrożenia — z numerem alarmowym.',
+
+  'guide.conflict.title': 'Dzieci czują konflikt, nie rozstanie',
+  'guide.conflict.body':
+    'Dzieci radzą sobie z dwoma domami. Zostaje w nich bliskość konfliktu dorosłych: podniesione głosy, napięte zmiany, proszenie o opowiedzenie się po czyjejś stronie. Obniżenie temperatury między domami daje więcej niż jakikolwiek konkretny plan.',
+  'guide.conflict.tip1': 'Zmiany niech będą krótkie i przewidywalne.',
+  'guide.conflict.tip2': 'Spory zostawcie na moment, gdy dziecka nie ma.',
+  'guide.conflict.tip3': 'Ustalenia zapisujcie — w tekście nie słychać tonu.',
+
+  'guide.messages.title': 'Nie przekazuj wiadomości przez dziecko',
+  'guide.messages.body':
+    'Prośba, żeby dziecko coś przekazało albo opowiedziało, jak jest w drugim domu, stawia je między dwiema bliskimi osobami. Większość dzieci rozwiązuje to tak, że każdemu mówi to, co ten ktoś chce usłyszeć.',
+  'guide.messages.tip1': 'Powiedz drugiemu rodzicowi wprost, nawet jeśli to niewygodne.',
+  'guide.messages.tip2': 'Nie pytaj, co było w drugim domu. Niech opowie samo, jeśli zechce.',
+  'guide.messages.tip3': 'Nigdy nie każ wybierać — nawet żartem.',
+
+  'guide.handovers.title': 'Zmiana to najtrudniejsze dziesięć minut',
+  'guide.handovers.body':
+    'Zmiana domu mieści wszystko w kilku minutach: pożegnanie z jednym rodzicem i przyjazd do drugiego. Dzieci często milkną, przyklejają się albo rozrabiają tuż przed i tuż po. To normalne i zwykle mija w ciągu doby.',
+  'guide.handovers.tip1': 'To samo miejsce i ta sama godzina.',
+  'guide.handovers.tip2': 'Pożegnanie raz — ciepło i krótko.',
+  'guide.handovers.tip3': 'Daj pół godziny na ochłonięcie, zanim zaczniesz pytać.',
+
+  'guide.rules.title': 'Dwa domy nie muszą być takie same',
+  'guide.rules.body':
+    'Dzieci radzą sobie z różnymi zasadami w różnych miejscach, tak jak w szkole i w domu. Pomaga to, żeby każdy dom był przewidywalny u siebie i żebyście zgadzali się co do tych kilku rzeczy, które naprawdę ważą.',
+  'guide.rules.tip1': 'Ustalcie porę snu, ekrany i lekcje. Reszta może się różnić.',
+  'guide.rules.tip2': 'Nie poprawiaj zasad drugiego domu przy dziecku.',
+  'guide.rules.tip3': 'Zapiszcie ustalenia, żeby nie wracać do nich co chwilę.',
+
+  'guide.words.title': 'Mów mniej, niż myślisz, i częściej, niż myślisz',
+  'guide.words.body':
+    'Dziecko potrzebuje prostego, szczerego wyjaśnienia i tego, żeby usłyszeć, że oboje rodzice nadal je kochają i że to nie jego wina. Nie potrzebuje szczegółów dorosłych: pieniędzy, winy ani tego, co poszło nie tak.',
+  'guide.words.tip1': 'Odpowiadaj na pytanie, które padło, nie na to, którego się domyślasz.',
+  'guide.words.tip2': 'Powtarzaj zapewnienia. Raz to zawsze za mało.',
+  'guide.words.tip3': 'Mów "jeszcze nie wiem", kiedy nie wiesz.',
+
+  'guide.yourself.title': 'Dziecko odczytuje Twój spokój',
+  'guide.yourself.body':
+    'Dzieci odczytują Twój stan, zanim usłyszą słowa. Dbanie o siebie nie jest obok dbania o dziecko: to najkrótsza droga do spokojniejszego dziecka.',
+  'guide.yourself.tip1': 'Miej jedną dorosłą osobę do rozmowy, która nie jest Twoim dzieckiem.',
+  'guide.yourself.tip2': 'Pierwszy rok bywa najtrudniejszy.',
+  'guide.yourself.tip3': 'Jeśli jest Ci ciężko, porozmawiaj z lekarzem albo poradnią rodzinną.',
+
   'nav.today': 'Dziś',
   'nav.calendar': 'Kalendarz',
   'nav.money': 'Pieniądze',

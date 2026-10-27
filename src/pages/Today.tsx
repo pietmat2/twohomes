@@ -4,6 +4,7 @@ import { Ribbon } from '../components/Ribbon'
 import { Button, EmptyState, Pill, Row, Rows, SectionTitle, cx, homeStyles } from '../components/ui'
 import { IconCheck, IconSwap } from '../components/icons'
 import { recentChanges, type ChangeEntry } from '../lib/changes'
+import { topicOfTheWeek } from '../lib/guide'
 import { useI18n } from '../lib/i18n'
 import { balanceView, formatMoney } from '../lib/money'
 import { assignmentFor, assignmentsForRange, nextHandover, nightsSplit, toISO } from '../lib/schedule'
@@ -30,6 +31,7 @@ export default function Today() {
     .slice(0, 4)
 
   const changes = recentChanges(state, 5)
+  const topic = topicOfTheWeek()
 
   /** Neutral, attributed, past tense. Never "your ex", never a judgement. */
   function describe(change: ChangeEntry): string {
@@ -318,6 +320,21 @@ export default function Today() {
           </div>
         </section>
       ) : null}
+
+      {/* One note a week. Six at once is a leaflet nobody finishes. */}
+      <section>
+        <SectionTitle
+          action={
+            <Link to="/guide" className="text-sm text-muted hover:text-ink">
+              {t('guide.allNotes')}
+            </Link>
+          }
+        >
+          {t('guide.title')}
+        </SectionTitle>
+        <p className="max-w-[40ch] text-base font-semibold">{t(`guide.${topic}.title`)}</p>
+        <p className="mt-2 max-w-[60ch] text-base text-muted">{t(`guide.${topic}.body`)}</p>
+      </section>
 
       {pendingFromMe.length > 0 ? (
         <p className="text-sm text-muted">

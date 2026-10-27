@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button, Card, Field, SectionTitle, Segmented, cx } from '../components/ui'
 import { LANGUAGES, useI18n } from '../lib/i18n'
 import { PATTERNS, nightsSplit } from '../lib/schedule'
@@ -242,6 +243,12 @@ export default function Settings() {
           </div>
         </Card>
       </section>
+
+      <p className="text-sm text-muted">
+        <Link to="/guide" className="underline underline-offset-4 hover:text-ink">
+          {t('guide.title')}
+        </Link>
+      </p>
 
       <p className="pb-4 text-sm text-faint">{t('settings.disclaimer')}</p>
     </div>

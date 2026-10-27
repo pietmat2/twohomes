@@ -21,6 +21,58 @@ export type Plural = {
 export type Message = string | Plural
 
 export const en = {
+  'guide.title': 'What helps children',
+  'guide.intro':
+    'Six things family counsellors come back to again and again. None of them are about who was right.',
+  'guide.allNotes': 'All six',
+  'guide.tipsLabel': 'Try this',
+  'guide.disclaimer':
+    'General information, not therapy and not legal advice. Every family is different.',
+  'guide.safety':
+    'If anyone in the family is afraid, or a child is at risk, this is not the right tool. Contact your local family service, or emergency services if someone is in danger.',
+
+  'guide.conflict.title': 'Children feel the conflict, not the separation',
+  'guide.conflict.body':
+    'Children cope with two homes. What stays with them is being close to adult conflict: raised voices, tense changeovers, being asked to take a side. Lowering the temperature between the homes does more good than any particular schedule.',
+  'guide.conflict.tip1': 'Keep changeovers short and predictable.',
+  'guide.conflict.tip2': 'Disagree somewhere the child is not.',
+  'guide.conflict.tip3': 'Settle logistics in writing, where tone cannot be read into it.',
+
+  'guide.messages.title': 'Do not send messages through the child',
+  'guide.messages.body':
+    'Asking a child to pass something on, or to say how things are at the other home, puts them between two people they love. Most children solve it by telling each parent what that parent wants to hear.',
+  'guide.messages.tip1': 'Say it to the other parent directly, even when it is awkward.',
+  'guide.messages.tip2': 'Do not ask what happened at the other home. Let them offer it.',
+  'guide.messages.tip3': 'Never ask them to choose, even lightly.',
+
+  'guide.handovers.title': 'The changeover is the hardest ten minutes',
+  'guide.handovers.body':
+    'A changeover packs everything into a few minutes: leaving one parent, arriving at another. Children often go quiet, cling, or act up just before and just after. It is normal, and it usually passes within a day.',
+  'guide.handovers.tip1': 'Use the same place and the same time.',
+  'guide.handovers.tip2': 'Say goodbye once, warmly and briefly.',
+  'guide.handovers.tip3': 'Give them half an hour to settle before any questions.',
+
+  'guide.rules.title': 'The two homes do not have to match',
+  'guide.rules.body':
+    'Children manage different rules in different places, the way they manage school and home. What helps is that each home is predictable in itself, and that the two of you agree on the few things that really matter.',
+  'guide.rules.tip1': 'Agree on bedtime, screens and homework. Let the rest differ.',
+  'guide.rules.tip2': 'Do not correct the other home\u2019s rules in front of the child.',
+  'guide.rules.tip3': 'Write down what you agreed, so it is not argued again.',
+
+  'guide.words.title': 'Say less than you think, more often than you think',
+  'guide.words.body':
+    'Children need a simple, honest explanation, and to hear that both parents still love them and that none of this is their fault. They do not need the adult detail: money, blame, or what went wrong.',
+  'guide.words.tip1': 'Answer the question they asked, not the one behind it.',
+  'guide.words.tip2': 'Repeat the reassurance. Once is never enough.',
+  'guide.words.tip3': 'Say "I do not know yet" when you do not.',
+
+  'guide.yourself.title': 'Your steadiness is what they read',
+  'guide.yourself.body':
+    'Children read your state before they hear your words. Looking after yourself is not separate from looking after them: it is the most direct route to a calmer child.',
+  'guide.yourself.tip1': 'Keep one adult to talk to who is not your child.',
+  'guide.yourself.tip2': 'Expect the first year to be the hardest.',
+  'guide.yourself.tip3': 'If you are struggling, ask your doctor or a family counselling service.',
+
   'nav.today': 'Today',
   'nav.calendar': 'Calendar',
   'nav.money': 'Money',

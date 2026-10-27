@@ -6,6 +6,58 @@ import type { Catalogue } from './en'
  * which is heavier than this app should sound.
  */
 export const da: Catalogue = {
+  'guide.title': 'Hvad hjælper børn',
+  'guide.intro':
+    'Seks ting, familierådgivere vender tilbage til igen og igen. Ingen af dem handler om, hvem der havde ret.',
+  'guide.allNotes': 'Alle seks',
+  'guide.tipsLabel': 'Prøv dette',
+  'guide.disclaimer':
+    'Generel information, ikke terapi og ikke juridisk rådgivning. Alle familier er forskellige.',
+  'guide.safety':
+    'Er nogen i familien bange, eller er et barn i fare, er dette ikke det rigtige værktøj. Kontakt kommunens familieafdeling, eller alarmcentralen hvis nogen er i fare.',
+
+  'guide.conflict.title': 'Børn mærker konflikten, ikke bruddet',
+  'guide.conflict.body':
+    'Børn kan godt klare to hjem. Det, der sætter sig, er at være tæt på konflikt mellem voksne: hævede stemmer, anspændte skift, at blive bedt om at vælge side. At sænke temperaturen mellem hjemmene hjælper mere end nogen bestemt plan.',
+  'guide.conflict.tip1': 'Hold skiftene korte og forudsigelige.',
+  'guide.conflict.tip2': 'Vær uenige et sted, hvor barnet ikke er.',
+  'guide.conflict.tip3': 'Aftal det praktiske skriftligt, hvor tonen ikke kan læses ind.',
+
+  'guide.messages.title': 'Send ikke beskeder gennem barnet',
+  'guide.messages.body':
+    'At bede et barn give noget videre, eller fortælle hvordan det går i det andet hjem, stiller det mellem to mennesker, det holder af. De fleste børn løser det ved at fortælle hver forælder det, forælderen gerne vil høre.',
+  'guide.messages.tip1': 'Sig det direkte til den anden forælder, også når det er ubehageligt.',
+  'guide.messages.tip2': 'Spørg ikke, hvad der skete i det andet hjem. Lad barnet selv fortælle.',
+  'guide.messages.tip3': 'Bed dem aldrig vælge, heller ikke for sjov.',
+
+  'guide.handovers.title': 'Skiftet er de ti sværeste minutter',
+  'guide.handovers.body':
+    'Et skifte samler det hele på få minutter: at tage afsked med den ene og komme til den anden. Børn bliver ofte stille, klæbende eller urolige lige før og lige efter. Det er normalt, og det går som regel over inden for et døgn.',
+  'guide.handovers.tip1': 'Brug det samme sted og det samme tidspunkt.',
+  'guide.handovers.tip2': 'Sig farvel én gang, varmt og kort.',
+  'guide.handovers.tip3': 'Giv dem en halv time til at lande, før du spørger om noget.',
+
+  'guide.rules.title': 'De to hjem behøver ikke være ens',
+  'guide.rules.body':
+    'Børn kan rumme forskellige regler forskellige steder, ligesom de kan med skole og hjem. Det, der hjælper, er at hvert hjem er forudsigeligt i sig selv, og at I er enige om de få ting, der virkelig betyder noget.',
+  'guide.rules.tip1': 'Bliv enige om sengetid, skærme og lektier. Lad resten være forskelligt.',
+  'guide.rules.tip2': 'Ret ikke det andet hjems regler foran barnet.',
+  'guide.rules.tip3': 'Skriv ned, hvad I har aftalt, så det ikke skal diskuteres igen.',
+
+  'guide.words.title': 'Sig mindre end du tror, oftere end du tror',
+  'guide.words.body':
+    'Børn har brug for en enkel, ærlig forklaring, og for at høre at begge forældre stadig elsker dem, og at intet af det er deres skyld. De har ikke brug for de voksnes detaljer: penge, skyld eller hvad der gik galt.',
+  'guide.words.tip1': 'Svar på det, de spurgte om, ikke på det bagved.',
+  'guide.words.tip2': 'Gentag trygheden. Én gang er aldrig nok.',
+  'guide.words.tip3': 'Sig "det ved jeg ikke endnu", når du ikke gør.',
+
+  'guide.yourself.title': 'Din ro er det, de aflæser',
+  'guide.yourself.body':
+    'Børn aflæser din tilstand, før de hører dine ord. At passe på dig selv er ikke noget ved siden af: det er den mest direkte vej til et roligere barn.',
+  'guide.yourself.tip1': 'Hav én voksen at tale med, som ikke er dit barn.',
+  'guide.yourself.tip2': 'Regn med, at det første år er det sværeste.',
+  'guide.yourself.tip3': 'Har du det svært, så tal med din læge eller en familierådgivning.',
+
   'nav.today': 'I dag',
   'nav.calendar': 'Kalender',
   'nav.money': 'Penge',
