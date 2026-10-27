@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { getISOWeek } from 'date-fns'
 import { IconCamera, IconPlus } from '../components/icons'
-import { Button, Card, EmptyState, Field, Pill, Sheet, cx } from '../components/ui'
+import { Button, EmptyState, Field, Pill, Sheet, cx } from '../components/ui'
 import { useI18n } from '../lib/i18n'
 import { toISO } from '../lib/schedule'
 import { fileToPhoto } from '../lib/storage'
@@ -43,7 +43,7 @@ export default function Moments() {
     <div className="space-y-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="wide text-2xl font-semibold tracking-[-0.015em]">
+          <h1 className="wide text-2xl font-semibold">
             {t('moments.title')}
           </h1>
           <p className="text-sm text-muted">{t('moments.subtitle')}</p>
@@ -67,10 +67,10 @@ export default function Moments() {
               type="button"
               onClick={() => setKidFilter(option.id)}
               className={cx(
-                'rounded-full border px-3 py-1.5 text-sm transition',
+                'rounded-card border px-3 py-2 text-sm transition-colors',
                 kidFilter === option.id
                   ? 'border-ink bg-ink text-paper'
-                  : 'border-line text-muted hover:bg-sunken',
+                  : 'border-line text-muted hover:text-ink',
               )}
             >
               {option.name}
@@ -90,24 +90,24 @@ export default function Moments() {
           }
         />
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-10">
           {moments.map((moment) => {
             const mine = moment.by === me
             const kids = state.kids.filter((k) => moment.kidIds.includes(k.id))
             return (
-              <Card as="li" key={moment.id} className="overflow-hidden p-0">
+              <li key={moment.id} className="border-t border-line pt-6">
                 {moment.photo ? (
                   <img
                     src={moment.photo}
                     alt={moment.caption ?? t('moments.sharedPhoto')}
-                    className="max-h-96 w-full object-cover"
+                    className="mb-4 max-h-96 w-full rounded-card object-cover"
                   />
                 ) : null}
-                <div className="p-4">
+                <div>
                   {moment.caption ? (
                     <p className="text-base leading-relaxed">{moment.caption}</p>
                   ) : null}
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted">
                     <span>
                       {kids.length > 0
                         ? t('moments.bylineWithKids', {
@@ -122,12 +122,12 @@ export default function Moments() {
                     </span>
                     {!mine && !moment.seenByOther ? <Pill tone="warn">{t('moments.new')}</Pill> : null}
                   </div>
-                  <div className="mt-3 flex items-center gap-3">
+                  <div className="mt-4 flex items-center gap-4">
                     {!mine && !moment.seenByOther ? (
                       <button
                         type="button"
                         onClick={() => actions.markMomentSeen(moment.id)}
-                        className="text-xs font-medium text-muted hover:text-ink"
+                        className="text-sm font-medium text-muted hover:text-ink"
                       >
                         {t('moments.markSeen')}
                       </button>
@@ -136,14 +136,14 @@ export default function Moments() {
                       <button
                         type="button"
                         onClick={() => actions.removeMoment(moment.id)}
-                        className="text-xs text-muted hover:text-danger"
+                        className="text-sm text-muted hover:text-danger"
                       >
                         {t('common.remove')}
                       </button>
                     ) : null}
                   </div>
                 </div>
-              </Card>
+              </li>
             )
           })}
         </ul>
@@ -205,11 +205,11 @@ function MomentForm({ onDone }: { onDone: () => void }) {
         />
         {photo ? (
           <div className="relative">
-            <img src={photo} alt="" className="max-h-64 w-full rounded-xl object-cover" />
+            <img src={photo} alt="" className="max-h-64 w-full rounded-card object-cover" />
             <button
               type="button"
               onClick={() => setPhoto(null)}
-              className="absolute top-2 right-2 rounded-lg bg-black/55 px-2 py-1 text-xs text-white"
+              className="absolute top-3 right-3 rounded-card bg-ink/70 px-3 py-1.5 text-sm text-paper"
             >
               {t('common.remove')}
             </button>
@@ -219,7 +219,7 @@ function MomentForm({ onDone }: { onDone: () => void }) {
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={busy}
-            className="flex w-full flex-col items-center gap-2 rounded-xl border border-dashed border-line py-8 text-muted hover:bg-sunken"
+            className="flex w-full flex-col items-center gap-3 rounded-card border border-dashed border-line py-12 text-muted hover:bg-sunken"
           >
             <IconCamera />
             <span className="text-sm">
@@ -255,8 +255,8 @@ function MomentForm({ onDone }: { onDone: () => void }) {
                     )
                   }
                   className={cx(
-                    'rounded-full border px-3 py-1.5 text-sm transition',
-                    on ? 'border-ink bg-ink text-paper' : 'border-line text-muted hover:bg-sunken',
+                    'rounded-card border px-3 py-2 text-sm transition-colors',
+                    on ? 'border-ink bg-ink text-paper' : 'border-line text-muted hover:text-ink',
                   )}
                 >
                   {kid.name}
@@ -270,7 +270,7 @@ function MomentForm({ onDone }: { onDone: () => void }) {
       <Button type="submit" variant="primary" block disabled={!caption.trim() && !photo}>
         {t('moments.shareWith', { name: state.parents[me === 'a' ? 'b' : 'a'].name })}
       </Button>
-      <p className="text-center text-xs text-muted">{t('moments.localOnly')}</p>
+      <p className="text-center text-sm text-muted">{t('moments.localOnly')}</p>
     </form>
   )
 }
