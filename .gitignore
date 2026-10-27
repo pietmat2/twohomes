@@ -45,3 +45,6 @@ ios/DerivedData
 
 # Strategy notes stay on this machine, never in the repository.
 BUSINESS.md
+
+# The development relay's families and sealed operations.
+relay/data/

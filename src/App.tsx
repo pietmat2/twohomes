@@ -18,6 +18,7 @@ import Moments from './pages/Moments'
 import Kids from './pages/Kids'
 import Settings from './pages/Settings'
 import Guide from './pages/Guide'
+import Join from './pages/Join'
 
 const NAV: { to: string; label: MessageKey; Icon: typeof IconHome }[] = [
   { to: '/today', label: 'nav.today', Icon: IconHome },
@@ -39,7 +40,14 @@ function TopBar() {
         <span className="wide text-lg font-semibold tracking-[-0.01em]">
           Twohomes
           <span className="ml-2 text-sm font-normal text-faint">
-            {t(current?.label ?? (pathname.startsWith('/guide') ? 'guide.title' : 'nav.settings'))}
+            {t(
+              current?.label ??
+                (pathname.startsWith('/guide')
+                  ? 'guide.title'
+                  : pathname.startsWith('/join')
+                    ? 'sync.joinTitle'
+                    : 'nav.settings'),
+            )}
           </span>
         </span>
         <div className="flex items-center gap-2">
@@ -109,6 +117,7 @@ export default function App() {
           <Route path="/moments" element={<Moments />} />
           <Route path="/kids" element={<Kids />} />
           <Route path="/guide" element={<Guide />} />
+          <Route path="/join/:code" element={<Join />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/today" replace />} />
         </Routes>

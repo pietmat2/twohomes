@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 import type { SaveError } from './storage'
+import type { Op } from './sync/engine'
 import type {
   AppState,
   BagItem,
@@ -55,6 +56,13 @@ export interface Actions {
   removeMoment: (id: string) => void
 
   replaceState: (state: AppState) => void
+
+  /** Sync plumbing, used by SyncProvider. None of these is recorded as a change. */
+  startSharing: (state: AppState) => void
+  joinSharing: (state: AppState) => void
+  stopSharing: () => void
+  applyRemote: (ops: Op[], cursor: number) => void
+  ackOutbox: (ids: string[]) => void
 }
 
 export interface StoreValue {

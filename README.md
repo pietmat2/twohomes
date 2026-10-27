@@ -53,7 +53,18 @@ npm install
 npm run dev
 ```
 
-Then open the URL it prints. `npm run build` produces a static `dist/`.
+Then open the URL it prints. `npm run build` produces a static `dist/`, and `npm test`
+runs the tests.
+
+To try sharing between two homes locally, run the relay in a second terminal:
+
+```bash
+npm run relay
+```
+
+The dev server talks to it at `http://localhost:8787`. A production build shares only
+when `VITE_RELAY_URL` names a relay; without one, sharing is switched off and the app
+makes no connections at all.
 
 ## Hosting
 
@@ -111,11 +122,11 @@ passcode opens; exports are then encrypted too. [SECURITY.md](SECURITY.md) cover
 is held, the threats, and what answers each. [PRODUCT.md](PRODUCT.md) covers which
 features earn their place, and what stands between this build and an MVP.
 
-This is the honest limitation of the current build: it is a complete, usable
-single-player app, and the two-player half does not exist yet. A device belongs to one
-parent; there is deliberately no way to act as the other one, because that would make
-every attributed change deniable. Export and import in Settings move a full copy
-between devices.
+**Sharing between the two homes** is end-to-end encrypted. One parent invites the other
+from Settings; from then on every change is signed by the device that made it,
+encrypted, and passed through a relay that stores only sealed parcels. A device belongs
+to one parent; there is deliberately no way to act as the other one. Export and import
+in Settings still move a full copy between your own devices.
 
 Making it genuinely shared is the first real engineering task — see
 [BUSINESS.md](BUSINESS.md#what-has-to-be-built-before-anyone-pays) for what that
@@ -133,6 +144,7 @@ src/
     vault.ts      encryption at rest: passcode-wrapped AES-GCM data key
     sanitize.ts   validation for anything imported
     SecurityProvider.tsx  lock screen, auto-lock, encrypted saves
+    sync/         two homes in step: operations, merge, signing, the relay client
     store.tsx     single state tree, all mutations, display-name helper
     seed.ts       demo data, generated relative to today
     format.ts     dates, names, ages
@@ -189,5 +201,5 @@ are reading it. The hero is a sentence — *"They're with Jonas until Wednesday 
 
 ## Not included
 
-No accounts, no sync, no notifications, no file uploads, no court-admissible message
-log. Twohomes is a planning tool, not legal advice, and it does not decide anything.
+No accounts, no notifications, no file uploads, no court-admissible message log. Sync
+needs a relay to be hosted before anyone outside this machine can use it. Twohomes is a planning tool, not legal advice, and it does not decide anything.

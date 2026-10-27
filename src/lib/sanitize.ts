@@ -1,6 +1,7 @@
 import { isLang, localeOf } from './i18n-locale'
 import { PATTERNS } from './schedule'
 import { STATE_VERSION } from './storage'
+import type { Collection } from './sync/engine'
 import type {
   AppState,
   BagItem,
@@ -58,6 +59,43 @@ export function sanitizeState(input: unknown): AppState | null {
 }
 
 type Raw = Record<string, unknown>
+
+/**
+ * One record from the other home, checked the same way as an import: an
+ * operation is signed by the other parent's device, but it is still input
+ * this device didn't write.
+ */
+export function sanitizeRecord(collection: Collection, value: unknown): unknown {
+  const raw = obj(value)
+  if (!raw) return null
+  switch (collection) {
+    case 'overrides':
+      return sanitizeOverride(raw)
+    case 'swaps':
+      return sanitizeSwap(raw)
+    case 'kids':
+      return sanitizeKid(raw)
+    case 'expenses':
+      return sanitizeExpense(raw)
+    case 'settlements':
+      return sanitizeSettlement(raw)
+    case 'events':
+      return sanitizeEvent(raw)
+    case 'bag':
+      return sanitizeBagItem(raw)
+    case 'moments':
+      return sanitizeMoment(raw)
+  }
+}
+
+export function sanitizeSingleton(
+  key: 'parents/a' | 'parents/b' | 'schedule' | 'currency',
+  value: unknown,
+): unknown {
+  if (key === 'schedule') return sanitizeSchedule(value)
+  if (key === 'currency') return typeof value === 'string' && /^[A-Z]{3}$/.test(value) ? value : null
+  return sanitizeParent(value, key === 'parents/a' ? 'a' : 'b')
+}
 
 const EXPENSE_CATEGORIES: ExpenseCategory[] = [
   'childcare', 'school', 'health', 'clothing', 'activities', 'travel', 'food', 'gifts', 'other',
@@ -253,7 +291,7 @@ function sanitizeMoment(raw: Raw): Moment | null {
     photo: typeof raw.photo === 'string' && PHOTO.test(raw.photo) ? raw.photo : undefined,
     kidIds: ids(raw.kidIds),
     createdAt: timestamp(raw.createdAt),
-    seenByOther: raw.seenByOther === true,
+    seenByOther: raw.seenByOther === true ? true : undefined,
   }
 }
 

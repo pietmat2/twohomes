@@ -313,6 +313,47 @@ export const da: Catalogue = {
   'settings.importOpen': 'Åbn og importér',
   'settings.reloadDemoConfirm': 'Erstatte alt på denne enhed med demodata?',
 
+  'sync.title': 'Delt med det andet hjem',
+  'sync.offBody':
+    'Lige nu bliver alt på denne enhed. Invitér den anden forælder, så holder begge telefoner trit, end-to-end-krypteret: relæet imellem kan ikke læse noget af det.',
+  'sync.invite': 'Invitér den anden forælder',
+  'sync.inviteFailed': 'Kunne ikke nå relæet. Tjek forbindelsen, og prøv igen.',
+  'sync.waitingBody':
+    'Send dette link til den anden forælder, privat. Alle, der har det, kan deltage, indtil den anden forælder gør det.',
+  'sync.copy': 'Kopiér linket',
+  'sync.copied': 'Kopieret',
+  'sync.waiting': 'Venter på, at den anden forælder åbner det.',
+  'sync.cancel': 'Annullér invitationen',
+  'sync.paired': 'I trit med det andet hjem ({name}).',
+  'sync.lastSynced': 'Sidst tjekket kl. {time}.',
+  'sync.pending': {
+    one: '{count} ændring venter på at blive sendt.',
+    other: '{count} ændringer venter på at blive sendt.',
+  },
+  'sync.offline': 'Offline. Ændringer sendes, når forbindelsen er tilbage.',
+  'sync.error': 'Relæet kunne ikke nås. Prøver igen om lidt.',
+  'sync.stop': 'Stop deling på denne enhed',
+  'sync.stopConfirm':
+    'Stop deling på denne enhed? Det, der er her, bliver her, men ændringer holder op med at gå mellem hjemmene.',
+  'sync.unavailable': 'Deling mellem hjemmene er ikke sat op i denne version.',
+  'sync.signed': 'Hver ændring er signeret af den enhed, der lavede den, og krypteret, før den sendes.',
+  'sync.haveInvite': 'Har du fået en invitation fra den anden forælder?',
+  'sync.pasteLabel': 'Invitationslink',
+  'sync.open': 'Åbn den',
+  'sync.joinTitle': 'Deltag i det andet hjem',
+  'sync.joinBody':
+    'Denne enhed kommer til at dele én kalender, ét regnskab og de samme børn med den anden forælder ({name}).',
+  'sync.joinReplace':
+    'Det, der er på denne enhed nu, erstattes af det, de to hjem deler. Eksportér en kopi først, hvis du vil beholde det.',
+  'sync.join': 'Deltag',
+  'sync.notNow': 'Ikke nu',
+  'sync.badLink': 'Invitationslinket er ufuldstændigt eller ændret.',
+  'sync.full':
+    'Denne familie har allerede en enhed i hvert hjem. Bed den anden forælder om en ny invitation.',
+  'sync.joinFailed': 'Kunne ikke deltage. Tjek forbindelsen, og åbn linket igen.',
+  'sync.alreadySharing':
+    'Denne enhed deler allerede med en familie. Stop delingen under Indstillinger, før du deltager i en anden.',
+
   'security.title': 'Privatliv',
   'security.offBody':
     'Lås Twohomes med en adgangskode. Alt, hvad appen gemmer på denne enhed, bliver så krypteret med en nøgle, som kun den adgangskode kan åbne.',

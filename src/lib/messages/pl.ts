@@ -335,6 +335,50 @@ export const pl: Catalogue = {
   'settings.importOpen': 'Otwórz i zaimportuj',
   'settings.reloadDemoConfirm': 'Zastąpić wszystko na tym urządzeniu danymi demo?',
 
+  'sync.title': 'Wspólne z drugim domem',
+  'sync.offBody':
+    'Na razie wszystko zostaje na tym urządzeniu. Zaproś drugiego rodzica, a oba telefony będą zgodne, z szyfrowaniem end-to-end: serwer pośredniczący nie może nic z tego odczytać.',
+  'sync.invite': 'Zaproś drugiego rodzica',
+  'sync.inviteFailed': 'Nie udało się połączyć z serwerem. Sprawdź połączenie i spróbuj ponownie.',
+  'sync.waitingBody':
+    'Wyślij ten link drugiemu rodzicowi, prywatnie. Każdy, kto go ma, może dołączyć, dopóki drugi rodzic tego nie zrobi.',
+  'sync.copy': 'Kopiuj link',
+  'sync.copied': 'Skopiowano',
+  'sync.waiting': 'Czekamy, aż drugi rodzic go otworzy.',
+  'sync.cancel': 'Anuluj zaproszenie',
+  'sync.paired': 'Zgodne z drugim domem ({name}).',
+  'sync.lastSynced': 'Ostatnio sprawdzone o {time}.',
+  'sync.pending': {
+    one: '{count} zmiana czeka na wysłanie.',
+    few: '{count} zmiany czekają na wysłanie.',
+    many: '{count} zmian czeka na wysłanie.',
+    other: '{count} zmiany czeka na wysłanie.',
+  },
+  'sync.offline': 'Brak połączenia. Zmiany zostaną wysłane, gdy połączenie wróci.',
+  'sync.error': 'Nie udało się połączyć z serwerem. Kolejna próba za chwilę.',
+  'sync.stop': 'Przestań udostępniać na tym urządzeniu',
+  'sync.stopConfirm':
+    'Przestać udostępniać na tym urządzeniu? To, co tu jest, zostanie, ale zmiany przestaną trafiać między domami.',
+  'sync.unavailable': 'Udostępnianie między domami nie jest skonfigurowane w tej wersji.',
+  'sync.signed':
+    'Każda zmiana jest podpisana przez urządzenie, które ją wprowadziło, i zaszyfrowana przed wysłaniem.',
+  'sync.haveInvite': 'Masz zaproszenie od drugiego rodzica?',
+  'sync.pasteLabel': 'Link z zaproszeniem',
+  'sync.open': 'Otwórz',
+  'sync.joinTitle': 'Dołącz do drugiego domu',
+  'sync.joinBody':
+    'To urządzenie będzie dzielić jeden kalendarz, jedno rozliczenie i te same dzieci z drugim rodzicem ({name}).',
+  'sync.joinReplace':
+    'To, co jest teraz na tym urządzeniu, zostanie zastąpione tym, co dzielą oba domy. Jeśli chcesz to zachować, najpierw wyeksportuj kopię.',
+  'sync.join': 'Dołącz',
+  'sync.notNow': 'Nie teraz',
+  'sync.badLink': 'Link z zaproszeniem jest niepełny albo został zmieniony.',
+  'sync.full':
+    'Ta rodzina ma już urządzenie w każdym domu. Poproś drugiego rodzica o nowe zaproszenie.',
+  'sync.joinFailed': 'Nie udało się dołączyć. Sprawdź połączenie i otwórz link ponownie.',
+  'sync.alreadySharing':
+    'To urządzenie już udostępnia dane rodzinie. Zanim dołączysz do innej, wyłącz udostępnianie w Ustawieniach.',
+
   'security.title': 'Prywatność',
   'security.offBody':
     'Zablokuj Twohomes kodem dostępu. Wszystko, co aplikacja przechowuje na tym urządzeniu, zostanie wtedy zaszyfrowane kluczem, który otwiera tylko ten kod.',

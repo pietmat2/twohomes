@@ -1,3 +1,5 @@
+import type { Op, Stamp } from './sync/engine'
+
 export type ParentId = 'a' | 'b'
 
 export type Lang = 'en' | 'da' | 'pl'
@@ -163,4 +165,31 @@ export interface AppState {
   events: KidEvent[]
   bag: BagItem[]
   moments: Moment[]
+  /** Present once this device shares with the other home. See sync/engine.ts. */
+  sync?: SyncState
+}
+
+/**
+ * Everything a device needs to stay in step with the other home. Lives inside
+ * the app state so it is saved, and encrypted at rest, with everything else;
+ * it is never exported.
+ */
+export interface SyncState {
+  /** Random, and meaningless to the relay. */
+  familyId: string
+  /** The invitation's secret. Both the encryption key and the relay token derive from it. */
+  secret: string
+  /** This device. */
+  device: string
+  /** This device's signing key pair, as JWK. */
+  signing: { privateKey: JsonWebKey; publicKey: JsonWebKey }
+  /** Each parent's device public key, learned from its first operation. */
+  peers: Partial<Record<ParentId, JsonWebKey>>
+  clock: { t: number; c: number }
+  /** The newest stamp applied for each key, tombstones included. */
+  meta: Record<string, Stamp>
+  /** Operations made here and not yet accepted by the relay. */
+  outbox: Op[]
+  /** The relay sequence number this device has read up to. */
+  cursor: number
 }

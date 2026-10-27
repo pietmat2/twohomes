@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PasscodeSheet, type PasscodeMode } from '../components/PasscodeSheet'
+import { SharingSection } from '../components/SharingSection'
 import { Button, Card, Field, SectionTitle, Segmented, cx } from '../components/ui'
 import { LANGUAGES, useI18n } from '../lib/i18n'
 import { PATTERNS, nightsSplit } from '../lib/schedule'
@@ -91,6 +92,8 @@ export default function Settings() {
           <p className="text-sm text-faint">{t('settings.thisDevice')}</p>
         </Card>
       </section>
+
+      <SharingSection />
 
       <section>
         <SectionTitle>{t('settings.schedule')}</SectionTitle>
@@ -305,17 +308,20 @@ export default function Settings() {
             </p>
           ) : null}
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                if (confirm(t('settings.reloadDemoConfirm'))) {
-                  actions.replaceState(demoState(state.language))
-                }
-              }}
-            >
-              {t('settings.reloadDemo')}
-            </Button>
+            {/* Demo data would be sent to the other home as if it were real. */}
+            {state.sync ? null : (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  if (confirm(t('settings.reloadDemoConfirm'))) {
+                    actions.replaceState(demoState(state.language))
+                  }
+                }}
+              >
+                {t('settings.reloadDemo')}
+              </Button>
+            )}
             <Button
               size="sm"
               variant="danger"

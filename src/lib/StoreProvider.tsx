@@ -4,6 +4,8 @@ import { newId } from './seed'
 import { localeOf } from './i18n-locale'
 import { StoreContext, type Actions, type StoreValue, type Updater } from './store'
 import type { AppState, DayOverride, SwapRequest } from './types'
+import { applyRemote, recordLocal } from './sync/engine'
+import { SyncProvider } from './sync/SyncProvider'
 import type { SaveError } from './storage'
 
 /**
@@ -46,7 +48,8 @@ export function StoreProvider({
     document.documentElement.lang = state.language
   }, [state.language])
 
-  const update = useCallback((fn: Updater) => setState((prev) => fn(prev)), [])
+  // Every local change also becomes sync operations, when this device shares.
+  const update = useCallback((fn: Updater) => setState((prev) => recordLocal(prev, fn(prev))), [])
 
   const actions = useMemo<Actions>(() => {
     const now = () => new Date().toISOString()
@@ -209,7 +212,33 @@ export function StoreProvider({
       removeMoment: (id) =>
         update((s) => ({ ...s, moments: s.moments.filter((m) => m.id !== id) })),
 
-      replaceState: (next) => setState(next),
+      // A sharing device keeps its identity and its link to the other home
+      // through an import; what changed is sent like any other edit.
+      replaceState: (next) =>
+        setState((prev) =>
+          recordLocal(prev, prev.sync ? { ...next, me: prev.me, sync: prev.sync } : next),
+        ),
+
+      // The sync actions write state directly: what arrives from the other
+      // home must not be recorded and sent back as if it were made here.
+      // `started` is the state the snapshot was taken from. Anything edited
+      // while the invitation was being made is diffed against it and sent.
+      startSharing: (started) =>
+        setState((prev) => recordLocal(started, { ...prev, sync: started.sync })),
+      joinSharing: (next) => setState(next),
+      stopSharing: () => setState(({ sync: _sync, ...rest }) => rest),
+      applyRemote: (ops, cursor) =>
+        setState((prev) => {
+          if (!prev.sync) return prev
+          const next = applyRemote(prev, ops)
+          return { ...next, sync: { ...next.sync!, cursor } }
+        }),
+      ackOutbox: (ids) =>
+        setState((prev) => {
+          if (!prev.sync) return prev
+          const sent = new Set(ids)
+          return { ...prev, sync: { ...prev.sync, outbox: prev.sync.outbox.filter((op) => !sent.has(op.id)) } }
+        }),
     }
   }, [update])
 
@@ -218,5 +247,9 @@ export function StoreProvider({
     [state, actions, saveError],
   )
 
-  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
+  return (
+    <StoreContext.Provider value={value}>
+      <SyncProvider>{children}</SyncProvider>
+    </StoreContext.Provider>
+  )
 }

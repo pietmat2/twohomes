@@ -329,6 +329,44 @@ export const en = {
   'settings.importOpen': 'Open and import',
   'settings.reloadDemoConfirm': 'Replace everything on this device with the demo data?',
 
+  'sync.title': 'Shared with the other home',
+  'sync.offBody':
+    'Everything stays on this device for now. Invite the other parent and both phones stay in step, end-to-end encrypted: the relay in between can\u2019t read any of it.',
+  'sync.invite': 'Invite the other parent',
+  'sync.inviteFailed': 'Could not reach the relay. Check the connection and try again.',
+  'sync.waitingBody':
+    'Send this link to the other parent, privately. Anyone who has it can join until they do.',
+  'sync.copy': 'Copy the link',
+  'sync.copied': 'Copied',
+  'sync.waiting': 'Waiting for the other parent to open it.',
+  'sync.cancel': 'Cancel the invitation',
+  'sync.paired': 'In step with the other home ({name}).',
+  'sync.lastSynced': 'Last checked at {time}.',
+  'sync.pending': { one: '{count} change waiting to send.', other: '{count} changes waiting to send.' },
+  'sync.offline': 'Offline. Changes go out when the connection is back.',
+  'sync.error': 'The relay could not be reached. Trying again shortly.',
+  'sync.stop': 'Stop sharing on this device',
+  'sync.stopConfirm':
+    'Stop sharing on this device? What is here stays here, but changes stop going between the homes.',
+  'sync.unavailable': 'Sharing between the homes is not set up in this build.',
+  'sync.signed': 'Every change is signed by the device that made it and encrypted before it leaves.',
+  'sync.haveInvite': 'Have an invitation from the other parent?',
+  'sync.pasteLabel': 'Invitation link',
+  'sync.open': 'Open it',
+  'sync.joinTitle': 'Join the other home',
+  'sync.joinBody':
+    'This device will share one calendar, one ledger and one set of children with the other parent ({name}).',
+  'sync.joinReplace':
+    'What is on this device now is replaced by what the two homes share. Export a copy first if you want to keep it.',
+  'sync.join': 'Join',
+  'sync.notNow': 'Not now',
+  'sync.badLink': 'That invitation link is incomplete or has been changed.',
+  'sync.full':
+    'This family already has a device in each home. Ask the other parent for a new invitation.',
+  'sync.joinFailed': 'Could not join. Check the connection and open the link again.',
+  'sync.alreadySharing':
+    'This device already shares with a family. Stop sharing in Settings before joining another.',
+
   'security.title': 'Privacy',
   'security.offBody':
     'Lock Twohomes with a passcode. Everything it holds on this device is then encrypted with a key only that passcode opens.',

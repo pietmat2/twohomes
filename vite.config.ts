@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -8,25 +8,28 @@ import tailwindcss from '@tailwindcss/vite'
  * font from anywhere but the app itself. If something ever slipped script into
  * the page, it would have nowhere to send what it read.
  *
+ * The one exception is the sync relay named by VITE_RELAY_URL, and what goes
+ * there is sealed before it leaves.
+ *
  * Script allows 'unsafe-inline' only because Capacitor's Android bridge is
  * injected into the page as an inline script. Build-only: the dev server
  * needs inline scripts and a websocket for hot reload.
  */
-const CONTENT_SECURITY_POLICY = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self'",
-  "connect-src 'self'",
-  "object-src 'none'",
-  "base-uri 'none'",
-  "form-action 'none'",
-].join('; ')
-
-function contentSecurityPolicy(): Plugin {
+function contentSecurityPolicy(relayUrl: string): Plugin {
+  const relay = relayUrl ? ` ${new URL(relayUrl).origin}` : ''
+  const policy = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    `connect-src 'self'${relay}`,
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'none'",
+  ].join('; ')
   const tags = [
-    `<meta http-equiv="Content-Security-Policy" content="${CONTENT_SECURITY_POLICY}" />`,
+    `<meta http-equiv="Content-Security-Policy" content="${policy}" />`,
     '<meta name="referrer" content="no-referrer" />',
   ]
   return {
@@ -40,7 +43,7 @@ function contentSecurityPolicy(): Plugin {
 
 // Relative base + HashRouter means the built site runs from any static host
 // (Vercel, Netlify, GitHub Pages, S3) with no rewrite rules.
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: './',
-  plugins: [react(), tailwindcss(), contentSecurityPolicy()],
-})
+  plugins: [react(), tailwindcss(), contentSecurityPolicy(loadEnv(mode, process.cwd()).VITE_RELAY_URL ?? '')],
+}))

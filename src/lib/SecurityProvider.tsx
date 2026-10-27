@@ -21,6 +21,8 @@ import {
   type SaveResult,
 } from './storage'
 import { StoreProvider } from './StoreProvider'
+import { relayToken } from './sync/crypto'
+import { leaveFamily } from './sync/relay'
 import type { AppState } from './types'
 import {
   createVault,
@@ -154,6 +156,15 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
 
   const erase = useCallback(async () => {
     await flush()
+    // Free this device's place in the family, so the other home can invite again.
+    const sync = current.current?.sync
+    if (sync) {
+      try {
+        await leaveFamily(sync.familyId, await relayToken(sync.secret), sync.device)
+      } catch {
+        // Offline: nothing to free, or nothing we can do about it now.
+      }
+    }
     const language = current.current?.language ?? (phase.kind === 'locked' ? phase.prefs.language : detectLang())
     await eraseEverything()
     vault.current = null
@@ -212,8 +223,12 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
         const state = current.current
         if (!state) throw new Error('nothing to export')
         const key = vault.current
+        // The family's secret and this device's signing key never leave in a file.
+        const { sync: _sync, ...shareable } = state
         // The export is the vault itself: same format, same passcode.
-        return key ? JSON.stringify(await seal(key.header, key.dataKey, state)) : exportState(state)
+        return key
+          ? JSON.stringify(await seal(key.header, key.dataKey, shareable))
+          : exportState(shareable)
       },
 
       async openImport(record, passcode) {
