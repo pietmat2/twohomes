@@ -76,7 +76,7 @@ export default function Expenses() {
             <h1 className="wide text-display font-semibold">
               {t('money.square')}
             </h1>
-            <p className="mt-1 text-sm text-muted">{t('money.squareBody')}</p>
+            <p className="mt-2 text-sm text-muted">{t('money.squareBody')}</p>
           </>
         ) : (
           <>
@@ -95,7 +95,7 @@ export default function Expenses() {
             </h1>
           </>
         )}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Button variant="primary" size="sm" onClick={() => setSheet('expense')}>
             <IconPlus width={15} height={15} />
             {t('money.addExpense')}
@@ -109,10 +109,10 @@ export default function Expenses() {
       </section>
 
       {state.expenses.length > 0 ? (
-        <section className="grid gap-5 sm:grid-cols-2">
+        <section className="grid gap-8 sm:grid-cols-2">
           <div>
-            <p className="mb-2 text-sm text-muted">{t('money.paidOut')}</p>
-            <div className="space-y-2">
+            <p className="mb-3 text-sm text-muted">{t('money.paidOut')}</p>
+            <div className="space-y-4">
               {(['a', 'b'] as ParentId[]).map((id) => {
                 const share = totalSpend === 0 ? 0 : Math.round((paid[id] / totalSpend) * 100)
                 return (
@@ -121,9 +121,9 @@ export default function Expenses() {
                       <span>{nameOf(state, id, t('common.you'))}</span>
                       <span className="numeral">{formatMoney(paid[id], state)}</span>
                     </div>
-                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-sunken">
+                    <div className="mt-2 h-0.5 overflow-hidden bg-sunken">
                       <div
-                        className={cx('h-full rounded-full', homeStyles[id].solid)}
+                        className={cx('h-full', homeStyles[id].solid)}
                         style={{ width: `${share}%` }}
                       />
                     </div>
@@ -133,8 +133,8 @@ export default function Expenses() {
             </div>
           </div>
           <div>
-            <p className="mb-2 text-sm text-muted">{t('money.biggestCategories')}</p>
-            <ul className="space-y-1.5 text-sm">
+            <p className="mb-3 text-sm text-muted">{t('money.biggestCategories')}</p>
+            <ul className="space-y-2 text-sm">
               {categories.map((entry) => (
                 <li key={entry.category} className="flex items-baseline justify-between gap-2">
                   <span className="truncate">{t(`category.${entry.category}`)}</span>

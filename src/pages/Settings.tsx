@@ -40,15 +40,15 @@ export default function Settings() {
 
   return (
     <div className="space-y-12">
-      <h1 className="wide text-2xl font-semibold tracking-[-0.015em]">
+      <h1 className="wide text-2xl font-semibold">
         {t('settings.title')}
       </h1>
 
       <section>
         <SectionTitle>{t('settings.twoHomes')}</SectionTitle>
-        <Card className="space-y-4">
+        <Card className="space-y-6">
           {(['a', 'b'] as ParentId[]).map((id) => (
-            <div key={id} className="flex items-center gap-3">
+            <div key={id} className="flex items-center gap-4">
               <span
                 className={cx(
                   'size-3 shrink-0 rounded-full',
@@ -81,7 +81,7 @@ export default function Settings() {
 
       <section>
         <SectionTitle>{t('settings.schedule')}</SectionTitle>
-        <Card className="space-y-4">
+        <Card className="space-y-6">
           <Field
             label={t('settings.pattern')}
             hint={t(`pattern.${state.schedule.patternId}.summary`)}
@@ -99,7 +99,7 @@ export default function Settings() {
             </select>
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-5">
             <Field
               label={t('settings.cycleStarts')}
               hint={t(`pattern.${state.schedule.patternId}.anchor`)}
@@ -141,7 +141,7 @@ export default function Settings() {
             />
           </Field>
 
-          <p className="rounded-lg bg-sunken px-3 py-2 text-xs text-muted">
+          <p className="text-sm text-muted">
             {t('settings.splitPreview', {
               nameA: state.parents.a.name,
               nightsA: t('common.nights', { count: split.a }),
@@ -154,7 +154,7 @@ export default function Settings() {
 
       <section>
         <SectionTitle>{t('settings.display')}</SectionTitle>
-        <Card className="space-y-4">
+        <Card className="space-y-6">
           <Field label={t('settings.language')} hint={t('settings.languageHint')}>
             <select
               className="field"
@@ -197,12 +197,12 @@ export default function Settings() {
 
       <section>
         <SectionTitle>{t('settings.yourData')}</SectionTitle>
-        <Card className="space-y-3">
+        <Card className="space-y-6">
           <p className="text-sm text-muted">{t('settings.dataBody')}</p>
-          <p className="text-xs text-faint">
+          <p className="text-sm text-faint">
             {t('settings.storageSize', { size: storageFootprintKb(state) })}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <Button size="sm" onClick={download}>
               {t('settings.exportCopy')}
             </Button>
@@ -220,7 +220,7 @@ export default function Settings() {
           {importError ? (
             <p className="text-sm text-danger">{t('settings.importFailed')}</p>
           ) : null}
-          <div className="flex flex-wrap gap-2 border-t border-line pt-3">
+          <div className="flex flex-wrap gap-3 pt-2">
             <Button
               size="sm"
               variant="ghost"
@@ -243,7 +243,7 @@ export default function Settings() {
         </Card>
       </section>
 
-      <p className="pb-4 text-xs text-faint">{t('settings.disclaimer')}</p>
+      <p className="pb-4 text-sm text-faint">{t('settings.disclaimer')}</p>
     </div>
   )
 }
