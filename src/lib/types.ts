@@ -51,6 +51,10 @@ export interface DayOverride {
   parent: ParentId
   reason?: string
   createdAt: string
+  /** Who made the change. Absent on data written before changes were attributed. */
+  by?: ParentId
+  /** A swap-created override is already described by the swap itself. */
+  source?: 'manual' | 'swap'
 }
 
 export interface SwapRequest {

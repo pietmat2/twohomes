@@ -96,9 +96,9 @@ export default function CalendarPage() {
   const pendingSwaps = state.swaps.filter((s) => s.status === 'pending')
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-12">
       <div className="flex items-baseline justify-between">
-        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+        <h1 className="wide text-2xl font-semibold tracking-[-0.015em]">
           {monthTitle(cursor)}
         </h1>
         <div className="flex items-center gap-1">
@@ -185,12 +185,19 @@ export default function CalendarPage() {
                           >
                             {date.getDate()}
                           </span>
-                          <span className="mt-1 flex h-1 items-center gap-0.5">
+                          <span className="mt-1 flex h-1.5 items-center gap-1">
                             {events.length > 0 ? (
-                              <span className="size-1 rounded-full bg-current" aria-hidden />
+                              <span className="size-1.5 rounded-full bg-current" aria-hidden />
+                            ) : null}
+                            {/* Hollow: this day was moved off the pattern. */}
+                            {day.override ? (
+                              <span
+                                className="size-1.5 rounded-full border border-current"
+                                aria-hidden
+                              />
                             ) : null}
                             {awaiting ? (
-                              <span className="size-1 rounded-full bg-warn" aria-hidden />
+                              <span className="size-1.5 rounded-full bg-warn" aria-hidden />
                             ) : null}
                           </span>
                         </button>
@@ -329,7 +336,7 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
       {mode === 'overview' ? (
         <div className="space-y-6">
           <div>
-            <p className="font-display text-xl font-semibold">
+            <p className="wide text-xl font-semibold">
               {assignment.parent === me ? (
                 t('calendar.withYou')
               ) : (
@@ -365,7 +372,7 @@ function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
               value={assignment.parent}
               onChange={(next) => {
                 if (next === assignment.parent) return
-                actions.setDayParent(date, next, 'Changed on the calendar')
+                actions.setDayParent(date, next)
               }}
               options={[
                 { value: 'a', label: state.parents.a.name },

@@ -84,6 +84,15 @@ export const pl: Catalogue = {
   'today.noKidsBody':
     'Noce, koszty, wydarzenia i lista do spakowania — wszystko opiera się na tym.',
 
+  'changes.title': 'Zmiany',
+  'changes.none': 'Nic się nie zmieniło od ustalenia planu.',
+  'changes.moved': '{day}: teraz {home}. Zmienione przez: {who}.',
+  'changes.movedReason': '{day}: teraz {home}. Zmienione przez: {who} ({reason}).',
+  'changes.movedUnattributed': '{day}: teraz {home}.',
+  'changes.asked': 'Prośba o: {days}. Od: {who}.',
+  'changes.agreed': 'Zgoda na: {days}. Od: {who}.',
+  'changes.declined': 'Nie uda się: {days}. Od: {who}.',
+
   'calendar.today': 'Dziś',
   'calendar.previousMonth': 'Poprzedni miesiąc',
   'calendar.nextMonth': 'Następny miesiąc',

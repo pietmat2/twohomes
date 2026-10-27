@@ -68,6 +68,15 @@ export const da: Catalogue = {
   'today.noKidsTitle': 'Start med børnene',
   'today.noKidsBody': 'Nætter, udgifter, aftaler og pakkelisten hænger alle sammen med det.',
 
+  'changes.title': 'Ændringer',
+  'changes.none': 'Intet er ændret, siden planen blev lagt.',
+  'changes.moved': '{day} er nu hos {home}. Ændret af {who}.',
+  'changes.movedReason': '{day} er nu hos {home}. Ændret af {who}: {reason}.',
+  'changes.movedUnattributed': '{day} er nu hos {home}.',
+  'changes.asked': '{who} spurgte om {days}.',
+  'changes.agreed': '{who} sagde ja til {days}.',
+  'changes.declined': '{who} kunne ikke tage {days}.',
+
   'calendar.today': 'I dag',
   'calendar.previousMonth': 'Forrige måned',
   'calendar.nextMonth': 'Næste måned',

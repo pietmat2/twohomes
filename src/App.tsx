@@ -34,8 +34,8 @@ function TopBar() {
 
   return (
     <header className="sticky top-0 z-30 bg-paper/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-5">
-        <span className="font-display text-lg font-semibold tracking-[-0.01em]">
+      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-6">
+        <span className="wide text-lg font-semibold tracking-[-0.01em]">
           Twohomes
           <span className="ml-2 text-sm font-normal text-faint">
             {t(current?.label ?? 'nav.settings')}
@@ -64,7 +64,7 @@ function BottomNav() {
   const { t } = useI18n()
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur-md">
-      <div className="mx-auto grid max-w-2xl grid-cols-5 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <div className="mx-auto grid max-w-2xl grid-cols-5 px-3 pt-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         {NAV.map(({ to, label, Icon }) => (
           <NavLink
             key={to}
@@ -97,9 +97,9 @@ export default function App() {
     <div className="min-h-dvh">
       <TopBar />
       {saveError ? (
-        <p className="mx-auto max-w-2xl px-5 pt-3 text-sm text-danger">{t(saveError === 'quota' ? 'common.saveFailedQuota' : 'common.saveFailed')}</p>
+        <p className="mx-auto max-w-2xl px-6 pt-4 text-sm text-danger">{t(saveError === 'quota' ? 'common.saveFailedQuota' : 'common.saveFailed')}</p>
       ) : null}
-      <main className="mx-auto max-w-2xl px-5 pt-5 pb-28">
+      <main className="mx-auto max-w-2xl px-6 pt-8 pb-32">
         <Routes>
           <Route path="/" element={<Navigate to="/today" replace />} />
           <Route path="/today" element={<Today />} />

@@ -2,11 +2,11 @@
 
 @theme {
   /*
-   * Figtree carries the interface, Faustina the dates, names and amounts —
-   * the things a parent actually reads. Two families, clearly distinct.
+   * One family, worked across its width axis. Archivo carries a real wdth
+   * axis, so the hierarchy is set by width as much as size: headings run wide,
+   * everything else sits at normal width and stays quiet.
    */
-  --font-sans: 'Figtree', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Faustina', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-sans: 'Archivo', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /*
    * One scale, named by role: 10 / 11 / 12 / 14 / 16 / 20 / 24 / 32 / 40.
@@ -19,83 +19,79 @@
   --text-micro: 0.6875rem;
   --text-micro--line-height: 1.2;
   --text-display: 2rem;
-  --text-display--line-height: 1.15;
+  --text-display--line-height: 1.12;
   --text-hero: 2.5rem;
   --text-hero--line-height: 1;
 
   /*
-   * Light is not an inversion of dark, it has its own job. The app gets opened
-   * late at night with the children asleep, and one-handed in daylight on the
-   * way to a handover. This set is built for the second: more contrast, visible
-   * hairlines, and fills with enough saturation to survive glare.
+   * Chalk and sand. Light is the primary theme here — Scandinavian rooms are
+   * built around getting the most out of a little daylight.
    */
-  --color-paper: #eef0f2;
+  --color-paper: #faf8f4;
   --color-surface: #ffffff;
-  --color-sunken: #dfe4e9;
-  --color-line: #c8d0d8;
-  --color-ink: #0f1317;
-  --color-muted: #515b66;
-  --color-faint: #808b96;
+  --color-sunken: #efeae1;
+  --color-line: #dcd5c9;
+  --color-ink: #22201c;
+  --color-muted: #6e675d;
+  --color-faint: #8c857a;
 
   /*
-   * One colour per home, warm against cool. They must read as equal: neither
-   * parent gets the better colour, and neither is the "alert" colour.
+   * One colour per home: muted earth against muted sea. Equal weight, warm
+   * against cool, and neither one is the alert colour. Deliberately not a
+   * terracotta — sand plus clay is the commonest generated-page signature
+   * there is, and this brief asked for the sand, not the clay.
    */
-  --color-home-a: #8a5300;
-  --color-home-a-soft: #f7dca8;
-  --color-home-b: #055f4e;
-  --color-home-b-soft: #a8dccd;
+  --color-home-a: #8f6f1f;
+  --color-home-a-soft: #f0e3c1;
+  --color-home-b: #3f6076;
+  --color-home-b-soft: #d7e2ea;
 
-  --color-positive: #055f4e;
-  --color-warn: #8a5300;
-  --color-danger: #a62c28;
+  --color-positive: #3f6076;
+  --color-warn: #8f6f1f;
+  --color-danger: #9b3a2e;
 
-  /* Radius encodes hierarchy instead of being one value on everything. */
-  --radius-card: 0.5rem;
-  --radius-stay: 0.875rem;
-  --radius-sheet: 1.5rem;
+  /* Small and consistent. No shadows anywhere: depth comes from space. */
+  --radius-card: 0.25rem;
+  --radius-stay: 0.625rem;
+  --radius-sheet: 1rem;
 }
 
-/*
- * One dark set, applied either because the device asks for it or because the
- * reader chose it in Settings. An explicit data-theme always wins, which is
- * why the media query excludes it.
- */
+/* Winter dusk: the same room after dark, not an inversion of it. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-paper: #14161b;
-  --color-surface: #1c1f26;
-  --color-sunken: #22262e;
-  --color-line: #2e333d;
-  --color-ink: #edeff3;
-  --color-muted: #99a1ae;
-  --color-faint: #6e7684;
-  --color-home-a: #e8a33d;
-  --color-home-a-soft: #3a2c13;
-  --color-home-b: #5ecfb4;
-  --color-home-b-soft: #12342c;
-  --color-positive: #5ecfb4;
-  --color-warn: #e8a33d;
-  --color-danger: #e08080;
+  --color-paper: #1b1a17;
+  --color-surface: #24221d;
+  --color-sunken: #2b2822;
+  --color-line: #3a362e;
+  --color-ink: #f2eee5;
+  --color-muted: #a7a094;
+  --color-faint: #7b7467;
+  --color-home-a: #d9ae4e;
+  --color-home-a-soft: #3a2f16;
+  --color-home-b: #8fb3c7;
+  --color-home-b-soft: #1f2e38;
+  --color-positive: #8fb3c7;
+  --color-warn: #d9ae4e;
+  --color-danger: #d98a7e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --color-paper: #14161b;
-    --color-surface: #1c1f26;
-    --color-sunken: #22262e;
-    --color-line: #2e333d;
-    --color-ink: #edeff3;
-    --color-muted: #99a1ae;
-    --color-faint: #6e7684;
-    --color-home-a: #e8a33d;
-    --color-home-a-soft: #3a2c13;
-    --color-home-b: #5ecfb4;
-    --color-home-b-soft: #12342c;
-    --color-positive: #5ecfb4;
-    --color-warn: #e8a33d;
-    --color-danger: #e08080;
+    --color-paper: #1b1a17;
+    --color-surface: #24221d;
+    --color-sunken: #2b2822;
+    --color-line: #3a362e;
+    --color-ink: #f2eee5;
+    --color-muted: #a7a094;
+    --color-faint: #7b7467;
+    --color-home-a: #d9ae4e;
+    --color-home-a-soft: #3a2f16;
+    --color-home-b: #8fb3c7;
+    --color-home-b-soft: #1f2e38;
+    --color-positive: #8fb3c7;
+    --color-warn: #d9ae4e;
+    --color-danger: #d98a7e;
   }
 }
 
@@ -108,6 +104,7 @@
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-variation-settings: 'wdth' 100;
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: none;
   }
@@ -120,39 +117,50 @@
     color: inherit;
   }
 
-  /* Dates and money are read, compared and remembered — give them the serif. */
-  .numeral {
-    font-family: var(--font-display);
-    font-variant-numeric: tabular-nums lining-nums;
-    letter-spacing: -0.01em;
-  }
-
   :focus-visible {
     outline: 2px solid var(--color-ink);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
   ::selection {
-    background: var(--color-home-b-soft);
+    background: var(--color-home-a-soft);
     color: var(--color-ink);
   }
 }
 
 @layer components {
+  /*
+   * The width axis is the headline treatment. Reserved for the few places
+   * that name what is happening: the day's answer, screen titles, amounts.
+   */
+  .wide {
+    font-variation-settings: 'wdth' 120;
+    letter-spacing: -0.012em;
+  }
+
+  /* Dates and money are read, compared and remembered. */
+  .numeral {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
   .field {
     width: 100%;
-    border-radius: 0.5rem;
-    border: 1px solid var(--color-line);
-    background: var(--color-paper);
-    padding: 0.625rem 0.75rem;
-    font-size: 0.9375rem;
+    border: 0;
+    border-bottom: 1px solid var(--color-line);
+    border-radius: 0;
+    background: transparent;
+    padding: 0.5rem 0;
+    font-size: 1rem;
     outline: none;
   }
 
   .field:focus {
-    border-color: var(--color-ink);
+    border-bottom-color: var(--color-ink);
     outline: none;
-    box-shadow: inset 0 0 0 1px var(--color-ink);
+  }
+
+  select.field {
+    padding-right: 1rem;
   }
 }
 

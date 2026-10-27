@@ -20,9 +20,9 @@ export default function Kids() {
   const [editing, setEditing] = useState<Kid | 'new' | null>(null)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em]">
+        <h1 className="wide text-2xl font-semibold tracking-[-0.015em]">
           {t('kids.title')}
         </h1>
         <Button size="sm" onClick={() => setEditing('new')}>

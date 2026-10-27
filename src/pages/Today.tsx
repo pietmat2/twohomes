@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Ribbon } from '../components/Ribbon'
 import { Button, EmptyState, Pill, Row, Rows, SectionTitle, cx, homeStyles } from '../components/ui'
 import { IconCheck, IconSwap } from '../components/icons'
+import { recentChanges, type ChangeEntry } from '../lib/changes'
 import { useI18n } from '../lib/i18n'
 import { balanceView, formatMoney } from '../lib/money'
 import { assignmentFor, assignmentsForRange, nextHandover, nightsSplit, toISO } from '../lib/schedule'
@@ -28,6 +29,28 @@ export default function Today() {
     .sort((x, y) => (x.date + (x.time ?? '')).localeCompare(y.date + (y.time ?? '')))
     .slice(0, 4)
 
+  const changes = recentChanges(state, 5)
+
+  /** Neutral, attributed, past tense. Never "your ex", never a judgement. */
+  function describe(change: ChangeEntry): string {
+    if (change.kind === 'moved') {
+      const vars = {
+        day: friendlyDay(change.date),
+        home: state.parents[change.parent].name,
+        who: change.by ? nameOf(state, change.by, t('common.you')) : '',
+        reason: change.reason ?? '',
+      }
+      if (!change.by) return t('changes.movedUnattributed', vars)
+      return change.reason ? t('changes.movedReason', vars) : t('changes.moved', vars)
+    }
+    const vars = {
+      who: nameOf(state, change.by, t('common.you')),
+      days: joinList(change.dates.map((d) => friendlyDay(d))),
+    }
+    if (change.kind === 'asked') return t('changes.asked', vars)
+    return t(change.kind === 'agreed' ? 'changes.agreed' : 'changes.declined', vars)
+  }
+
   const unpacked = state.bag.filter((item) => !item.packed)
   const latestMoment = [...state.moments].sort((x, y) => y.createdAt.localeCompare(x.createdAt))[0]
   const withMe = assignment.parent === me
@@ -49,11 +72,11 @@ export default function Today() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* The question the app exists to answer, written as a sentence. */}
       <section>
         <p className="text-sm text-muted">{longDay(todayIso)}</p>
-        <h1 className="mt-1 font-display text-display font-semibold tracking-[-0.015em]">
+        <h1 className="mt-1 wide text-display font-semibold tracking-[-0.015em]">
           {withMe
             ? t('today.withYou')
             : tNode('today.withParent', {
@@ -138,6 +161,25 @@ export default function Today() {
           </Rows>
         </section>
       ) : null}
+
+      {/* The brief's ask: every change to the plan, visible to both homes. */}
+      <section>
+        <SectionTitle>{t('changes.title')}</SectionTitle>
+        {changes.length === 0 ? (
+          <p className="text-base text-muted">{t('changes.none')}</p>
+        ) : (
+          <Rows>
+            {changes.map((change) => (
+              <Row key={change.id}>
+                <div className="min-w-0 flex-1">
+                  <p className="text-base">{describe(change)}</p>
+                  <p className="mt-1 text-sm text-faint">{daySpoken(change.at.slice(0, 10))}</p>
+                </div>
+              </Row>
+            ))}
+          </Rows>
+        )}
+      </section>
 
       <section className="space-y-1.5">
         <p className="text-base">
