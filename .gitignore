@@ -24,3 +24,21 @@ dist-ssr
 *.sw?
 # Skill symlinks point at absolute local paths
 .claude/skills/
+
+# Capacitor: native build output and the copied web bundle, all regenerated
+# by `npm run sync`. The native project sources themselves are committed.
+android/.gradle
+android/build
+android/app/build
+android/local.properties
+android/capacitor-cordova-android-plugins
+android/app/src/main/assets/public
+android/app/src/main/assets/capacitor.config.json
+ios/App/public
+ios/App/App/public
+ios/App/App/capacitor.config.json
+ios/App/Pods
+ios/App/build
+ios/DerivedData
+*.keystore
+!debug.keystore

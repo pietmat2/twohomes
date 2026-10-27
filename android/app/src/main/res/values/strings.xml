@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Twohomes</string>
+    <string name="title_activity_main">Twohomes</string>
+    <string name="package_name">com.twohomes.app</string>
+    <string name="custom_url_scheme">com.twohomes.app</string>
+</resources>
