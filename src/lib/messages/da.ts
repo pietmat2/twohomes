@@ -275,10 +275,10 @@ export const da: Catalogue = {
 
   'settings.title': 'Indstillinger',
   'settings.twoHomes': 'De to hjem',
-  'settings.firstParentName': 'Første forælders navn',
-  'settings.secondParentName': 'Anden forælders navn',
-  'settings.iAm': 'Jeg er',
-  'settings.iAmHint': 'Skift side for at se appen som den anden forælder.',
+  'settings.yourName': 'Dit navn',
+  'settings.otherName': 'Den anden forælder',
+  'settings.thisDevice':
+    'Denne enhed er din. Alt, hvad der ændres her, registreres under dit navn.',
   'settings.schedule': 'Plan',
   'settings.pattern': 'Mønster',
   'settings.cycleStarts': 'Cyklussen starter',

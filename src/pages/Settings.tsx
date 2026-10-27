@@ -15,7 +15,7 @@ import { WrongPasscodeError, type VaultRecord } from '../lib/vault'
 const CURRENCIES = ['DKK', 'PLN', 'EUR', 'SEK', 'NOK', 'GBP', 'USD']
 
 export default function Settings() {
-  const { state, actions, me } = useApp()
+  const { state, actions, me, them } = useApp()
   const { t } = useI18n()
   const security = useSecurity()
   const [importError, setImportError] = useState<'invalid' | 'wrong' | null>(null)
@@ -68,35 +68,27 @@ export default function Settings() {
       <section>
         <SectionTitle>{t('settings.twoHomes')}</SectionTitle>
         <Card className="space-y-6">
-          {(['a', 'b'] as ParentId[]).map((id) => (
-            <div key={id} className="flex items-center gap-4">
-              <span
-                className={cx(
-                  'size-3 shrink-0 rounded-full',
-                  id === 'a' ? 'bg-home-a' : 'bg-home-b',
-                )}
-                aria-hidden
-              />
-              <input
-                className="field"
-                value={state.parents[id].name}
-                onChange={(e) => actions.setParent(id, { name: e.target.value })}
-                aria-label={t(
-                  id === 'a' ? 'settings.firstParentName' : 'settings.secondParentName',
-                )}
-              />
-            </div>
+          {/* Which parent this device belongs to is fixed: being able to act as
+              the other one would make every attributed change deniable. */}
+          {([me, them] as ParentId[]).map((id) => (
+            <Field key={id} label={t(id === me ? 'settings.yourName' : 'settings.otherName')}>
+              <span className="flex items-center gap-4">
+                <span
+                  className={cx(
+                    'size-3 shrink-0 rounded-full',
+                    id === 'a' ? 'bg-home-a' : 'bg-home-b',
+                  )}
+                  aria-hidden
+                />
+                <input
+                  className="field"
+                  value={state.parents[id].name}
+                  onChange={(e) => actions.setParent(id, { name: e.target.value })}
+                />
+              </span>
+            </Field>
           ))}
-          <Field label={t('settings.iAm')} hint={t('settings.iAmHint')}>
-            <Segmented<ParentId>
-              value={me}
-              onChange={actions.setMe}
-              options={[
-                { value: 'a', label: state.parents.a.name },
-                { value: 'b', label: state.parents.b.name },
-              ]}
-            />
-          </Field>
+          <p className="text-sm text-faint">{t('settings.thisDevice')}</p>
         </Card>
       </section>
 

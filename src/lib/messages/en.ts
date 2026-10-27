@@ -291,10 +291,10 @@ export const en = {
 
   'settings.title': 'Settings',
   'settings.twoHomes': 'The two homes',
-  'settings.firstParentName': 'First parent name',
-  'settings.secondParentName': 'Second parent name',
-  'settings.iAm': 'I am',
-  'settings.iAmHint': 'Switch sides to see the app as the other parent.',
+  'settings.yourName': 'Your name',
+  'settings.otherName': 'The other parent',
+  'settings.thisDevice':
+    'This device is yours. Everything changed here is recorded under your name.',
   'settings.schedule': 'Schedule',
   'settings.pattern': 'Pattern',
   'settings.cycleStarts': 'Cycle starts',

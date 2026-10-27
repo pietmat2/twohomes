@@ -297,10 +297,10 @@ export const pl: Catalogue = {
 
   'settings.title': 'Ustawienia',
   'settings.twoHomes': 'Dwa domy',
-  'settings.firstParentName': 'Imię pierwszego rodzica',
-  'settings.secondParentName': 'Imię drugiego rodzica',
-  'settings.iAm': 'Jestem',
-  'settings.iAmHint': 'Przełącz stronę, aby zobaczyć aplikację oczami drugiego rodzica.',
+  'settings.yourName': 'Twoje imię',
+  'settings.otherName': 'Drugi rodzic',
+  'settings.thisDevice':
+    'To urządzenie należy do Ciebie. Każda zmiana wprowadzona tutaj jest zapisywana pod Twoim imieniem.',
   'settings.schedule': 'Plan',
   'settings.pattern': 'Wzorzec',
   'settings.cycleStarts': 'Cykl zaczyna się',

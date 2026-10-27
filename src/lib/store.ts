@@ -17,7 +17,6 @@ export type Updater = (state: AppState) => AppState
 
 export interface Actions {
   update: (fn: Updater) => void
-  setMe: (id: ParentId) => void
   setParent: (id: ParentId, patch: Partial<AppState['parents'][ParentId]>) => void
   setPreferences: (patch: Partial<Pick<AppState, 'currency' | 'theme'>>) => void
   /** Sets the wording and the matching Intl locale together. */

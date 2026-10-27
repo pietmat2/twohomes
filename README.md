@@ -112,8 +112,10 @@ is held, the threats, and what answers each. [PRODUCT.md](PRODUCT.md) covers whi
 features earn their place, and what stands between this build and an MVP.
 
 This is the honest limitation of the current build: it is a complete, usable
-single-player app, and the two-player half is simulated by switching sides in Settings.
-Export and import in Settings move a full copy between devices.
+single-player app, and the two-player half does not exist yet. A device belongs to one
+parent; there is deliberately no way to act as the other one, because that would make
+every attributed change deniable. Export and import in Settings move a full copy
+between devices.
 
 Making it genuinely shared is the first real engineering task — see
 [BUSINESS.md](BUSINESS.md#what-has-to-be-built-before-anyone-pays) for what that

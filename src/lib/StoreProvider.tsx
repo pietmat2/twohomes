@@ -54,8 +54,6 @@ export function StoreProvider({
     return {
       update,
 
-      setMe: (id) => update((s) => ({ ...s, me: id })),
-
       setParent: (id, patch) =>
         update((s) => ({ ...s, parents: { ...s.parents, [id]: { ...s.parents[id], ...patch } } })),
 
