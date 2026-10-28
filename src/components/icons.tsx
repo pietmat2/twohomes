@@ -103,3 +103,21 @@ export const IconChevronRight = (p: Props) => (
     <path d="m9.5 5 7 7-7 7" />
   </svg>
 )
+
+export const IconArrowLeft = (p: Props) => (
+  <svg {...base} {...p}>
+    <path d="M19 12H5m6-7-7 7 7 7" />
+  </svg>
+)
+
+export const IconMenu = (p: Props) => (
+  <svg {...base} {...p}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </svg>
+)
+
+export const IconClose = (p: Props) => (
+  <svg {...base} {...p}>
+    <path d="M6 6l12 12M18 6 6 18" />
+  </svg>
+)

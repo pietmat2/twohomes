@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PasscodeSheet, type PasscodeMode } from '../components/PasscodeSheet'
 import { SharingSection } from '../components/SharingSection'
-import { Button, Card, Field, SectionTitle, Segmented, cx } from '../components/ui'
+import { Bar, Button, Card, Field, SectionTitle, Segmented, cx, homeStyles } from '../components/ui'
 import { LANGUAGES, useI18n } from '../lib/i18n'
 import { PATTERNS, nightsSplit } from '../lib/schedule'
 import { useSecurity } from '../lib/security'
@@ -62,10 +62,11 @@ export default function Settings() {
   }
 
   return (
-    <div className="space-y-12">
-      <h1 className="wide text-2xl font-semibold">
-        {t('settings.title')}
-      </h1>
+    <div className="space-y-10">
+      <div>
+        <Bar />
+        <h1 className="headline mt-[30px] text-hero">{t('settings.title')}</h1>
+      </div>
 
       <section>
         <SectionTitle>{t('settings.twoHomes')}</SectionTitle>
@@ -75,13 +76,7 @@ export default function Settings() {
           {([me, them] as ParentId[]).map((id) => (
             <Field key={id} label={t(id === me ? 'settings.yourName' : 'settings.otherName')}>
               <span className="flex items-center gap-4">
-                <span
-                  className={cx(
-                    'size-3 shrink-0 rounded-full',
-                    id === 'a' ? 'bg-home-a' : 'bg-home-b',
-                  )}
-                  aria-hidden
-                />
+                <span className={cx('size-3 shrink-0 rounded-full', homeStyles[id].solid)} aria-hidden />
                 <input
                   className="field"
                   value={state.parents[id].name}
@@ -206,6 +201,7 @@ export default function Settings() {
               onChange={(theme) => actions.setPreferences({ theme })}
               options={[
                 { value: 'system', label: t('settings.themeSystem') },
+                { value: 'default', label: t('settings.themeDefault') },
                 { value: 'light', label: t('settings.themeLight') },
                 { value: 'dark', label: t('settings.themeDark') },
               ]}

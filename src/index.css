@@ -1,141 +1,186 @@
 @import 'tailwindcss';
 
 /*
- * Archivo is bundled rather than fetched. This app has to work at a school
- * gate on one bar of signal, and a schedule that loses its typeface offline
- * is a schedule nobody can read in a hurry. latin-ext carries the Polish
- * diacritics; Danish sits inside latin.
+ * Flow. Soft pastel fields on a warm grey ground, heavy type, everything
+ * rounded into pills. Colour carries the answer: lime is you, cyan is the
+ * other home — on each parent's own phone — so the month reads at a glance.
+ *
+ * Figtree is bundled (see main.tsx), not fetched: this app has to work at a
+ * school gate on one bar of signal. Its latin-ext subset carries Polish.
  */
-@font-face {
-  font-family: 'Archivo';
-  font-style: normal;
-  font-weight: 400 700;
-  font-stretch: 100% 125%;
-  font-display: swap;
-  src: url('../fonts/archivo-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
-    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4,
-    U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-@font-face {
-  font-family: 'Archivo';
-  font-style: normal;
-  font-weight: 400 700;
-  font-stretch: 100% 125%;
-  font-display: swap;
-  src: url('../fonts/archivo-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
-}
-
 
 @theme {
-  /*
-   * One family, worked across its width axis. Archivo carries a real wdth
-   * axis, so the hierarchy is set by width as much as size: headings run wide,
-   * everything else sits at normal width and stays quiet.
-   */
-  --font-sans: 'Archivo', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Figtree Variable', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /*
-   * One scale, named by role: 10 / 11 / 12 / 14 / 16 / 20 / 24 / 32 / 40.
-   * Tailwind's xs, sm, base, xl and 2xl already land on 12, 14, 16, 20 and 24,
-   * so only the ends need defining. `nano` exists for one job: a fortnight of
-   * stays on a 320px phone leaves no room for anything larger.
+   * Named by role. Tailwind's xs, sm and base already give 12, 14 and 16;
+   * `ui` is the 15px most controls and list rows sit at.
    */
   --text-nano: 0.625rem;
   --text-nano--line-height: 1.1;
   --text-micro: 0.6875rem;
   --text-micro--line-height: 1.2;
-  --text-display: 2rem;
-  --text-display--line-height: 1.12;
-  --text-hero: 2.5rem;
-  --text-hero--line-height: 1;
+  --text-kicker: 0.8125rem;
+  --text-kicker--line-height: 1.3;
+  --text-ui: 0.9375rem;
+  --text-ui--line-height: 1.35;
+  --text-display: 1.75rem;
+  --text-display--line-height: 1.04;
+  /* Screen titles: 52px on a phone, eased down so "Październik" fits at 320. */
+  --text-hero: clamp(2.5rem, 13vw, 3.25rem);
+  --text-hero--line-height: 0.92;
+  --text-mega: clamp(3.25rem, 17vw, 4rem);
+  --text-mega--line-height: 0.9;
 
-  /*
-   * Chalk and sand. Light is the primary theme here — Scandinavian rooms are
-   * built around getting the most out of a little daylight.
-   */
-  --color-paper: #faf8f4;
+  /* The default theme: warm grey ground, white surfaces, ink controls. */
+  --color-paper: #ecebe7;
   --color-surface: #ffffff;
-  --color-sunken: #efeae1;
-  --color-line: #dcd5c9;
-  --color-ink: #22201c;
-  --color-muted: #6e675d;
-  --color-faint: #8c857a;
+  --color-sunken: #e2e0da;
+  --color-line: rgb(0 0 0 / 0.1);
+  --color-ink: #141413;
+  --color-onink: #ffffff;
+  --color-muted: #5b5955;
+  --color-faint: #696661;
+  --color-hug: #ffffff;
+  --color-nav: #141413;
+  --color-nav-text: #9a9893;
+  --color-nav-on: #ffffff;
+  --color-nav-on-text: #141413;
+
+  --color-lime: #d6ec95;
+  --color-lime-strong: #a8cc4a;
+  --color-lime-ink: #4f6118;
+  --color-cyan: #a9dbe6;
+  --color-cyan-strong: #6fbccd;
+  --color-cyan-ink: #1c5b69;
+  --color-pink: #f2c4bd;
+  --color-sand: #e8dfd0;
 
   /*
-   * One colour per home: muted earth against muted sea. Equal weight, warm
-   * against cool, and neither one is the alert colour. Deliberately not a
-   * terracotta — sand plus clay is the commonest generated-page signature
-   * there is, and this brief asked for the sand, not the clay.
+   * The two homes, as this device sees them: `a` and `b` are re-pointed at
+   * lime and cyan by data-me on <html>, so whichever parent holds the phone
+   * is lime. Pages only ever say home-a / home-b.
    */
-  --color-home-a: #8f6f1f;
-  --color-home-a-soft: #f0e3c1;
-  --color-home-b: #3f6076;
-  --color-home-b-soft: #d7e2ea;
+  --color-home-a: var(--color-lime);
+  --color-home-a-strong: var(--color-lime-strong);
+  --color-home-a-ink: var(--color-lime-ink);
+  --color-home-b: var(--color-cyan);
+  --color-home-b-strong: var(--color-cyan-strong);
+  --color-home-b-ink: var(--color-cyan-ink);
 
-  --color-positive: #3f6076;
-  --color-warn: #8f6f1f;
-  --color-danger: #9b3a2e;
+  --color-positive: var(--color-lime-ink);
+  --color-warn: #8a5a00;
+  --color-danger: #a8321f;
 
-  /* Small and consistent. No shadows anywhere: depth comes from space. */
-  --radius-card: 0.25rem;
-  --radius-stay: 0.625rem;
-  --radius-sheet: 1rem;
+  --radius-tile: 0.875rem;
+  --radius-photo: 1.125rem;
+  --radius-frame: 1.5rem;
+  --radius-card: 1.875rem;
+  --radius-sheet: 1.875rem;
+  --radius-stay: 999px;
 }
 
-/* Winter dusk: the same room after dark, not an inversion of it. */
+:root[data-me='b'] {
+  --color-home-a: var(--color-cyan);
+  --color-home-a-strong: var(--color-cyan-strong);
+  --color-home-a-ink: var(--color-cyan-ink);
+  --color-home-b: var(--color-lime);
+  --color-home-b-strong: var(--color-lime-strong);
+  --color-home-b-ink: var(--color-lime-ink);
+}
+
+/* Light: the same layout on near-white, with paler fields and a white nav. */
+:root[data-theme='light'] {
+  --color-paper: #f8f7f4;
+  --color-sunken: #efede8;
+  --color-line: rgb(0 0 0 / 0.08);
+  --color-ink: #1a1a19;
+  --color-muted: #6a6863;
+  --color-faint: #6f6c67;
+  --color-hug: #efede8;
+  --color-nav: #ffffff;
+  --color-nav-text: #8d8b86;
+  --color-nav-on: #1a1a19;
+  --color-nav-on-text: #ffffff;
+  --color-lime: #e6eed3;
+  --color-cyan: #dceaee;
+  --color-pink: #f3e1dd;
+  --color-sand: #efe9df;
+}
+
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-paper: #1b1a17;
-  --color-surface: #24221d;
-  --color-sunken: #2b2822;
-  --color-line: #3a362e;
-  --color-ink: #f2eee5;
-  --color-muted: #a7a094;
-  --color-faint: #7b7467;
-  --color-home-a: #d9ae4e;
-  --color-home-a-soft: #3a2f16;
-  --color-home-b: #8fb3c7;
-  --color-home-b-soft: #1f2e38;
-  --color-positive: #8fb3c7;
-  --color-warn: #d9ae4e;
-  --color-danger: #d98a7e;
+  --color-paper: #161615;
+  --color-surface: #222220;
+  --color-sunken: #2a2a27;
+  --color-line: rgb(255 255 255 / 0.1);
+  --color-ink: #efede8;
+  --color-onink: #161615;
+  --color-muted: #a19e97;
+  --color-faint: #8a877f;
+  --color-hug: #1f1f1d;
+  --color-nav: #242422;
+  --color-nav-text: #8d8b86;
+  --color-nav-on: #efede8;
+  --color-nav-on-text: #161615;
+  --color-lime: #38402a;
+  --color-lime-strong: #6b7d3e;
+  --color-lime-ink: #c9e08a;
+  --color-cyan: #283c41;
+  --color-cyan-strong: #3f6a74;
+  --color-cyan-ink: #9fd3df;
+  --color-pink: #442f2c;
+  --color-sand: #34302a;
+  --color-warn: #e7c06a;
+  --color-danger: #ef9a8a;
 }
 
+/* "System" sets no data-theme: the default theme by day, dark by night. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-theme]) {
     color-scheme: dark;
-    --color-paper: #1b1a17;
-    --color-surface: #24221d;
-    --color-sunken: #2b2822;
-    --color-line: #3a362e;
-    --color-ink: #f2eee5;
-    --color-muted: #a7a094;
-    --color-faint: #7b7467;
-    --color-home-a: #d9ae4e;
-    --color-home-a-soft: #3a2f16;
-    --color-home-b: #8fb3c7;
-    --color-home-b-soft: #1f2e38;
-    --color-positive: #8fb3c7;
-    --color-warn: #d9ae4e;
-    --color-danger: #d98a7e;
+    --color-paper: #161615;
+    --color-surface: #222220;
+    --color-sunken: #2a2a27;
+    --color-line: rgb(255 255 255 / 0.1);
+    --color-ink: #efede8;
+    --color-onink: #161615;
+    --color-muted: #a19e97;
+    --color-faint: #8a877f;
+    --color-hug: #1f1f1d;
+    --color-nav: #242422;
+    --color-nav-text: #8d8b86;
+    --color-nav-on: #efede8;
+    --color-nav-on-text: #161615;
+    --color-lime: #38402a;
+    --color-lime-strong: #6b7d3e;
+    --color-lime-ink: #c9e08a;
+    --color-cyan: #283c41;
+    --color-cyan-strong: #3f6a74;
+    --color-cyan-ink: #9fd3df;
+    --color-pink: #442f2c;
+    --color-sand: #34302a;
+    --color-warn: #e7c06a;
+    --color-danger: #ef9a8a;
   }
 }
 
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    background-color: var(--color-paper);
+  }
+
+  /* Money takes the whole screen in pink: the balance is the screen. */
+  html[data-screen='money'] {
+    background-color: var(--color-pink);
   }
 
   body {
-    background-color: var(--color-paper);
+    background-color: transparent;
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-variation-settings: 'wdth' 100;
+    font-size: 1rem;
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: none;
   }
@@ -150,23 +195,34 @@
 
   :focus-visible {
     outline: 2px solid var(--color-ink);
-    outline-offset: 3px;
+    outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-home-a-soft);
+    background: var(--color-lime);
     color: var(--color-ink);
   }
 }
 
 @layer components {
-  /*
-   * The width axis is the headline treatment. Reserved for the few places
-   * that name what is happening: the day's answer, screen titles, amounts.
-   */
+  /* Screen titles and the day's answer: the heaviest, tightest type there is. */
+  .headline {
+    font-weight: 900;
+    letter-spacing: -0.045em;
+  }
+
+  /* Section and card headings. Hierarchy is weight, not width. */
   .wide {
-    font-variation-settings: 'wdth' 120;
-    letter-spacing: -0.012em;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  /* The small label at the top of a card or block. */
+  .kicker {
+    font-size: var(--text-kicker);
+    line-height: var(--text-kicker--line-height);
+    font-weight: 700;
+    opacity: 0.7;
   }
 
   /* Dates and money are read, compared and remembered. */
@@ -175,29 +231,48 @@
   }
 
   .field {
+    display: block;
     width: 100%;
+    height: 2.75rem;
     border: 0;
-    border-bottom: 1px solid var(--color-line);
-    border-radius: 0;
-    background: transparent;
-    padding: 0.5rem 0;
-    font-size: 1rem;
+    border-radius: 999px;
+    background: var(--color-surface);
+    padding: 0 1.125rem;
+    font-size: var(--text-ui);
+    box-shadow: inset 0 0 0 1.5px var(--color-line);
     outline: none;
   }
 
   .field:focus {
-    border-bottom-color: var(--color-ink);
-    outline: none;
+    box-shadow: inset 0 0 0 2px var(--color-ink);
+  }
+
+  textarea.field {
+    height: auto;
+    min-height: 5.5rem;
+    border-radius: 1.375rem;
+    padding: 0.75rem 1.125rem;
+    line-height: 1.4;
   }
 
   select.field {
-    padding-right: 1rem;
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a7771' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+  }
+
+  input[type='date'].field,
+  input[type='time'].field {
+    padding-right: 0.75rem;
   }
 }
 
 @keyframes sheet-in {
   from {
-    transform: translateY(14px);
+    transform: translateY(18px);
     opacity: 0;
   }
   to {
@@ -206,10 +281,7 @@
   }
 }
 
-/*
- * The one piece of uninvited motion in the app: the ribbon of days wipes in
- * once, on the screen that exists to show it.
- */
+/* The fortnight wipes in once, on the screen that exists to show it. */
 @keyframes stay-in {
   from {
     clip-path: inset(0 100% 0 0);
@@ -220,7 +292,7 @@
 }
 
 .animate-sheet {
-  animation: sheet-in 0.18s ease-out;
+  animation: sheet-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .animate-stay {

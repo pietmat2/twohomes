@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { IconBag, IconPlus } from '../components/icons'
 import {
+  Bar,
   Button,
   Card,
   EmptyState,
@@ -19,45 +20,45 @@ export default function Kids() {
   const [editing, setEditing] = useState<Kid | 'new' | null>(null)
 
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <h1 className="wide text-2xl font-semibold">
-          {t('kids.title')}
-        </h1>
-        <Button size="sm" onClick={() => setEditing('new')}>
-          <IconPlus width={16} height={16} />
-          {t('common.add')}
-        </Button>
-      </div>
+    <div className="space-y-[18px]">
+      <Bar
+        action={
+          <Button size="sm" variant="primary" onClick={() => setEditing('new')}>
+            <IconPlus width={14} height={14} strokeWidth={2.5} />
+            {t('kids.addChild')}
+          </Button>
+        }
+      />
+      <h1 className="headline pt-3 pb-1 text-hero">{t('kids.title')}</h1>
 
       {state.kids.length === 0 ? (
         <EmptyState
           title={t('kids.emptyTitle')}
           body={t('kids.emptyBody')}
           action={
-            <Button variant="primary" size="sm" onClick={() => setEditing('new')}>
+            <Button variant="primary" onClick={() => setEditing('new')}>
               {t('kids.addChild')}
             </Button>
           }
         />
       ) : (
-        <ul className="space-y-10">
+        <ul className="space-y-3.5">
           {state.kids.map((kid) => {
             const age = ageFrom(kid.birthdate)
             const items = state.bag.filter((item) => item.kidId === kid.id)
             return (
               <Card as="li" key={kid.id}>
                 <div className="flex items-start gap-4">
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sunken text-base font-semibold text-muted">
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sand text-base font-extrabold">
                     {kid.emoji || initials(kid.name)}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <p className="truncate font-semibold">{kid.name}</p>
+                      <p className="wide truncate text-xl">{kid.name}</p>
                       <button
                         type="button"
                         onClick={() => setEditing(kid)}
-                        className="shrink-0 text-sm text-muted hover:text-ink"
+                        className="shrink-0 text-sm font-bold underline underline-offset-4"
                       >
                         {t('common.edit')}
                       </button>
@@ -88,7 +89,7 @@ export default function Kids() {
         <button
           type="button"
           onClick={actions.resetBag}
-          className="w-full text-center text-sm text-muted hover:text-ink"
+          className="w-full pt-2 text-center text-sm font-bold text-muted hover:text-ink"
         >
           {t('kids.clearPacked')}
         </button>
@@ -122,8 +123,8 @@ function Detail({
 }) {
   return (
     <div className="flex gap-4">
-      <dt className="w-24 shrink-0 text-sm text-faint">{label}</dt>
-      <dd className={cx('min-w-0 flex-1', emphasis ? 'font-medium text-danger' : 'text-muted')}>
+      <dt className="w-24 shrink-0 text-sm font-bold text-muted">{label}</dt>
+      <dd className={cx('min-w-0 flex-1', emphasis ? 'font-bold text-danger' : 'text-ink')}>
         {value}
       </dd>
     </div>
@@ -142,8 +143,8 @@ function BagList({
   const [adding, setAdding] = useState('')
 
   return (
-    <div className="mt-6 border-t border-line pt-5">
-      <p className="mb-3 flex items-center gap-2 text-sm text-muted">
+    <div className="mt-5 rounded-frame bg-paper p-4">
+      <p className="kicker mb-2 flex items-center gap-2">
         <IconBag width={15} height={15} />
         {t('kids.travelsBetweenHomes')}
       </p>
@@ -154,12 +155,12 @@ function BagList({
               <button
                 type="button"
                 onClick={() => actions.toggleBagItem(item.id)}
-                className="flex flex-1 items-center gap-3 rounded-card px-2 py-1.5 text-left text-sm hover:bg-sunken"
+                className="flex flex-1 items-center gap-3 rounded-full px-2 py-1.5 text-left text-ui hover:bg-sunken"
               >
                 <span
                   className={cx(
-                    'flex size-4 shrink-0 items-center justify-center rounded border',
-                    item.packed ? 'border-ink bg-ink text-paper' : 'border-line',
+                    'flex size-5 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold',
+                    item.packed ? 'border-ink bg-ink text-onink' : 'border-line',
                   )}
                   aria-hidden
                 >
@@ -188,7 +189,7 @@ function BagList({
         }}
       >
         <input
-          className="field py-1.5 text-sm"
+          className="field mt-1"
           value={adding}
           onChange={(e) => setAdding(e.target.value)}
           placeholder={t('kids.addItem')}

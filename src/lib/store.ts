@@ -58,6 +58,8 @@ export interface Actions {
   removeMoment: (id: string) => void
 
   replaceState: (state: AppState) => void
+  /** Puts a card on Today away. Kept for 30 days, then forgotten. */
+  dismissCard: (key: string) => void
 
   /** Sync plumbing, used by SyncProvider. None of these is recorded as a change. */
   startSharing: (state: AppState) => void

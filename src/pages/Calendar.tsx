@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
   isSameMonth,
-  isToday,
   parseISO,
   startOfMonth,
   startOfWeek,
@@ -13,9 +13,12 @@ import {
 } from 'date-fns'
 import { IconChevronLeft, IconChevronRight, IconPlus, IconSwap } from '../components/icons'
 import {
+  Bar,
   Button,
+  CircleButton,
   Field,
   HomeTag,
+  Hug,
   Pill,
   Row,
   Rows,
@@ -28,8 +31,8 @@ import {
 import { prettyTime } from '../lib/format'
 import { holidaysBetween, holidaysOn, type Holiday } from '../lib/holidays'
 import { useI18n } from '../lib/i18n'
-import { assignmentFor, nightsSplit, otherParent, toISO, type DayAssignment } from '../lib/schedule'
-import { useApp } from '../lib/store'
+import { assignmentFor, nightsSplit, otherParent, toISO } from '../lib/schedule'
+import { nameOf, useApp } from '../lib/store'
 import type { EventType, ParentId } from '../lib/types'
 
 const EVENT_TYPES: { value: EventType }[] = [
@@ -40,50 +43,20 @@ const EVENT_TYPES: { value: EventType }[] = [
   { value: 'other' },
 ]
 
-interface WeekRun {
-  parent: ParentId
-  days: DayAssignment[]
-  /** The stay begins here, rather than carrying over from the previous week. */
-  opensLeft: boolean
-  /** The stay ends here, rather than continuing into the next week. */
-  closesRight: boolean
-}
-
-/**
- * Split one week into the stays it contains. A stay running past Sunday is
- * left square on that edge, so the block visibly carries into the next row.
- */
-function runsForWeek(days: DayAssignment[], nextDay: DayAssignment | null): WeekRun[] {
-  const runs: WeekRun[] = []
-  days.forEach((day, index) => {
-    const current = runs[runs.length - 1]
-    if (current && current.parent === day.parent) {
-      current.days.push(day)
-      return
-    }
-    runs.push({
-      parent: day.parent,
-      days: [day],
-      opensLeft: index === 0 ? day.isHandover : true,
-      closesRight: true,
-    })
-  })
-  const last = runs[runs.length - 1]
-  if (last) last.closesRight = nextDay ? nextDay.parent !== last.parent : true
-  return runs
-}
+type SheetMode = 'overview' | 'event' | 'swap'
 
 export default function CalendarPage() {
-  const { state } = useApp()
-  const { t, monthTitle, weekdayNarrow, holidayName, dayRange } = useI18n()
+  const { state, me, them } = useApp()
+  const { t, monthTitle, weekdayNarrow, holidayName, dayRange, longDay, joinList } = useI18n()
   const [cursor, setCursor] = useState(() => new Date())
-  const [selected, setSelected] = useState<string | null>(null)
+  const todayIso = toISO(new Date())
+  const [selected, setSelected] = useState(todayIso)
+  const [sheet, setSheet] = useState<{ date: string; mode: SheetMode } | null>(null)
 
-  const weeks = useMemo(() => {
+  const days = useMemo(() => {
     const start = startOfWeek(startOfMonth(cursor), { weekStartsOn: 1 })
     const end = endOfWeek(endOfMonth(cursor), { weekStartsOn: 1 })
-    const all = eachDayOfInterval({ start, end })
-    return Array.from({ length: Math.ceil(all.length / 7) }, (_, i) => all.slice(i * 7, i * 7 + 7))
+    return eachDayOfInterval({ start, end })
   }, [cursor])
 
   const split = nightsSplit(state, startOfMonth(cursor), endOfMonth(cursor).getDate())
@@ -98,8 +71,8 @@ export default function CalendarPage() {
 
   // Holidays across the whole grid, including the days of the months either side.
   const gridHolidays = useMemo(
-    () => holidaysBetween(state.holidays, toISO(weeks[0][0]), toISO(weeks[weeks.length - 1][6])),
-    [state.holidays, weeks],
+    () => holidaysBetween(state.holidays, toISO(days[0]), toISO(days[days.length - 1])),
+    [state.holidays, days],
   )
   const monthHolidays = holidaysBetween(
     state.holidays,
@@ -109,184 +82,239 @@ export default function CalendarPage() {
   const on = (date: string, kind: Holiday['kind']) =>
     gridHolidays.some((h) => h.kind === kind && h.start <= date && h.end >= date)
 
+  /** The day a swap is asked for: the chosen one if it is yours, else your next one. */
+  function askForSwap() {
+    const chosen = assignmentFor(state, selected)
+    if (chosen.parent === me && selected >= todayIso) {
+      setSheet({ date: selected, mode: 'swap' })
+      return
+    }
+    for (let i = 0; i < 60; i++) {
+      const date = toISO(addDays(new Date(), i))
+      if (assignmentFor(state, date).parent === me) {
+        setSheet({ date, mode: 'swap' })
+        return
+      }
+    }
+  }
+
+  const chosen = assignmentFor(state, selected)
+  const chosenEvents = state.events
+    .filter((e) => e.date === selected)
+    .sort((x, y) => (x.time ?? '').localeCompare(y.time ?? ''))
+  const chosenHolidays = holidaysOn(state.holidays, selected)
+  const chosenSwap = pendingSwaps.find((s) => s.dates.includes(selected))
+
   return (
-    <div className="space-y-12">
-      <div className="flex items-baseline justify-between">
-        <h1 className="wide text-2xl font-semibold tracking-[-0.015em]">
-          {monthTitle(cursor)}
-        </h1>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label={t('calendar.previousMonth')}
-            onClick={() => setCursor((c) => subMonths(c, 1))}
-            className="rounded-md p-1.5 text-muted hover:text-ink"
-          >
-            <IconChevronLeft width={18} height={18} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setCursor(new Date())}
-            className="px-1 text-sm text-muted hover:text-ink"
-          >
-            {t('calendar.today')}
-          </button>
-          <button
-            type="button"
-            aria-label={t('calendar.nextMonth')}
-            onClick={() => setCursor((c) => addMonths(c, 1))}
-            className="rounded-md p-1.5 text-muted hover:text-ink"
-          >
-            <IconChevronRight width={18} height={18} />
-          </button>
-        </div>
-      </div>
+    <div className="relative">
+      <Hug className="-left-[60px] top-[380px] opacity-90" />
+      <div className="relative z-[1]">
+        <Bar
+          action={
+            <Button size="sm" onClick={askForSwap}>
+              {t('calendar.askForSwap')}
+            </Button>
+          }
+        />
 
-      <div>
-        <div className="grid grid-cols-7 gap-1">
+        <div className="mt-[30px] flex items-end justify-between gap-3">
+          <h1 className="headline min-w-0 text-hero">{monthTitle(cursor)}</h1>
+          <div className="flex shrink-0 gap-1.5 pb-1">
+            <CircleButton
+              tone="surface"
+              label={t('calendar.previousMonth')}
+              onClick={() => setCursor((c) => subMonths(c, 1))}
+            >
+              <IconChevronLeft width={18} height={18} strokeWidth={2.5} />
+            </CircleButton>
+            <CircleButton
+              tone="surface"
+              label={t('calendar.nextMonth')}
+              onClick={() => setCursor((c) => addMonths(c, 1))}
+            >
+              <IconChevronRight width={18} height={18} strokeWidth={2.5} />
+            </CircleButton>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <HomeTag
+            parent={me}
+            name={t('calendar.youNights', { nights: t('common.nights', { count: me === 'a' ? split.a : split.b }) })}
+          />
+          <HomeTag
+            parent={them}
+            name={t('calendar.themNights', {
+              name: state.parents[them].name,
+              nights: t('common.nights', { count: me === 'a' ? split.b : split.a }),
+            })}
+          />
+        </div>
+
+        <div className="numeral mt-5 grid grid-cols-7 gap-1">
           {weekdayLabels.map((label, index) => (
-            <div key={index} className="pb-1.5 text-center text-xs text-faint">
+            <span key={index} aria-hidden className="pb-1 text-center text-micro font-bold text-muted">
               {label}
-            </div>
+            </span>
           ))}
-        </div>
-
-        <div className="space-y-1">
-          {weeks.map((week, weekIndex) => {
-            const assignments = week.map((day) => assignmentFor(state, toISO(day)))
-            const nextWeek = weeks[weekIndex + 1]
-            const nextDay = nextWeek ? assignmentFor(state, toISO(nextWeek[0])) : null
-            const runs = runsForWeek(assignments, nextDay)
-
+          {days.map((day) => {
+            const iso = toISO(day)
+            const assignment = assignmentFor(state, iso)
+            const inMonth = isSameMonth(day, cursor)
+            const events = state.events.some((e) => e.date === iso)
+            const awaiting = pendingSwaps.some((s) => s.dates.includes(iso))
+            const publicHoliday = on(iso, 'public')
+            const schoolBreak = on(iso, 'school')
             return (
-              <div key={weekIndex} className="grid grid-cols-7 gap-1">
-                {runs.map((run) => (
-                  <div
-                    key={run.days[0].date}
-                    style={{ gridColumn: `span ${run.days.length}` }}
-                    className={cx(
-                      'flex overflow-hidden',
-                      homeStyles[run.parent].bg,
-                      run.opensLeft && 'rounded-l-stay',
-                      run.closesRight && 'rounded-r-stay',
-                    )}
-                  >
-                    {run.days.map((day) => {
-                      const date = parseISO(day.date)
-                      const inMonth = isSameMonth(date, cursor)
-                      const events = state.events.filter((e) => e.date === day.date)
-                      const awaiting = pendingSwaps.some((s) => s.dates.includes(day.date))
-                      const publicHoliday = on(day.date, 'public')
-                      const schoolBreak = on(day.date, 'school')
-                      return (
-                        <button
-                          key={day.date}
-                          type="button"
-                          onClick={() => setSelected(day.date)}
-                          className={cx(
-                            'flex min-w-0 flex-1 flex-col items-center justify-center py-2.5',
-                            homeStyles[run.parent].text,
-                            !inMonth && 'opacity-30',
-                          )}
-                        >
-                          <span
-                            className={cx(
-                              'numeral flex size-6 items-center justify-center text-sm',
-                              isToday(date) &&
-                                cx(
-                                  'rounded-full font-bold text-paper',
-                                  homeStyles[run.parent].solid,
-                                ),
-                              // A public holiday is underlined, like a red day in a printed calendar.
-                              publicHoliday && 'underline decoration-1 underline-offset-[3px]',
-                            )}
-                          >
-                            {date.getDate()}
-                          </span>
-                          <span className="mt-1 flex h-1.5 items-center gap-1">
-                            {/* A dash: the children are off school. */}
-                            {schoolBreak ? (
-                              <span className="h-0.5 w-2.5 rounded-full bg-current opacity-70" aria-hidden />
-                            ) : null}
-                            {events.length > 0 ? (
-                              <span className="size-1.5 rounded-full bg-current" aria-hidden />
-                            ) : null}
-                            {/* Hollow: this day was moved off the pattern. */}
-                            {day.override ? (
-                              <span
-                                className="size-1.5 rounded-full border border-current"
-                                aria-hidden
-                              />
-                            ) : null}
-                            {awaiting ? (
-                              <span className="size-1.5 rounded-full bg-warn" aria-hidden />
-                            ) : null}
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                ))}
-              </div>
+              <button
+                key={iso}
+                type="button"
+                onClick={() => {
+                  setSelected(iso)
+                  if (!inMonth) setCursor(day)
+                }}
+                aria-pressed={selected === iso}
+                aria-label={`${longDay(iso)}, ${nameOf(state, assignment.parent, t('common.you'))}`}
+                className={cx(
+                  'relative flex aspect-square items-center justify-center rounded-tile text-ui font-extrabold',
+                  inMonth ? homeStyles[assignment.parent].bg : 'text-muted opacity-50',
+                  iso === todayIso && 'shadow-[inset_0_0_0_2.5px_var(--color-ink)]',
+                  selected === iso &&
+                    iso !== todayIso &&
+                    'outline-2 -outline-offset-[5px] outline-ink outline-dashed',
+                )}
+              >
+                {/* A public holiday is underlined, like a red day in a printed calendar. */}
+                <span className={cx(publicHoliday && 'underline decoration-2 underline-offset-[3px]')}>
+                  {day.getDate()}
+                </span>
+                {/* A short bar along the top: the children are off school. */}
+                {schoolBreak && inMonth ? (
+                  <span aria-hidden className="absolute top-[5px] h-[3px] w-3 rounded-full bg-ink/60" />
+                ) : null}
+                {inMonth && (events || assignment.override || awaiting) ? (
+                  <span aria-hidden className="absolute bottom-[5px] flex gap-[3px]">
+                    {events ? <span className="size-[5px] rounded-full bg-ink" /> : null}
+                    {/* Hollow: this day was moved off the pattern. */}
+                    {assignment.override ? (
+                      <span className="size-[5px] rounded-full border border-ink" />
+                    ) : null}
+                    {awaiting ? <span className="size-[5px] rounded-full bg-warn" /> : null}
+                  </span>
+                ) : null}
+              </button>
             )
           })}
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-sm text-muted">
-          <HomeTag
-            parent="a"
-            name={t('calendar.nightsFor', {
-              name: state.parents.a.name,
-              nights: t('common.nights', { count: split.a }),
-            })}
-          />
-          <HomeTag
-            parent="b"
-            name={t('calendar.nightsFor', {
-              name: state.parents.b.name,
-              nights: t('common.nights', { count: split.b }),
-            })}
-          />
-          {monthHolidays.some((h) => h.kind === 'school') ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="h-0.5 w-2.5 rounded-full bg-ink opacity-70" aria-hidden />
-              {t('calendar.schoolBreak')}
-            </span>
-          ) : null}
-          {monthHolidays.some((h) => h.kind === 'public') ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="numeral underline decoration-1 underline-offset-[3px]" aria-hidden>
-                1
+        {monthHolidays.length > 0 ? (
+          <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 px-1 text-xs font-bold text-muted">
+            {monthHolidays.some((h) => h.kind === 'school') ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="h-[3px] w-3 rounded-full bg-ink/60" />
+                {t('calendar.schoolBreak')}
               </span>
-              {t('calendar.publicHoliday')}
-            </span>
-          ) : null}
+            ) : null}
+            {monthHolidays.some((h) => h.kind === 'public') ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="numeral underline decoration-2 underline-offset-[3px]">
+                  1
+                </span>
+                {t('calendar.publicHoliday')}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+
+        {/* The chosen day, read without opening anything. */}
+        <section className="mt-3.5 rounded-card bg-surface p-[22px]">
+          <h2 className="kicker">{longDay(selected)}</h2>
+          <ul className="mt-1 divide-y-[1.5px] divide-line text-ui">
+            <li className="flex items-center justify-between gap-3 py-3.5">
+              <b className="font-extrabold">
+                {chosen.parent === me
+                  ? t('calendar.withYou')
+                  : t('calendar.withParent', { name: state.parents[chosen.parent].name })}
+              </b>
+              <span aria-hidden className={cx('size-3 shrink-0 rounded-full', homeStyles[chosen.parent].solid)} />
+            </li>
+            {chosen.isHandover ? (
+              <li className="flex items-center justify-between gap-3 py-3.5">
+                <span>
+                  <b className="font-extrabold">{t('calendar.changeover')}</b>
+                  {state.schedule.handoverPlace ? ` · ${state.schedule.handoverPlace}` : ''}
+                </span>
+                <span className="numeral">{prettyTime(state.schedule.handoverTime)}</span>
+              </li>
+            ) : null}
+            {chosenEvents.map((event) => {
+              const kids = joinList(
+                state.kids.filter((k) => event.kidIds.includes(k.id)).map((k) => k.name),
+              )
+              return (
+                <li key={event.id} className="flex items-center justify-between gap-3 py-3.5">
+                  <span className="min-w-0">
+                    <b className="font-extrabold">{event.title}</b>
+                    {kids ? ` · ${kids}` : ''}
+                  </span>
+                  {event.time ? <span className="numeral shrink-0">{prettyTime(event.time)}</span> : null}
+                </li>
+              )
+            })}
+            {chosenHolidays.map((holiday) => (
+              <li key={`${holiday.key}-${holiday.start}`} className="flex items-center justify-between gap-3 py-3.5">
+                <b className="min-w-0 font-extrabold">{holidayName(holiday)}</b>
+                <span className="shrink-0 text-sm text-muted">
+                  {t(holiday.kind === 'school' ? 'calendar.schoolBreak' : 'calendar.publicHoliday')}
+                </span>
+              </li>
+            ))}
+            {chosen.override ? (
+              <li className="py-3.5 text-muted">
+                {chosen.override.reason
+                  ? t('calendar.changedFromPatternReason', { reason: chosen.override.reason })
+                  : t('calendar.changedFromPattern')}
+              </li>
+            ) : null}
+            {chosenSwap ? <li className="py-3.5 text-muted">{t('calendar.noReplyYet')}</li> : null}
+          </ul>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button size="sm" variant="primary" onClick={() => setSheet({ date: selected, mode: 'overview' })}>
+              {t('calendar.changeDay')}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setSheet({ date: selected, mode: 'event' })}>
+              <IconPlus width={14} height={14} strokeWidth={2.5} />
+              {t('calendar.newEvent')}
+            </Button>
+          </div>
+        </section>
+
+        {monthHolidays.length > 0 ? (
+          <section className="mt-3.5 rounded-card bg-surface p-[22px]">
+            <h2 className="kicker">{t('calendar.holidays')}</h2>
+            <ul className="mt-1 divide-y-[1.5px] divide-line text-ui">
+              {monthHolidays.map((holiday) => (
+                <li key={`${holiday.key}-${holiday.start}`} className="flex items-center justify-between gap-3 py-3.5">
+                  <b className="min-w-0 font-extrabold">{holidayName(holiday)}</b>
+                  <span className="numeral shrink-0 text-sm text-muted">{dayRange(holiday.start, holiday.end)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        <div className="mt-10">
+          <SwapRequests />
         </div>
       </div>
 
-      {monthHolidays.length > 0 ? (
-        <section>
-          <SectionTitle>{t('calendar.holidays')}</SectionTitle>
-          <Rows>
-            {monthHolidays.map((holiday) => (
-              <Row key={`${holiday.key}-${holiday.start}`}>
-                <p className="numeral w-24 shrink-0 text-sm text-muted">
-                  {dayRange(holiday.start, holiday.end)}
-                </p>
-                <p className="min-w-0 flex-1 text-sm font-medium">{holidayName(holiday)}</p>
-                <span className="shrink-0 text-xs text-faint">
-                  {t(holiday.kind === 'school' ? 'calendar.schoolBreak' : 'calendar.publicHoliday')}
-                </span>
-              </Row>
-            ))}
-          </Rows>
-        </section>
-      ) : null}
-
-      <SwapRequests />
-
-      {selected ? (
-        <DaySheet date={selected} onClose={() => setSelected(null)} key={selected} />
+      {sheet ? (
+        <DaySheet
+          key={`${sheet.date}-${sheet.mode}`}
+          date={sheet.date}
+          initialMode={sheet.mode}
+          onClose={() => setSheet(null)}
+        />
       ) : null}
     </div>
   )
@@ -379,13 +407,21 @@ function SwapRequests() {
   )
 }
 
-function DaySheet({ date, onClose }: { date: string; onClose: () => void }) {
+function DaySheet({
+  date,
+  initialMode = 'overview',
+  onClose,
+}: {
+  date: string
+  initialMode?: SheetMode
+  onClose: () => void
+}) {
   const { state, actions, me } = useApp()
   const { t, longDay, joinList, holidayName } = useI18n()
   const assignment = assignmentFor(state, date)
   const holidays = holidaysOn(state.holidays, date)
   const events = state.events.filter((e) => e.date === date)
-  const [mode, setMode] = useState<'overview' | 'event' | 'swap'>('overview')
+  const [mode, setMode] = useState<SheetMode>(initialMode)
 
   return (
     <Sheet open onClose={onClose} title={longDay(date)}>
@@ -532,8 +568,8 @@ export function KidPicker({
             type="button"
             onClick={() => onChange(on ? value.filter((id) => id !== kid.id) : [...value, kid.id])}
             className={cx(
-              'rounded-full border px-3 py-1.5 text-sm transition-colors',
-              on ? 'border-ink bg-ink text-paper' : 'border-line text-muted hover:text-ink',
+              'h-[34px] rounded-full px-3.5 text-kicker font-bold transition-colors',
+              on ? 'bg-ink text-onink' : 'bg-surface text-ink hover:bg-sunken',
             )}
           >
             {kid.name}

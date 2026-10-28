@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { getISOWeek } from 'date-fns'
 import { IconCamera, IconPlus } from '../components/icons'
-import { Button, EmptyState, Field, Pill, Sheet, cx } from '../components/ui'
+import { Bar, Button, EmptyState, Field, Pill, Sheet, cx, homeStyles } from '../components/ui'
 import { useI18n } from '../lib/i18n'
 import { toISO } from '../lib/schedule'
 import { fileToPhoto } from '../lib/storage'
@@ -28,129 +28,165 @@ const IDEA_KEYS = [
 ] as const
 
 export default function Moments() {
-  const { state, actions, me } = useApp()
-  const { t, daySpoken, joinList } = useI18n()
-  const [open, setOpen] = useState(false)
-  const [kidFilter, setKidFilter] = useState('all')
+  const { state, actions, me, them } = useApp()
+  const { t, friendlyDay, daySpoken, joinList } = useI18n()
+  const [adding, setAdding] = useState(false)
+  const [viewing, setViewing] = useState<string | null>(null)
+  const [filter, setFilter] = useState<'all' | 'mine' | 'theirs'>('all')
 
   const idea = t(IDEA_KEYS[getISOWeek(new Date()) % IDEA_KEYS.length])
 
   const moments = [...state.moments]
-    .filter((m) => kidFilter === 'all' || m.kidIds.includes(kidFilter))
+    .filter((m) => filter === 'all' || (filter === 'mine') === (m.by === me))
     .sort((x, y) => y.createdAt.localeCompare(x.createdAt))
 
+  // Two columns, filled alternately; tall and short frames take turns so the
+  // album never lines up into a grid.
+  const columns = [moments.filter((_, i) => i % 2 === 0), moments.filter((_, i) => i % 2 === 1)]
+  const current = state.moments.find((m) => m.id === viewing)
+
+  const filters: { value: typeof filter; label: string }[] = [
+    { value: 'all', label: t('moments.together') },
+    { value: 'mine', label: t('moments.fromYou') },
+    { value: 'theirs', label: t('moments.fromThem', { name: state.parents[them].name }) },
+  ]
+
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="wide text-2xl font-semibold">
-            {t('moments.title')}
-          </h1>
-          <p className="text-sm text-muted">{t('moments.subtitle')}</p>
-        </div>
-        <Button size="sm" variant="primary" onClick={() => setOpen(true)}>
-          <IconPlus width={16} height={16} />
-          {t('moments.share')}
-        </Button>
+    <div>
+      <Bar
+        action={
+          <Button size="sm" variant="primary" onClick={() => setAdding(true)}>
+            <IconPlus width={14} height={14} strokeWidth={2.5} />
+            {t('moments.add')}
+          </Button>
+        }
+      />
+      <h1 className="headline mt-[30px] text-hero">{t('moments.title')}</h1>
+
+      <div className="mt-[18px] flex flex-wrap gap-2">
+        {filters.map((option) => (
+          <Button
+            key={option.value}
+            size="sm"
+            variant={filter === option.value ? 'primary' : 'secondary'}
+            aria-pressed={filter === option.value}
+            onClick={() => setFilter(option.value)}
+          >
+            {option.label}
+          </Button>
+        ))}
       </div>
 
-      <div className="border-l-2 border-line pl-4">
-        <p className="wide text-xl italic">{idea}</p>
-        <p className="mt-1 text-sm text-faint">{t('moments.ideaCaption')}</p>
+      <div className="mt-[18px] rounded-frame bg-sand px-5 py-4">
+        <p className="kicker">{t('moments.ideaCaption')}</p>
+        <p className="mt-1 text-ui font-extrabold">{idea}</p>
       </div>
-
-      {state.kids.length > 1 ? (
-        <div className="flex flex-wrap gap-2">
-          {[{ id: 'all', name: t('common.everyone') }, ...state.kids].map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => setKidFilter(option.id)}
-              className={cx(
-                'rounded-card border px-3 py-2 text-sm transition-colors',
-                kidFilter === option.id
-                  ? 'border-ink bg-ink text-paper'
-                  : 'border-line text-muted hover:text-ink',
-              )}
-            >
-              {option.name}
-            </button>
-          ))}
-        </div>
-      ) : null}
 
       {moments.length === 0 ? (
-        <EmptyState
-          title={t('moments.emptyTitle')}
-          body={t('moments.emptyBody')}
-          action={
-            <Button variant="primary" size="sm" onClick={() => setOpen(true)}>
-              {t('moments.shareSomething')}
-            </Button>
-          }
-        />
+        <div className="mt-[18px]">
+          <EmptyState
+            title={t('moments.emptyTitle')}
+            body={t('moments.emptyBody')}
+            action={
+              <Button variant="primary" onClick={() => setAdding(true)}>
+                {t('moments.shareSomething')}
+              </Button>
+            }
+          />
+        </div>
       ) : (
-        <ul className="space-y-10">
-          {moments.map((moment) => {
-            const mine = moment.by === me
-            const kids = state.kids.filter((k) => moment.kidIds.includes(k.id))
-            return (
-              <li key={moment.id} className="border-t border-line pt-6">
-                {moment.photo ? (
-                  <img
-                    src={moment.photo}
-                    alt={moment.caption ?? t('moments.sharedPhoto')}
-                    className="mb-4 max-h-96 w-full rounded-card object-cover"
-                  />
-                ) : null}
-                <div>
-                  {moment.caption ? (
-                    <p className="text-base leading-relaxed">{moment.caption}</p>
-                  ) : null}
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted">
-                    <span>
-                      {kids.length > 0
-                        ? t('moments.bylineWithKids', {
-                            name: nameOf(state, moment.by, t('common.you')),
-                            day: daySpoken(moment.date),
-                            kids: joinList(kids.map((k) => k.name)),
-                          })
-                        : t('moments.byline', {
-                            name: nameOf(state, moment.by, t('common.you')),
-                            day: daySpoken(moment.date),
-                          })}
+        <div className="mt-[18px] grid grid-cols-2 gap-2.5">
+          {columns.map((column, c) => (
+            <div key={c} className="flex min-w-0 flex-col gap-2.5">
+              {column.map((moment, r) => {
+                const tall = (r + c) % 2 === 0
+                const kids = joinList(
+                  state.kids.filter((k) => moment.kidIds.includes(k.id)).map((k) => k.name),
+                )
+                const unseen = moment.by !== me && !moment.seenByOther
+                return (
+                  <button
+                    key={moment.id}
+                    type="button"
+                    onClick={() => setViewing(moment.id)}
+                    className={cx(
+                      'relative flex min-w-0 flex-col gap-2 rounded-frame p-2 pb-3 text-left',
+                      homeStyles[moment.by].bg,
+                    )}
+                  >
+                    {moment.photo ? (
+                      <img
+                        src={moment.photo}
+                        alt={moment.caption ?? t('moments.sharedPhoto')}
+                        className={cx('w-full rounded-photo object-cover', tall ? 'h-[220px]' : 'h-[140px]')}
+                      />
+                    ) : null}
+                    {moment.caption ? (
+                      <p className="line-clamp-4 px-1.5 text-sm leading-tight font-extrabold">
+                        {moment.caption}
+                      </p>
+                    ) : null}
+                    <span className="-mt-1 px-1.5 text-xs font-semibold text-muted">
+                      {[kids, friendlyDay(moment.date)].filter(Boolean).join(' · ')}
                     </span>
-                    {!mine && !moment.seenByOther ? <Pill tone="warn">{t('moments.new')}</Pill> : null}
-                  </div>
-                  <div className="mt-4 flex items-center gap-4">
-                    {!mine && !moment.seenByOther ? (
-                      <button
-                        type="button"
-                        onClick={() => actions.markMomentSeen(moment.id)}
-                        className="text-sm font-medium text-muted hover:text-ink"
-                      >
-                        {t('moments.markSeen')}
-                      </button>
+                    {unseen ? (
+                      <span className="absolute top-3.5 left-3.5">
+                        <Pill tone="warn">{t('moments.new')}</Pill>
+                      </span>
                     ) : null}
-                    {mine ? (
-                      <button
-                        type="button"
-                        onClick={() => actions.removeMoment(moment.id)}
-                        className="text-sm text-muted hover:text-danger"
-                      >
-                        {t('common.remove')}
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+                  </button>
+                )
+              })}
+            </div>
+          ))}
+        </div>
       )}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title={t('moments.shareTitle')}>
-        <MomentForm onDone={() => setOpen(false)} />
+      <Sheet
+        open={current !== undefined}
+        onClose={() => setViewing(null)}
+        title={current ? nameOf(state, current.by, t('common.you')) : ''}
+      >
+        {current ? (
+          <div className="space-y-4">
+            {current.photo ? (
+              <img
+                src={current.photo}
+                alt={current.caption ?? t('moments.sharedPhoto')}
+                className="max-h-[60vh] w-full rounded-photo object-cover"
+              />
+            ) : null}
+            {current.caption ? <p className="text-base font-bold">{current.caption}</p> : null}
+            <p className="text-sm text-muted">
+              {t('moments.byline', {
+                name: nameOf(state, current.by, t('common.you')),
+                day: daySpoken(current.date),
+              })}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {current.by !== me && !current.seenByOther ? (
+                <Button variant="primary" onClick={() => actions.markMomentSeen(current.id)}>
+                  {t('moments.markSeen')}
+                </Button>
+              ) : null}
+              {current.by === me ? (
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    actions.removeMoment(current.id)
+                    setViewing(null)
+                  }}
+                >
+                  {t('common.remove')}
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </Sheet>
+
+      <Sheet open={adding} onClose={() => setAdding(false)} title={t('moments.shareTitle')}>
+        <MomentForm onDone={() => setAdding(false)} />
       </Sheet>
     </div>
   )
@@ -205,11 +241,11 @@ function MomentForm({ onDone }: { onDone: () => void }) {
         />
         {photo ? (
           <div className="relative">
-            <img src={photo} alt="" className="max-h-64 w-full rounded-card object-cover" />
+            <img src={photo} alt="" className="max-h-64 w-full rounded-photo object-cover" />
             <button
               type="button"
               onClick={() => setPhoto(null)}
-              className="absolute top-3 right-3 rounded-card bg-ink/70 px-3 py-1.5 text-sm text-paper"
+              className="absolute top-3 right-3 h-[34px] rounded-full bg-ink px-3.5 text-kicker font-bold text-onink"
             >
               {t('common.remove')}
             </button>
@@ -219,7 +255,7 @@ function MomentForm({ onDone }: { onDone: () => void }) {
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={busy}
-            className="flex w-full flex-col items-center gap-3 rounded-card border border-dashed border-line py-12 text-muted hover:bg-sunken"
+            className="flex w-full flex-col items-center gap-3 rounded-frame border-2 border-dashed border-line py-12 text-muted hover:bg-sunken"
           >
             <IconCamera />
             <span className="text-sm">
@@ -254,9 +290,10 @@ function MomentForm({ onDone }: { onDone: () => void }) {
                       on ? prev.filter((id) => id !== kid.id) : [...prev, kid.id],
                     )
                   }
+                  aria-pressed={on}
                   className={cx(
-                    'rounded-card border px-3 py-2 text-sm transition-colors',
-                    on ? 'border-ink bg-ink text-paper' : 'border-line text-muted hover:text-ink',
+                    'h-[34px] rounded-full px-3.5 text-kicker font-bold transition-colors',
+                    on ? 'bg-ink text-onink' : 'bg-surface text-ink hover:bg-sunken',
                   )}
                 >
                   {kid.name}
@@ -270,7 +307,12 @@ function MomentForm({ onDone }: { onDone: () => void }) {
       <Button type="submit" variant="primary" block disabled={!caption.trim() && !photo}>
         {t('moments.shareWith', { name: state.parents[me === 'a' ? 'b' : 'a'].name })}
       </Button>
-      <p className="text-center text-sm text-muted">{t('moments.localOnly')}</p>
+      {/* Since sync, a shared moment really does leave this device — sealed. */}
+      <p className="text-center text-sm text-muted">
+        {state.sync
+          ? t('moments.sharedEncrypted', { name: state.parents[me === 'a' ? 'b' : 'a'].name })
+          : t('moments.localOnly')}
+      </p>
     </form>
   )
 }

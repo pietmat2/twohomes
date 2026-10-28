@@ -68,7 +68,7 @@ export function SharingSection() {
               {busy ? t('common.working') : t('sync.invite')}
             </Button>
             <form
-              className="space-y-4 border-t border-line pt-5"
+              className="space-y-4 pt-2"
               onSubmit={(event) => {
                 event.preventDefault()
                 const code = pasted.trim().replace(/^.*#\/join\//, '')

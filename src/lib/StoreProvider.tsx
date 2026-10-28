@@ -48,6 +48,11 @@ export function StoreProvider({
     document.documentElement.lang = state.language
   }, [state.language])
 
+  useEffect(() => {
+    // Lime is always "me": index.css re-points the two home colours from this.
+    document.documentElement.dataset.me = state.me
+  }, [state.me])
+
   // Every local change also becomes sync operations, when this device shares.
   const update = useCallback((fn: Updater) => setState((prev) => recordLocal(prev, fn(prev))), [])
 
@@ -216,6 +221,16 @@ export function StoreProvider({
 
       // A sharing device keeps its identity and its link to the other home
       // through an import; what changed is sent like any other edit.
+      dismissCard: (key) =>
+        setState((prev) => {
+          const today = new Date().toISOString().slice(0, 10)
+          const cutoff = new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10)
+          const kept = Object.fromEntries(
+            Object.entries(prev.dismissed ?? {}).filter(([, day]) => day >= cutoff),
+          )
+          return { ...prev, dismissed: { ...kept, [key]: today } }
+        }),
+
       replaceState: (next) =>
         setState((prev) =>
           recordLocal(prev, prev.sync ? { ...next, me: prev.me, sync: prev.sync } : next),

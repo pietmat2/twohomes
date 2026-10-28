@@ -1,12 +1,5 @@
+import { useEffect } from 'react'
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import {
-  IconCalendar,
-  IconHome,
-  IconKids,
-  IconMoments,
-  IconMoney,
-  IconSettings,
-} from './components/icons'
 import { cx } from './components/ui'
 import { useI18n } from './lib/i18n'
 import { useApp } from './lib/store'
@@ -20,77 +13,42 @@ import Settings from './pages/Settings'
 import Guide from './pages/Guide'
 import Join from './pages/Join'
 
-const NAV: { to: string; label: MessageKey; Icon: typeof IconHome }[] = [
-  { to: '/today', label: 'nav.today', Icon: IconHome },
-  { to: '/calendar', label: 'nav.calendar', Icon: IconCalendar },
-  { to: '/money', label: 'nav.money', Icon: IconMoney },
-  { to: '/moments', label: 'nav.moments', Icon: IconMoments },
-  { to: '/kids', label: 'nav.kids', Icon: IconKids },
+const NAV: { to: string; label: MessageKey }[] = [
+  { to: '/today', label: 'nav.today' },
+  { to: '/calendar', label: 'nav.calendar' },
+  { to: '/money', label: 'nav.money' },
+  { to: '/moments', label: 'nav.moments' },
+  { to: '/kids', label: 'nav.kids' },
 ]
 
-function TopBar() {
-  const { state } = useApp()
-  const { t } = useI18n()
-  const { pathname } = useLocation()
-  const current = NAV.find((item) => pathname.startsWith(item.to))
-
-  return (
-    <header className="sticky top-0 z-30 bg-paper/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-6">
-        <span className="wide text-lg font-semibold tracking-[-0.01em]">
-          Twohomes
-          <span className="ml-2 text-sm font-normal text-faint">
-            {t(
-              current?.label ??
-                (pathname.startsWith('/guide')
-                  ? 'guide.title'
-                  : pathname.startsWith('/join')
-                    ? 'sync.joinTitle'
-                    : 'nav.settings'),
-            )}
-          </span>
-        </span>
-        <div className="flex items-center gap-2">
-          <span className="hidden text-sm text-muted sm:inline">
-            {state.parents[state.me].name}
-          </span>
-          <NavLink
-            to="/settings"
-            aria-label={t('nav.settings')}
-            className={({ isActive }) =>
-              cx('rounded-md p-1.5 transition-colors', isActive ? 'text-ink' : 'text-faint hover:text-ink')
-            }
-          >
-            <IconSettings width={20} height={20} />
-          </NavLink>
-        </div>
-      </div>
-    </header>
-  )
-}
-
+/**
+ * A floating pill, words only: five places, one of them lit. The labels are
+ * short enough in all three languages to sit side by side at 320px.
+ */
 function BottomNav() {
   const { t } = useI18n()
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur-md">
-      <div className="mx-auto grid max-w-2xl grid-cols-5 px-3 pt-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        {NAV.map(({ to, label, Icon }) => (
+    <nav
+      aria-label={t('nav.main')}
+      className="fixed inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-30 px-3 min-[360px]:px-5"
+    >
+      <div className="mx-auto flex h-16 max-w-lg items-center justify-between rounded-full bg-nav px-1.5 shadow-[0_0_0_1px_var(--color-line)] min-[360px]:px-2">
+        {/* Only the lit item needs room for its pill. At 320px "Kalendarz" and
+            "Pieniądze" fit only if the others give up their padding. */}
+        {NAV.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
               cx(
-                'flex flex-col items-center gap-1 py-1 text-micro transition-colors',
-                isActive ? 'font-semibold text-ink' : 'text-faint hover:text-muted',
+                'rounded-full py-2.5 text-micro font-bold whitespace-nowrap transition-colors min-[360px]:text-xs',
+                isActive
+                  ? 'bg-nav-on px-2.5 text-nav-on-text'
+                  : 'px-1 text-nav-text hover:text-nav-on min-[360px]:px-2',
               )
             }
           >
-            {({ isActive }) => (
-              <>
-                <Icon width={20} height={20} strokeWidth={isActive ? 2 : 1.5} />
-                <span>{t(label)}</span>
-              </>
-            )}
+            {t(label)}
           </NavLink>
         ))}
       </div>
@@ -101,14 +59,25 @@ function BottomNav() {
 export default function App() {
   const { saveError } = useApp()
   const { t } = useI18n()
+  const { pathname } = useLocation()
+
+  // Money paints the whole screen, overscroll included.
+  useEffect(() => {
+    const root = document.documentElement
+    if (pathname.startsWith('/money')) root.dataset.screen = 'money'
+    else delete root.dataset.screen
+    window.scrollTo(0, 0)
+  }, [pathname])
 
   return (
     <div className="min-h-dvh">
-      <TopBar />
       {saveError ? (
-        <p className="mx-auto max-w-2xl px-6 pt-4 text-sm text-danger">{t(saveError === 'quota' ? 'common.saveFailedQuota' : 'common.saveFailed')}</p>
+        <p className="mx-auto max-w-lg px-5 pt-4 text-sm font-bold text-danger">
+          {t(saveError === 'quota' ? 'common.saveFailedQuota' : 'common.saveFailed')}
+        </p>
       ) : null}
-      <main className="mx-auto max-w-2xl px-6 pt-8 pb-32">
+      {/* The hug mark is wider than a phone; clip it rather than scroll sideways. */}
+      <main className="relative mx-auto max-w-lg overflow-x-clip px-5 pt-[max(1.75rem,calc(env(safe-area-inset-top)+1rem))] pb-36">
         <Routes>
           <Route path="/" element={<Navigate to="/today" replace />} />
           <Route path="/today" element={<Today />} />

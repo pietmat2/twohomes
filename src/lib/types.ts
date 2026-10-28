@@ -156,7 +156,7 @@ export interface AppState {
   currency: string
   /** Derived from `language`; kept in state so money formatting needs no hook. */
   locale: string
-  theme: 'system' | 'light' | 'dark'
+  theme: 'system' | 'default' | 'light' | 'dark'
   schedule: ScheduleConfig
   overrides: DayOverride[]
   swaps: SwapRequest[]
@@ -166,10 +166,15 @@ export interface AppState {
   events: KidEvent[]
   bag: BagItem[]
   moments: Moment[]
-  /** Present once this device shares with the other home. See sync/engine.ts. */
   /** Which school holidays and public holidays to show. Shared by both homes. */
   holidays?: HolidaySettings
+  /** Present once this device shares with the other home. See sync/engine.ts. */
   sync?: SyncState
+  /**
+   * Cards on Today this parent has put away, with the day they did it. Per
+   * device and never synced: one parent's "got it" says nothing to the other.
+   */
+  dismissed?: Record<string, string>
 }
 
 /**

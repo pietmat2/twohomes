@@ -117,11 +117,14 @@ export function useI18n() {
       },
 
       /**
+       * The month as a title: "October", or "October 2027" outside this year.
        * LLLL is the standalone month ("październik"), where MMMM would give the
-       * genitive form Polish uses inside a date ("26 października").
+       * genitive form Polish uses inside a date ("26 października"). Danish and
+       * Polish month names are lowercase, so the first letter is raised.
        */
       monthTitle(date: Date): string {
-        return format(date, 'LLLL yyyy', { locale: dates })
+        const text = format(date, isThisYear(date) ? 'LLLL' : 'LLLL yyyy', { locale: dates })
+        return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1)
       },
 
       weekdayNarrow(date: Date): string {

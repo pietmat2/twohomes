@@ -1,3 +1,4 @@
+import { Bar } from '../components/ui'
 import { GUIDE_TOPICS } from '../lib/guide'
 import { useI18n } from '../lib/i18n'
 
@@ -7,12 +8,13 @@ export default function Guide() {
   return (
     <div className="space-y-12">
       <section>
-        <h1 className="wide text-2xl font-semibold">{t('guide.title')}</h1>
+        <Bar />
+        <h1 className="headline mt-[30px] text-hero">{t('guide.title')}</h1>
         <p className="mt-3 max-w-[48ch] text-base text-muted">{t('guide.intro')}</p>
       </section>
 
       {GUIDE_TOPICS.map((topic) => (
-        <section key={topic} className="border-t border-line pt-6">
+        <section key={topic} className="rounded-card bg-surface p-[22px]">
           <h2 className="wide max-w-[28ch] text-xl font-semibold">
             {t(`guide.${topic}.title`)}
           </h2>
@@ -30,7 +32,7 @@ export default function Guide() {
         </section>
       ))}
 
-      <section className="space-y-3 border-t border-line pt-6">
+      <section className="space-y-3 px-1">
         <p className="max-w-[60ch] text-base text-danger">{t('guide.safety')}</p>
         <p className="max-w-[60ch] text-sm text-faint">{t('guide.disclaimer')}</p>
       </section>

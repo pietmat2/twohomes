@@ -1,4 +1,3 @@
-import { parseISO } from 'date-fns'
 import type { DayAssignment } from '../lib/schedule'
 import type { ParentId } from '../lib/types'
 import { cx, homeStyles } from './ui'
@@ -22,72 +21,47 @@ export function toStays(days: DayAssignment[]): Stay[] {
   return stays
 }
 
-const dayNumber = (iso: string) => parseISO(iso).getDate()
-
 /**
- * The shape of the schedule, not a row of identical boxes: a long block is a
- * long stay. Week-on/week-off reads as two bars, 2-2-3 as a stutter.
- *
- * Each block is labelled once, with the dates the stay spans — a fortnight on
- * a 320px phone leaves about 19px per day, which is far too little for a
- * numeral per day, and labelling the stay is truer to the idea anyway.
+ * The fortnight as a row of pills, one per stay, each as long as the stay.
+ * Colour is the answer — lime is you — so the pills carry no words; the
+ * stay holding today is ringed. Each pill still names itself to a screen
+ * reader.
  */
 export function Ribbon({
   days,
-  names,
+  describe,
   todayIso,
   animate = true,
 }: {
   days: DayAssignment[]
-  names: Record<ParentId, string>
+  /** What a screen reader hears for a stay: "Jonas, 27–28". */
+  describe: (stay: Stay) => string
   todayIso?: string
   animate?: boolean
 }) {
   const stays = toStays(days)
 
   return (
-    <div className="flex gap-1" role="list">
+    <div className="flex gap-[3px]" role="list">
       {stays.map((stay, index) => {
         const holdsToday = todayIso ? stay.days.some((d) => d.date === todayIso) : false
-        const first = dayNumber(stay.days[0].date)
-        const last = dayNumber(stay.days[stay.days.length - 1].date)
-        const label = stay.days.length === 1 ? `${first}` : `${first}–${last}`
-
         return (
           <div
             key={stay.days[0].date}
             role="listitem"
+            aria-label={describe(stay)}
             style={{
               flexGrow: stay.days.length,
               flexBasis: 0,
               animationDelay: animate ? `${index * 55}ms` : undefined,
             }}
             className={cx(
-              'min-w-0 rounded-stay px-1 py-2',
+              'h-[30px] min-w-0 rounded-full',
               homeStyles[stay.parent].bg,
               animate && 'animate-stay',
-              holdsToday && 'ring-1 ring-ink',
+              holdsToday && 'shadow-[inset_0_0_0_2.5px_var(--color-ink)]',
             )}
-          >
-            {stay.days.length > 1 ? (
-              <p
-                className={cx(
-                  'truncate text-nano leading-tight font-semibold',
-                  homeStyles[stay.parent].text,
-                )}
-              >
-                {names[stay.parent]}
-              </p>
-            ) : null}
-            <p
-              className={cx(
-                'numeral mt-1 truncate text-nano leading-none',
-                homeStyles[stay.parent].text,
-              )}
-            >
-              {label}
-            </p>
-          </div>
+          />
         )
       })}
     </div>

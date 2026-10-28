@@ -193,47 +193,50 @@ swap to a real backend a change in one file rather than a rewrite.
 
 ## Design notes
 
-**The ribbon is the idea.** Parents describe custody in stays, not days — *"I have them
-Monday and Tuesday, he has Wednesday and Thursday, then I get the long weekend."* So
-consecutive days in the same home fuse into one block, rounded only where a stay
-actually begins and ends. A stay that runs past Sunday stays square on that edge and
-picks up again on the next row. The shape carries the information: week-on/week-off
-reads as two long bars, 2-2-3 as a stutter. You can see the rhythm of an arrangement
-before reading a single number.
+The look is **Flow**, from a Claude Design prototype (`Twohomes Flow.html`): soft pastel
+fields on a warm grey ground, heavy type, and everything rounded into pills.
 
-Each block is labelled once, with the home and the dates the stay spans — *Marek,
-26–27*. A fortnight on a 320px phone leaves about 19px per day, far too little for a
-numeral on every one, and labelling the stay rather than the day is truer to the idea
-anyway.
+**Colour is the answer.** Lime is you, cyan is the other home — on each parent's own
+phone, so both of them see their own days in lime. The month reads at a glance before a
+single number does. Pages only ever say `home-a` and `home-b`; `data-me` on `<html>`
+re-points those two at lime and cyan (`src/index.css`). Pink belongs to money, sand to
+what is coming up.
 
-**Two homes, two colours, equal weight.** Ochre and baltic blue — muted earth against
-muted sea, warm against cool, so they separate instantly and neither is the "good"
-colour or the alert colour. Which parent gets which is arbitrary and fixed; the colour
-then holds everywhere, from calendar days to the balance figure. Deliberately not a
-terracotta: sand plus clay is the commonest generated-page signature there is, and the
-brief asked for the sand, not the clay.
+**One thing at a time.** Today answers the question in two lines — *"With Jonas / till
+tomorrow"* — then stacks everything that needs you as cards: a swap to answer, a bag
+to pack, a cost to settle, an event, this week's note on what helps children. Answer
+the top card and the next one rises; when the stack is empty, you're done for the day.
+Putting a card away is remembered per device and never synced.
 
-**Chalk and sand, no shadows anywhere.** Scandinavian minimalism: depth comes from
-space, not elevation, and there are no cards — a hairline marks where one thing ends and
-the next begins. Dark mode is the same room after dark (winter dusk, warm charcoal)
-rather than an inversion of the light one.
+**The ribbon is the fortnight.** Parents describe custody in stays, not days, so
+consecutive days in one home fuse into one pill, as long as the stay. Week-on/week-off
+reads as two long bars, 2-2-3 as a stutter. The stay holding today is ringed; each pill
+names itself to a screen reader.
 
-**One typeface, worked across its width axis.** Archivo carries a real `wdth` axis, so
-hierarchy is set by width as much as by size: headings run at `wdth 120`, everything
-else sits at 100 and stays quiet.
+**Weight, not width.** Figtree, bundled with the app (the prototype names Proxima Nova,
+a paid Adobe font; Figtree is its own fallback). Screen titles run at 900 weight with
+tight tracking, eased down from 52px so *"Październik"* still fits at 320px.
+
+**Rounded and soft.** Pill buttons, 30px surfaces, 14px day tiles, a floating pill
+nav with words instead of icons. The hug mark — one thick line drawn just off the
+ground colour — sits behind Today, the calendar and money. Three themes: Default (warm
+grey), Light and Dark; System picks Default by day and Dark by night.
 
 **Every change is attributed.** Moving a day records who moved it, and Today carries a
 plain chronological list of what has changed since the plan was set — moves, requests,
 agreements, refusals — in neutral past tense. On the calendar, a day moved off the
 pattern carries a hollow dot. Nobody should have to ask "did you change Thursday?"
 
-**One moment of motion:** the ribbon wipes in once on Today. Everything else moves only
-in response to a tap, and all of it is off under `prefers-reduced-motion`.
+**Motion only where it means something:** the ribbon wipes in once on Today, and an
+answered card slides away so the next can rise. Everything else moves only in response
+to a tap, and all of it is off under `prefers-reduced-motion`.
 
 **The copy is flat on purpose.** No "your ex", no blame, no streaks or scores on
 parenting. Both parents may read every screen, so every screen is written as if both
-are reading it. The hero is a sentence — *"They're with Jonas until Wednesday at
-16:00"* — because that is the answer, and a stat tile is not.
+are reading it. The hero is a sentence — *"With Jonas till Wednesday"* — because that
+is the answer, and a stat tile is not. For the same reason the money card offers to
+record a payment, not to "send a reminder": a nudge to pay is a message, and messages
+are where arguments start.
 
 ## Not included
 

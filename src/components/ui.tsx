@@ -1,34 +1,37 @@
-import { useEffect, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useI18n } from '../lib/i18n'
 import type { ParentId } from '../lib/types'
+import { IconArrowLeft, IconClose } from './icons'
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(' ')
 }
 
-/** Tailwind fragments for whichever home a thing belongs to. */
+/**
+ * Tailwind fragments for whichever home a thing belongs to. On this device
+ * home-a and home-b are re-pointed so that "me" is lime (see index.css), so
+ * the colour always reads as "you" or "the other home".
+ */
 export const homeStyles: Record<
   ParentId,
   { text: string; bg: string; solid: string; border: string }
 > = {
   a: {
-    text: 'text-home-a',
-    bg: 'bg-home-a-soft',
-    solid: 'bg-home-a',
-    border: 'border-home-a',
+    text: 'text-home-a-ink',
+    bg: 'bg-home-a',
+    solid: 'bg-home-a-strong',
+    border: 'border-home-a-strong',
   },
   b: {
-    text: 'text-home-b',
-    bg: 'bg-home-b-soft',
-    solid: 'bg-home-b',
-    border: 'border-home-b',
+    text: 'text-home-b-ink',
+    bg: 'bg-home-b',
+    solid: 'bg-home-b-strong',
+    border: 'border-home-b-strong',
   },
 }
 
-/**
- * A group of related content. There are no cards in this app: a rule marks
- * where one thing ends and the next begins, and space does the rest.
- */
+/** A rounded surface holding one group of things. Space and soft shapes, no rules. */
 export function Card({
   children,
   className,
@@ -38,12 +41,16 @@ export function Card({
   className?: string
   as?: 'div' | 'section' | 'li'
 }) {
-  return <Tag className={cx('border-t border-line pt-5', className)}>{children}</Tag>
+  return <Tag className={cx('rounded-card bg-surface p-[22px]', className)}>{children}</Tag>
 }
 
-/** A list whose items are separated by hairlines rather than boxed one by one. */
+/** A list inside a surface: rows divided by soft 1.5px rules, the first one bare. */
 export function Rows({ children, className }: { children: ReactNode; className?: string }) {
-  return <ul className={cx('divide-y divide-line border-y border-line', className)}>{children}</ul>
+  return (
+    <ul className={cx('divide-y-[1.5px] divide-line rounded-card bg-surface px-[22px]', className)}>
+      {children}
+    </ul>
+  )
 }
 
 export function Row({
@@ -55,11 +62,11 @@ export function Row({
   className?: string
   onClick?: () => void
 }) {
-  const content = <div className={cx('flex items-start gap-4 py-4', className)}>{children}</div>
+  const content = <div className={cx('flex items-start gap-4 py-3.5', className)}>{children}</div>
   if (!onClick) return <li>{content}</li>
   return (
     <li>
-      <button type="button" onClick={onClick} className="w-full text-left hover:bg-sunken">
+      <button type="button" onClick={onClick} className="w-full text-left">
         {content}
       </button>
     </li>
@@ -68,8 +75,8 @@ export function Row({
 
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
-    <div className="mb-4 flex items-baseline justify-between gap-4">
-      <h2 className="wide text-xl font-semibold">{children}</h2>
+    <div className="mb-3 flex items-baseline justify-between gap-4 px-1">
+      <h2 className="wide text-xl">{children}</h2>
       {action}
     </div>
   )
@@ -81,6 +88,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   block?: boolean
 }
 
+/** Every action is a pill: ink for the one thing to do, white beside it, an outline for "later". */
 export function Button({
   variant = 'secondary',
   size = 'md',
@@ -89,19 +97,79 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center gap-2 rounded-card font-medium whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-40'
-  const sizes = { sm: 'px-4 py-2 text-sm', md: 'px-5 py-3 text-base' }
+    'inline-flex items-center justify-center gap-1.5 rounded-full font-bold whitespace-nowrap transition-[opacity,background-color] active:opacity-80 disabled:pointer-events-none disabled:opacity-40'
+  const sizes = { sm: 'h-[34px] px-3.5 text-kicker', md: 'h-11 px-[18px] text-ui' }
   const variants = {
-    primary: 'bg-ink text-paper hover:opacity-85',
-    secondary: 'border border-line hover:bg-sunken',
-    ghost: 'text-muted hover:text-ink',
-    danger: 'border border-line text-danger hover:bg-sunken',
+    primary: 'bg-ink text-onink hover:opacity-90',
+    secondary: 'bg-surface text-ink hover:bg-sunken',
+    ghost: 'bg-transparent text-ink shadow-[inset_0_0_0_1.5px_var(--color-ink)] hover:bg-surface',
+    danger: 'bg-surface text-danger hover:bg-sunken',
   }
   return (
     <button
       className={cx(base, sizes[size], variants[variant], block && 'w-full', className)}
       {...props}
     />
+  )
+}
+
+/** The round 44px button at the top of a screen: back, menu, add. */
+export function CircleButton({
+  label,
+  children,
+  tone = 'ink',
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & { label: string; tone?: 'ink' | 'surface' }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className={cx(
+        'flex size-11 shrink-0 items-center justify-center rounded-full transition-opacity active:opacity-80',
+        tone === 'ink' ? 'bg-ink text-onink hover:opacity-90' : 'bg-surface text-ink hover:bg-sunken',
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
+
+/** The row at the top of every screen but Today: back on the left, the screen's one action on the right. */
+export function Bar({ action, back = '/today' }: { action?: ReactNode; back?: string }) {
+  const { t } = useI18n()
+  const navigate = useNavigate()
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <CircleButton label={t('common.back')} onClick={() => navigate(back)}>
+        <IconArrowLeft width={20} height={20} strokeWidth={2.5} />
+      </CircleButton>
+      {action}
+    </div>
+  )
+}
+
+/**
+ * The brand mark: a hug drawn in one thick stroke, sitting behind the content
+ * in a shade just off the ground. Decoration only.
+ */
+export function Hug({ className, style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <svg
+      viewBox="0 0 520 620"
+      aria-hidden
+      className={cx('pointer-events-none absolute z-0 w-[520px]', className)}
+      style={style}
+    >
+      <path
+        d="M40 330 C 30 170, 190 80, 260 210 C 330 80, 490 170, 480 330 C 470 470, 330 560, 260 600 M260 600 C 190 560, 120 500, 90 430 C 70 380, 120 340, 170 370 C 210 395, 230 440, 260 470 C 290 440, 310 395, 350 370 C 400 340, 450 380, 430 430"
+        fill="none"
+        stroke="var(--color-hug)"
+        strokeWidth="34"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 
@@ -116,9 +184,9 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm text-muted">{label}</span>
+      <span className="mb-1.5 block px-1 text-kicker font-bold text-muted">{label}</span>
       {children}
-      {hint ? <span className="mt-2 block text-sm text-faint">{hint}</span> : null}
+      {hint ? <span className="mt-2 block px-1 text-sm text-faint">{hint}</span> : null}
     </label>
   )
 }
@@ -133,7 +201,7 @@ export function Segmented<T extends string>({
   options: { value: T; label: ReactNode }[]
 }) {
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       {options.map((option) => (
         <button
           key={option.value}
@@ -141,10 +209,12 @@ export function Segmented<T extends string>({
           onClick={() => onChange(option.value)}
           aria-pressed={value === option.value}
           className={cx(
-            'flex-1 rounded-card border px-3 py-2 text-sm transition-colors',
+            // Grow to share a row, never shrink: a label that doesn't fit wraps the
+            // row rather than losing its last letters ("Systemowy", "Domyślny").
+            'h-[34px] max-w-full flex-[1_0_auto] truncate rounded-full px-3.5 text-kicker font-bold transition-colors',
             value === option.value
-              ? 'border-ink bg-ink text-paper'
-              : 'border-line text-muted hover:text-ink',
+              ? 'bg-ink text-onink'
+              : 'bg-surface text-ink shadow-[inset_0_0_0_1.5px_var(--color-line)] hover:bg-sunken',
           )}
         >
           {option.label}
@@ -154,7 +224,7 @@ export function Segmented<T extends string>({
   )
 }
 
-/** A dot plus a name, wherever a day or a cost is attributed to a home. */
+/** A home's colour plus a name, wherever a day or a cost is attributed to a home. */
 export function HomeTag({
   parent,
   name,
@@ -165,9 +235,14 @@ export function HomeTag({
   className?: string
 }) {
   return (
-    <span className={cx('inline-flex items-center gap-2 text-sm', className)}>
-      <span className={cx('size-2 rounded-full', homeStyles[parent].solid)} aria-hidden />
-      <span>{name}</span>
+    <span
+      className={cx(
+        'inline-flex h-[34px] items-center rounded-full px-3.5 text-kicker font-bold text-ink',
+        homeStyles[parent].bg,
+        className,
+      )}
+    >
+      {name}
     </span>
   )
 }
@@ -180,13 +255,20 @@ export function Pill({
   tone?: 'neutral' | 'a' | 'b' | 'warn'
 }) {
   const tones = {
-    neutral: 'border-line text-muted',
-    a: 'border-home-a text-home-a',
-    b: 'border-home-b text-home-b',
-    warn: 'border-warn text-warn',
+    neutral: 'bg-sand',
+    a: 'bg-home-a',
+    b: 'bg-home-b',
+    warn: 'bg-pink',
   }
   return (
-    <span className={cx('rounded-card border px-2 py-0.5 text-xs', tones[tone])}>{children}</span>
+    <span
+      className={cx(
+        'inline-flex h-6 items-center rounded-full px-2.5 text-xs font-bold whitespace-nowrap text-ink',
+        tones[tone],
+      )}
+    >
+      {children}
+    </span>
   )
 }
 
@@ -200,10 +282,10 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="border-t border-line py-14">
-      <p className="wide text-xl font-semibold">{title}</p>
-      <p className="mt-2 max-w-[40ch] text-base text-muted">{body}</p>
-      {action ? <div className="mt-6">{action}</div> : null}
+    <div className="rounded-card border-2 border-dashed border-line px-6 py-12 text-center">
+      <p className="headline text-[1.875rem] leading-none">{title}</p>
+      <p className="mx-auto mt-3 max-w-[34ch] text-ui text-muted">{body}</p>
+      {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
     </div>
   )
 }
@@ -246,26 +328,22 @@ export function Sheet({
         type="button"
         aria-label={t('common.close')}
         onClick={onClose}
-        className="absolute inset-0 bg-ink/35"
+        className="absolute inset-0 bg-black/40"
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="animate-sheet relative flex max-h-[88vh] w-full flex-col rounded-t-sheet border border-line bg-paper sm:max-w-lg sm:rounded-sheet"
+        className="animate-sheet relative flex max-h-[90vh] w-full flex-col rounded-t-sheet bg-paper sm:max-w-lg sm:rounded-sheet"
       >
-        <header className="flex items-center justify-between border-b border-line px-6 py-5">
-          <h2 className="wide text-xl font-semibold">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="-mr-2 px-2 py-1 text-sm text-muted hover:text-ink"
-          >
-            {t('common.close')}
-          </button>
+        <header className="flex items-center justify-between gap-4 px-5 pt-5 pb-3">
+          <h2 className="wide text-[1.375rem] leading-tight">{title}</h2>
+          <CircleButton label={t('common.close')} tone="surface" onClick={onClose}>
+            <IconClose width={18} height={18} strokeWidth={2.5} />
+          </CircleButton>
         </header>
-        <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
-        {footer ? <div className="border-t border-line px-6 py-4">{footer}</div> : null}
+        <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6">{children}</div>
+        {footer ? <div className="px-5 pt-2 pb-5">{footer}</div> : null}
       </div>
     </div>
   )

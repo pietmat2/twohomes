@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Button } from '../components/ui'
+import { Bar, Button } from '../components/ui'
 import { useI18n } from '../lib/i18n'
 import type { MessageKey } from '../lib/messages/en'
 import { useApp } from '../lib/store'
@@ -35,19 +35,22 @@ export default function Join() {
     sync.status === 'unavailable' ? 'sync.unavailable' : state.sync ? 'sync.alreadySharing' : !invite ? 'sync.badLink' : null
 
   return (
-    <div className="space-y-8">
-      <h1 className="wide text-2xl font-semibold">{t('sync.joinTitle')}</h1>
+    <div className="space-y-6">
+      <div>
+        <Bar />
+        <h1 className="headline mt-[30px] text-hero">{t('sync.joinTitle')}</h1>
+      </div>
       {blocked ? (
         <>
           <p className="max-w-[48ch] text-base text-muted">{t(blocked)}</p>
-          <Link to="/settings" className="text-sm text-muted underline underline-offset-4 hover:text-ink">
+          <Link to="/settings" className="text-sm font-bold underline underline-offset-4">
             {t('nav.settings')}
           </Link>
         </>
       ) : (
         <>
           <p className="max-w-[48ch] text-base">{t('sync.joinBody', { name: invite!.n })}</p>
-          <p className="max-w-[48ch] text-sm text-warn">{t('sync.joinReplace')}</p>
+          <p className="max-w-[48ch] rounded-frame bg-pink px-5 py-4 text-ui">{t('sync.joinReplace')}</p>
           <div className="flex flex-wrap gap-3">
             <Button variant="primary" disabled={busy} onClick={() => void join()}>
               {busy ? t('common.working') : t('sync.join')}

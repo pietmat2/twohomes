@@ -59,8 +59,8 @@ export function LockScreen({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-6 py-14">
-      <p className="wide text-lg font-semibold">Twohomes</p>
-      <h1 className="wide mt-12 text-2xl font-semibold">{t('lock.title')}</h1>
+      <p className="wide text-lg">Twohomes</p>
+      <h1 className="headline mt-12 text-hero">{t('lock.title')}</h1>
       <p className="mt-3 text-base text-muted">{t('lock.body')}</p>
 
       <form className="mt-8 space-y-5" onSubmit={(event) => void submit(event)}>
@@ -93,7 +93,7 @@ export function LockScreen({
 
       <p className="mt-10 text-sm text-faint">{t('lock.encrypted')}</p>
 
-      <div className="mt-8 border-t border-line pt-5">
+      <div className="mt-8">
         {forgot ? (
           <div className="space-y-5">
             <p className="text-sm text-muted">{t('lock.forgotBody')}</p>
@@ -111,7 +111,7 @@ export function LockScreen({
           <button
             type="button"
             onClick={() => setForgot(true)}
-            className="text-sm text-muted underline underline-offset-4 hover:text-ink"
+            className="text-sm font-bold underline underline-offset-4"
           >
             {t('lock.forgot')}
           </button>

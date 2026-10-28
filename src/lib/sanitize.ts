@@ -46,7 +46,7 @@ export function sanitizeState(input: unknown): AppState | null {
     language,
     locale: localeOf(language),
     currency: typeof raw.currency === 'string' && /^[A-Z]{3}$/.test(raw.currency) ? raw.currency : 'EUR',
-    theme: raw.theme === 'light' || raw.theme === 'dark' ? raw.theme : 'system',
+    theme: raw.theme === 'default' || raw.theme === 'light' || raw.theme === 'dark' ? raw.theme : 'system',
     schedule,
     holidays: validHolidays(raw.holidays) ?? undefined,
     overrides: list(raw.overrides, sanitizeOverride),
