@@ -152,19 +152,13 @@ of their location and camera details, and stored as JPEG data URLs inside the sa
 record.
 
 Set a passcode in Settings and all of it is encrypted at rest, with a key only that
-passcode opens; exports are then encrypted too. [SECURITY.md](SECURITY.md) covers what
-is held, the threats, and what answers each. [PRODUCT.md](PRODUCT.md) covers which
-features earn their place, and what stands between this build and an MVP.
+passcode opens; exports are then encrypted too.
 
 **Sharing between the two homes** is end-to-end encrypted. One parent invites the other
 from Settings; from then on every change is signed by the device that made it,
 encrypted, and passed through a relay that stores only sealed parcels. A device belongs
 to one parent; there is deliberately no way to act as the other one. Export and import
 in Settings still move a full copy between your own devices.
-
-Making it genuinely shared is the first real engineering task — see
-[BUSINESS.md](BUSINESS.md#what-has-to-be-built-before-anyone-pays) for what that
-involves and why the current shape was chosen first.
 
 ## Project layout
 

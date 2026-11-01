@@ -43,8 +43,13 @@ ios/DerivedData
 *.keystore
 !debug.keystore
 
-# Strategy notes stay on this machine, never in the repository.
+# Strategy, product and security notes stay on this machine, never in the
+# repository: the business model, the feature plan, the shipping notes and the
+# threat model.
 BUSINESS.md
+PRODUCT.md
+NATIVE.md
+SECURITY.md
 
 # The development relay's families and sealed operations.
 relay/data/
