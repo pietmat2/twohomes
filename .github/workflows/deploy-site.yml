@@ -96,6 +96,24 @@ jobs:
       - id: deploy
         uses: actions/deploy-pages@v4
 
+      - name: Check the deployed page answers
+        run: |
+          set -euo pipefail
+          url='${{ steps.deploy.outputs.page_url }}'
+          echo "checking $url"
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o page.html -w '%{http_code}' -L --max-time 20 "$url" || true)
+            type=$(curl -s -o /dev/null -w '%{content_type}' -L --max-time 20 "$url" || true)
+            # The content type matters as much as the status: a host that
+            # rewrites HTML to text/plain answers 200 and is not a website.
+            if [ "$code" = "200" ] && grep -q '<title>' page.html \
+              && printf '%s' "$type" | grep -q '^text/html'; then
+              echo "live: $url ($type)"; exit 0
+            fi
+            echo "attempt $i: HTTP $code, type $type — retrying"; sleep 10
+          done
+          echo "::error::the deployed site did not answer with 200 text/html"; exit 1
+
   cloudflare:
     needs: check
     if: vars.DEPLOY_TARGET == 'cloudflare'
