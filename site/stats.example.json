@@ -1,0 +1,6 @@
+{
+  "_comment": "Example shape only. Copy over stats.json once these numbers are true, or have your backend serve the same three fields and point LIVE_ENDPOINT in app.js at it.",
+  "familiesHelped": 128,
+  "activeUsers": 214,
+  "updated": "2026-11-02T08:30:00Z"
+}

@@ -24,6 +24,18 @@
       "port": 4173
     },
     {
+      "name": "twohomes-site",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "site",
+        "--port",
+        "5190",
+        "--strictPort"
+      ],
+      "port": 5190
+    },
+    {
       "name": "twohomes-relay",
       "runtimeExecutable": "npm",
       "runtimeArgs": [

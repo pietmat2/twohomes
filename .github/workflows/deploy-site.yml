@@ -1,0 +1,66 @@
+name: Deploy site
+
+# Publishes site/ to GitHub Pages. Runs on every push to main that touches the
+# site, and can be started by hand from the Actions tab.
+#
+# Pages serves a private repository only on a paid plan. On the free plan this
+# job fails at "Configure Pages" with a clear message — make the repository
+# public, or switch the deploy step to another host (see site/README.md).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one half-way: a cancelled deploy can
+# leave the live site on an older version.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cheap smoke test. A missing stylesheet or a typo in a filename would
+      # otherwise deploy quietly and leave an unstyled page up.
+      - name: Check the site is whole
+        run: |
+          set -euo pipefail
+          for f in index.html styles.css app.js stats.json favicon.svg; do
+            test -s "site/$f" || { echo "::error::site/$f is missing or empty"; exit 1; }
+          done
+          for ref in styles.css app.js favicon.svg; do
+            grep -q "$ref" site/index.html || { echo "::error::index.html does not reference $ref"; exit 1; }
+          done
+          node -e "JSON.parse(require('fs').readFileSync('site/stats.json','utf8'))"
+          node --check site/app.js
+          echo "site/ looks deployable"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload site/
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
