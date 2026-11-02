@@ -22,7 +22,26 @@ is no server to keep running, nothing to restart, and nothing to patch.
 Pick a target with the repository variable `DEPLOY_TARGET`
 (Settings → Secrets and variables → Actions → Variables):
 
-### Supabase — the fastest route, on infrastructure already running
+### Supabase — deployed, and it does not work. Do not retry.
+
+Tried on 2026-11-02 and ruled out by the live deploy. Supabase rewrites HTML
+served from `*.supabase.co/functions/v1/*`:
+
+```
+Content-Type: text/plain                     ← the function's text/html, overridden
+Content-Security-Policy: default-src 'none'; sandbox
+```
+
+So the page arrives as raw source, and the CSP would block every stylesheet,
+script and font even if it rendered. CSS, JS, JSON and fonts keep their real
+types — only the HTML document is neutered, which is an anti-abuse measure, not
+a bug to work around. Storage is not an alternative either: the project has no
+buckets, and the CLI cannot create one.
+
+The function below is still deployed (`site`, verify_jwt off) and harmless; it
+can be removed with `npx supabase functions delete site`. Keep it only if you
+later attach a Supabase custom domain and confirm the rewrite does not apply
+there.
 
 `twohomes-relay` (eu-central-1) already serves the relay as an Edge Function.
 `scripts/build-site-function.mjs` packs `site/` into a second one, which serves
@@ -50,7 +69,7 @@ unusual — it costs an invocation per request rather than a pure CDN hit. At
 marketing-site traffic that is immaterial, and it buys a deploy that needs no
 new account and no change of repository visibility.
 
-### Cloudflare Pages — works while `twohomes` stays private
+### Cloudflare Pages — the recommended host, and it keeps `twohomes` private
 
 1. Create a free Cloudflare account, then **Workers & Pages → Create → Pages**,
    and make a project called `twohomes` (no build command, output directory
