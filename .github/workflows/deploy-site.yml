@@ -12,6 +12,9 @@ name: Deploy site
 #   "cloudflare"     → Cloudflare Pages. Works with a private repository, free,
 #                      and needs two secrets: CLOUDFLARE_API_TOKEN and
 #                      CLOUDFLARE_ACCOUNT_ID.
+#   "supabase"       → the Edge Function in supabase/functions/site, on the
+#                      project that already runs the relay. Needs one secret,
+#                      SUPABASE_ACCESS_TOKEN.
 #
 # site/README.md walks through both.
 
@@ -61,6 +64,15 @@ jobs:
           node --check site/app.js
           echo "site/ looks deployable"
 
+      # The edge-function bundle embeds site/, so a stale bundle would serve an
+      # old page. Rebuild it and fail if the committed one differs.
+      - name: Check the edge-function bundle matches site/
+        run: |
+          set -euo pipefail
+          node scripts/build-site-function.mjs
+          git diff --exit-code -- supabase/functions/site/index.ts \
+            || { echo "::error::supabase/functions/site/index.ts is stale — run node scripts/build-site-function.mjs"; exit 1; }
+
   pages:
     needs: check
     if: vars.DEPLOY_TARGET != 'cloudflare'
@@ -91,3 +103,32 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy site --project-name=twohomes --branch=main
+
+  supabase:
+    needs: check
+    if: vars.DEPLOY_TARGET == 'supabase'
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pack site/ into the function
+        run: node scripts/build-site-function.mjs
+      - name: Deploy the function
+        run: |
+          npx --yes supabase@latest functions deploy site \
+            --project-ref aqkxpauandobwvjymxyl \
+            --no-verify-jwt
+      - name: Check the deployed page answers
+        run: |
+          set -euo pipefail
+          url=https://aqkxpauandobwvjymxyl.supabase.co/functions/v1/site/
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /tmp/page -w '%{http_code}' -L --max-time 20 "$url" || true)
+            [ "$code" = "200" ] && grep -q '<title>' /tmp/page && { echo "live: $url"; exit 0; }
+            echo "attempt $i: HTTP $code, retrying"; sleep 6
+          done
+          echo "::error::the deployed site did not answer with 200"; exit 1

@@ -22,6 +22,30 @@ is no server to keep running, nothing to restart, and nothing to patch.
 Pick a target with the repository variable `DEPLOY_TARGET`
 (Settings → Secrets and variables → Actions → Variables):
 
+### Supabase — the fastest route, on infrastructure already running
+
+`twohomes-relay` (eu-central-1) already serves the relay as an Edge Function.
+`scripts/build-site-function.mjs` packs `site/` into a second one, which serves
+the whole page — HTML, CSS, JS, fonts and `stats.json` — out of its own bundle,
+so a deploy is atomic and there is no bucket to configure. Deploy it the same
+way the relay is deployed:
+
+```bash
+node scripts/build-site-function.mjs && npx supabase functions deploy site --project-ref aqkxpauandobwvjymxyl --no-verify-jwt
+```
+
+It then answers at
+`https://aqkxpauandobwvjymxyl.supabase.co/functions/v1/site/` — public, no JWT,
+and a custom domain can be put in front of it. For CI instead of a laptop, set
+the variable `DEPLOY_TARGET` to `supabase` and add a `SUPABASE_ACCESS_TOKEN`
+secret; the workflow rebuilds the bundle, deploys, and then fetches the page to
+confirm it answers 200 before the run goes green.
+
+Worth knowing: this serves a static page from a function, which is slightly
+unusual — it costs an invocation per request rather than a pure CDN hit. At
+marketing-site traffic that is immaterial, and it buys a deploy that needs no
+new account and no change of repository visibility.
+
 ### Cloudflare Pages — works while `twohomes` stays private
 
 1. Create a free Cloudflare account, then **Workers & Pages → Create → Pages**,
