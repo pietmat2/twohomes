@@ -266,6 +266,9 @@ button { font: inherit; color: inherit; }
   font-weight: 550;
   color: var(--muted);
   text-decoration: none;
+  /* Danish labels are longer than the English ones ("Sådan virker det"); they
+     must never wrap inside a pill. */
+  white-space: nowrap;
   transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
 }
 .nav a:hover { color: var(--ink); background: rgb(255 255 255 / 0.6); }
@@ -805,7 +808,9 @@ button { font: inherit; color: inherit; }
   .card--accent { grid-column: span 1; }
 }
 
-@media (max-width: 52rem) {
+/* 60rem, not 52: the row has to hold the longest labels of both languages
+   plus the language switch and the call to action. */
+@media (max-width: 60rem) {
   .burger { display: flex; }
   .head__cta { display: none; }
   .nav {
