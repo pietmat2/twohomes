@@ -78,57 +78,61 @@ jobs:
       - name: Serve the function locally and check every path
         run: node scripts/test-site-function.mjs
 
+  # Publishes by pushing site/ to the gh-pages branch, which GitHub serves.
+  #
+  # Not actions/deploy-pages: that needs a Pages site, and creating one from a
+  # workflow is refused on this repository — "Resource not accessible by
+  # integration" on POST /repos/{repo}/pages, because GITHUB_TOKEN may not
+  # create a Pages site here. Pushing a branch needs only contents: write, and
+  # GitHub switched Pages on by itself when the branch first appeared.
   pages:
     needs: check
-    if: vars.DEPLOY_TARGET != 'cloudflare'
+    if: vars.DEPLOY_TARGET != 'cloudflare' && vars.DEPLOY_TARGET != 'supabase'
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
-      # A hint, never a gate: this endpoint answers 404 both when Pages is off
-      # and when the token may not read it, so it cannot tell those apart.
-      # configure-pages below is the real judge.
-      - name: Hint if Pages looks switched off
-        continue-on-error: true
+      - name: Publish site/ to gh-pages
         run: |
-          code=$(curl -s -o /dev/null -w '%{http_code}' \
-            -H "Authorization: Bearer ${{ github.token }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pages" || true)
-          echo "Pages API answered $code"
-          if [ "$code" = "404" ]; then
-            echo "::warning::Pages may not be enabled. If the next step fails, open Settings → Pages → Build and deployment and set Source to 'GitHub Actions'."
-          fi
-
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-      - id: deploy
-        uses: actions/deploy-pages@v4
+          set -euo pipefail
+          cd site
+          # A stamp the liveness check can read back, so "it answers 200" cannot
+          # be satisfied by the previous deploy still being served.
+          echo '${{ github.sha }}' > version.txt
+          git init -q .
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -q -m "Deploy ${{ github.sha }}"
+          # The branch is a build output, not history: replace it every time.
+          git push -q --force \
+            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" \
+            HEAD:gh-pages
+          echo "pushed $(git rev-parse --short HEAD) to gh-pages"
 
       - name: Check the deployed page answers
         run: |
           set -euo pipefail
-          url='${{ steps.deploy.outputs.page_url }}'
+          repo='${{ github.repository }}'
+          url="https://${{ github.repository_owner }}.github.io/${repo#*/}/"
           echo "checking $url"
-          for i in 1 2 3 4 5 6; do
+          for i in $(seq 1 12); do
             code=$(curl -s -o page.html -w '%{http_code}' -L --max-time 20 "$url" || true)
             type=$(curl -s -o /dev/null -w '%{content_type}' -L --max-time 20 "$url" || true)
-            # The content type matters as much as the status: a host that
-            # rewrites HTML to text/plain answers 200 and is not a website.
+            stamp=$(curl -s -L --max-time 20 "${url}version.txt" | tr -d '[:space:]' || true)
+            # Three things, not one: it answers, it answers as HTML, and what is
+            # being served is THIS commit rather than the previous deploy.
             if [ "$code" = "200" ] && grep -q '<title>' page.html \
-              && printf '%s' "$type" | grep -q '^text/html'; then
-              echo "live: $url ($type)"; exit 0
+              && printf '%s' "$type" | grep -q '^text/html' \
+              && [ "$stamp" = '${{ github.sha }}' ]; then
+              echo "live: $url ($type, $stamp)"; exit 0
             fi
-            echo "attempt $i: HTTP $code, type $type — retrying"; sleep 10
+            echo "attempt $i: HTTP $code, type $type, stamp ${stamp:-none} — retrying"
+            sleep 10
           done
-          echo "::error::the deployed site did not answer with 200 text/html"; exit 1
+          echo "::error::the deployed site did not serve this commit as 200 text/html"; exit 1
 
   cloudflare:
     needs: check
