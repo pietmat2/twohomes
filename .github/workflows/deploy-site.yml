@@ -87,6 +87,22 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
+      # configure-pages can switch Pages on by itself only when the token is
+      # allowed to create the Pages site; on a repository where Pages has never
+      # been set up it fails with something opaque. Say what to click instead.
+      - name: Is Pages switched on for this repository?
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages" || true)
+          if [ "$code" = "404" ]; then
+            echo "::error::GitHub Pages is not enabled. Open Settings → Pages → Build and deployment and set Source to 'GitHub Actions', then re-run this workflow."
+            exit 1
+          fi
+          echo "Pages API answered $code"
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true
