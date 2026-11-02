@@ -82,7 +82,7 @@ fokusów, tylko ich narzędziem rekrutacyjnym.
 - Online (Meet/Zoom) jest tu lepsze niż stacjonarnie: nie trzeba organizować
   opieki. Dynamika online bywa słabsza — dlatego maksymalnie 6–7 osób, nie 10.
 
-## 5. Scenariusz sesji (120 minut)
+## 5. Scenariusz sesji (130 minut: 15 na powitanie plus 115 dyskusji)
 
 Elastyczny: jeśli w bloku 3 pojawi się coś żywego, idź za tym i skróć blok 6.
 Czasy to budżet, nie rozkład jazdy.
