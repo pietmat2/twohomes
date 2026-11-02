@@ -73,6 +73,11 @@ jobs:
           git diff --exit-code -- supabase/functions/site/index.ts \
             || { echo "::error::supabase/functions/site/index.ts is stale — run node scripts/build-site-function.mjs"; exit 1; }
 
+      # Runs the function in Node and asks it for every asset, so a routing or
+      # content-type mistake fails here rather than in production.
+      - name: Serve the function locally and check every path
+        run: node scripts/test-site-function.mjs
+
   pages:
     needs: check
     if: vars.DEPLOY_TARGET != 'cloudflare'

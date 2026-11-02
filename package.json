@@ -12,7 +12,10 @@
     "test": "vitest run",
     "sync": "npm run build && cap sync",
     "android": "npm run sync && cap open android",
-    "ios": "npm run sync && cap open ios"
+    "ios": "npm run sync && cap open ios",
+    "site": "vite site --port 5190",
+    "site:build": "node scripts/build-site-function.mjs && node scripts/test-site-function.mjs",
+    "site:deploy": "npm run site:build && supabase functions deploy site --project-ref aqkxpauandobwvjymxyl --no-verify-jwt"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

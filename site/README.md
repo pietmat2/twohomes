@@ -31,8 +31,12 @@ so a deploy is atomic and there is no bucket to configure. Deploy it the same
 way the relay is deployed:
 
 ```bash
-node scripts/build-site-function.mjs && npx supabase functions deploy site --project-ref aqkxpauandobwvjymxyl --no-verify-jwt
+npm run site:deploy
 ```
+
+That packs `site/` into the function, runs the function in Node and asks it for
+every asset (status, content type, bytes), and only then deploys. `npm run
+site:build` does the first two on their own.
 
 It then answers at
 `https://aqkxpauandobwvjymxyl.supabase.co/functions/v1/site/` — public, no JWT,
