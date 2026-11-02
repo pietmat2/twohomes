@@ -47,6 +47,13 @@ jobs:
           for ref in styles.css app.js favicon.svg; do
             grep -q "$ref" site/index.html || { echo "::error::index.html does not reference $ref"; exit 1; }
           done
+          for f in site/fonts/figtree-latin-wght-normal.woff2 site/fonts/figtree-latin-ext-wght-normal.woff2; do
+            test -s "$f" || { echo "::error::$f is missing"; exit 1; }
+          done
+          # The page must stay self-contained: no font CDN, no script CDN.
+          if grep -rqE 'https?://(fonts\.googleapis|fonts\.gstatic|cdn\.)' site/index.html site/styles.css; then
+            echo "::error::site/ pulls from a third-party CDN; keep it self-hosted"; exit 1
+          fi
           node -e "JSON.parse(require('fs').readFileSync('site/stats.json','utf8'))"
           node --check site/app.js
           echo "site/ looks deployable"
