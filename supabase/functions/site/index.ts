@@ -58,7 +58,13 @@ Deno.serve((req: Request) => {
   // high, so send the browser to the slashed form first.
   const base = url.pathname.match(/^(\/functions\/v1)?\/site/)?.[0];
   if (base && url.pathname === base) {
-    return Response.redirect(url.origin + base + '/' + url.search, 301);
+    // A path-relative Location, because inside the gateway the request's own
+    // origin is http:// and its path has had /functions/v1 stripped — building
+    // an absolute URL from it sends the browser somewhere that does not exist.
+    return new Response(null, {
+      status: 301,
+      headers: { location: url.pathname + '/' + url.search },
+    });
   }
 
   let path = base ? url.pathname.slice(base.length) : url.pathname;
