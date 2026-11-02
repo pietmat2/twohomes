@@ -1,11 +1,19 @@
 name: Deploy site
 
-# Publishes site/ to GitHub Pages. Runs on every push to main that touches the
-# site, and can be started by hand from the Actions tab.
+# Publishes site/ on every push to main that touches it, and on demand from the
+# Actions tab.
 #
-# Pages serves a private repository only on a paid plan. On the free plan this
-# job fails at "Configure Pages" with a clear message — make the repository
-# public, or switch the deploy step to another host (see site/README.md).
+# Two targets, chosen by the repository variable DEPLOY_TARGET
+# (Settings → Secrets and variables → Actions → Variables):
+#
+#   unset / "pages"  → GitHub Pages. Free, but Pages serves a PRIVATE repository
+#                      only on a paid plan; on the free plan this fails at
+#                      "Configure Pages" until the repository is public.
+#   "cloudflare"     → Cloudflare Pages. Works with a private repository, free,
+#                      and needs two secrets: CLOUDFLARE_API_TOKEN and
+#                      CLOUDFLARE_ACCOUNT_ID.
+#
+# site/README.md walks through both.
 
 on:
   push:
@@ -23,21 +31,16 @@ permissions:
 # One deploy at a time, and never cancel one half-way: a cancelled deploy can
 # leave the live site on an older version.
 concurrency:
-  group: pages
+  group: deploy-site
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  # Cheap smoke test. A missing stylesheet or a typo in a filename would
+  # otherwise deploy quietly and leave an unstyled page up.
+  check:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-
     steps:
       - uses: actions/checkout@v4
-
-      # Cheap smoke test. A missing stylesheet or a typo in a filename would
-      # otherwise deploy quietly and leave an unstyled page up.
       - name: Check the site is whole
         run: |
           set -euo pipefail
@@ -58,16 +61,33 @@ jobs:
           node --check site/app.js
           echo "site/ looks deployable"
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+  pages:
+    needs: check
+    if: vars.DEPLOY_TARGET != 'cloudflare'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
         with:
           enablement: true
-
-      - name: Upload site/
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: site
-
-      - name: Deploy
-        id: deploy
+      - id: deploy
         uses: actions/deploy-pages@v4
+
+  cloudflare:
+    needs: check
+    if: vars.DEPLOY_TARGET == 'cloudflare'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=twohomes --branch=main
