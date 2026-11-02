@@ -100,14 +100,51 @@ jobs:
     needs: check
     if: vars.DEPLOY_TARGET == 'cloudflare'
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy site --project-name=twohomes --branch=main
+          node-version: 22
+
+      - name: Say which secrets are missing, before wrangler does
+        run: |
+          missing=
+          [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::missing repository secret(s):$missing — see site/README.md"; exit 1
+          fi
+
+      # Idempotent: the first run creates the project, later runs say it exists.
+      - name: Create the Pages project if it is not there yet
+        run: |
+          npx --yes wrangler@4 pages project create twohomes \
+            --production-branch=main 2>&1 | tee create.log \
+            || grep -qiE 'already exists|8000007' create.log \
+            || { echo "::error::could not create the Pages project"; exit 1; }
+
+      - name: Deploy
+        run: npx --yes wrangler@4 pages deploy site --project-name=twohomes --branch=main
+
+      - name: Check the deployed page answers
+        run: |
+          set -euo pipefail
+          url=https://twohomes.pages.dev/
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o page.html -w '%{http_code}' -L --max-time 20 "$url" || true)
+            type=$(curl -s -o /dev/null -w '%{content_type}' -L --max-time 20 "$url" || true)
+            # The content type is checked too: a host that rewrites HTML to
+            # text/plain serves 200 and is still not a website.
+            if [ "$code" = "200" ] && grep -q '<title>' page.html \
+              && printf '%s' "$type" | grep -q '^text/html'; then
+              echo "live: $url ($type)"; exit 0
+            fi
+            echo "attempt $i: HTTP $code, type $type — retrying"; sleep 10
+          done
+          echo "::error::the deployed site did not answer with 200 text/html"; exit 1
 
   supabase:
     needs: check

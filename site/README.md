@@ -71,20 +71,30 @@ new account and no change of repository visibility.
 
 ### Cloudflare Pages — the recommended host, and it keeps `twohomes` private
 
-1. Create a free Cloudflare account, then **Workers & Pages → Create → Pages**,
-   and make a project called `twohomes` (no build command, output directory
-   `site`).
-2. **My Profile → API Tokens → Create Token**, template *Edit Cloudflare
-   Workers*, or a custom token with `Cloudflare Pages: Edit`.
-3. In this repository add the secrets `CLOUDFLARE_API_TOKEN` and
-   `CLOUDFLARE_ACCOUNT_ID` (the account ID is in the Cloudflare sidebar), and
-   set the variable `DEPLOY_TARGET` to `cloudflare`.
-4. Push. The site lands on `twohomes.pages.dev`, and a custom domain can be
-   attached in the Cloudflare dashboard.
+Three things to set up once. The workflow creates the Pages project itself, so
+there is nothing to click in the dashboard beyond the token.
 
-Cloudflare can also watch the repository itself, without Actions. Deploying
-from the workflow instead keeps one pipeline, with the smoke test in front of
-it.
+1. **Account.** A free account at `dash.cloudflare.com`. Copy the **Account ID**
+   from the right-hand sidebar of the dashboard home.
+2. **Token.** *My Profile → API Tokens → Create Token*, template **Edit
+   Cloudflare Workers** (it covers Pages), or a custom token with
+   `Account · Cloudflare Pages · Edit`. Copy it once — it is shown only then.
+3. **Repository.** *Settings → Secrets and variables → Actions*:
+   - secret `CLOUDFLARE_API_TOKEN` — the token from step 2
+   - secret `CLOUDFLARE_ACCOUNT_ID` — the ID from step 1
+   - variable `DEPLOY_TARGET` = `cloudflare` (the **Variables** tab, not Secrets)
+
+Then run the workflow — push anything under `site/`, or *Actions → Deploy site →
+Run workflow*. It creates the `twohomes` project on the first run, uploads
+`site/`, and then fetches `https://twohomes.pages.dev/` and fails the run unless
+it answers **200 with `text/html`**. That last check exists because a host that
+rewrites HTML to `text/plain` still answers 200 and is still not a website —
+which is exactly how the Supabase attempt failed.
+
+A custom domain can be attached later under *Workers & Pages → twohomes →
+Custom domains*. Cloudflare can also watch the repository directly, without
+Actions; deploying from the workflow keeps one pipeline with the smoke test in
+front of it.
 
 ### GitHub Pages — needs the repository to be public
 
