@@ -49,9 +49,9 @@ interface DemoContent {
  */
 const DEMO: Record<Lang, DemoContent> = {
   en: {
-    currency: 'GBP',
+    currency: 'DKK',
     parentA: 'Anna',
-    parentB: 'Jonas',
+    parentB: 'John',
     homeA: 'North side',
     homeB: 'South side',
     blankA: 'Parent one',
