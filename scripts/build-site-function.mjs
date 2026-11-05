@@ -52,7 +52,8 @@ for (const file of walk(SITE)) {
     binary,
     body: binary
       ? readFileSync(file).toString('base64')
-      : readFileSync(file, 'utf8'),
+      : // Git keeps LF; a Windows checkout has CRLF. The bundle must not depend on which.
+        readFileSync(file, 'utf8').replace(/\r\n/g, '\n'),
     // Fonts and the icon are immutable in practice; the page and its code are
     // not, and stats.json has to be re-read for the counters to move.
     cache:
