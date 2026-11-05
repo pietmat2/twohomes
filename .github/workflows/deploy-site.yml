@@ -23,6 +23,7 @@ on:
     branches: [main]
     paths:
       - 'site/**'
+      - 'scripts/build-site-function.mjs'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
