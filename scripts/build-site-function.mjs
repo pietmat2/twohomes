@@ -21,6 +21,7 @@ const TYPES = {
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.woff2': 'font/woff2',
+  '.webp': 'image/webp',
   '.txt': 'text/plain; charset=utf-8',
 };
 
@@ -45,7 +46,7 @@ for (const file of walk(SITE)) {
     continue;
   }
 
-  const binary = ext === '.woff2';
+  const binary = ext === '.woff2' || ext === '.webp';
   assets[path] = {
     type,
     binary,

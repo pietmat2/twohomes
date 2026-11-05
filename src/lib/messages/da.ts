@@ -121,7 +121,7 @@ export const da: Catalogue = {
   'today.changedByHand': 'Dagen er ændret manuelt.',
   'today.changedByHandReason': 'Dagen er ændret manuelt: {reason}.',
   'today.waitingOnYou': 'Venter på dig',
-  'today.askedYouToTake': '{name} har spurgt, om du kan tage {days}.',
+  'today.askedYouToTake': '{name} har spurgt, om du kan tage {days}',
   'today.takeThoseDays': 'Tag de dage',
   'today.cantDoIt': 'Kan ikke',
   'today.allSquare': 'Der er intet udestående mellem de to hjem.',

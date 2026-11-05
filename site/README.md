@@ -11,6 +11,31 @@ Run it locally:
 npx vite site --port 5190
 ```
 
+## Photos
+
+`images/` holds stock photos from [Pexels](https://www.pexels.com/license/), free
+for commercial use, converted to WebP. Pexels does not guarantee model releases,
+and the page sits beside copy about separated parents, so replace them with
+photos taken with the parents' written consent before a wider launch. Sources,
+as `https://www.pexels.com/photo/<id>/`:
+
+| File | Pexels id |
+| --- | --- |
+| `hero-dad.webp` | 29091721 |
+| `hero-mum.webp` | 11106579 |
+| `why-path.webp` | 207697 |
+| `today.webp` | 12960435 |
+| `calendar.webp` | 4543660 |
+| `money.webp` | 4814877 |
+| `moments.webp` | 2965017 |
+| `kids.webp` | 4172983 |
+| `about.webp` | 6297628 |
+| `contact.webp` | 4149006 |
+
+`images/screens/<lang>/` are real screens of the app with the demo family, and
+`video/twohomes-demo.mp4` and `video/twohomes-demo-da.mp4` are the demo films. Recapture
+them when the app changes. The films are not in the Supabase bundle.
+
 ## Hosting
 
 `.github/workflows/deploy-site.yml` deploys `site/` on every push to `main`
