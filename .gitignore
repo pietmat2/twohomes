@@ -53,3 +53,6 @@ SECURITY.md
 
 # The development relay's families and sealed operations.
 relay/data/
+
+# Surveys, personas and focus group plans stay on this machine.
+research/
