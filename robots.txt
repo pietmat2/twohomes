@@ -1,0 +1,7 @@
+# Twohomes is not launched. The page still carries sample testimonials and
+# placeholder figures, so it should not be in a search index yet.
+#
+# At launch: delete the Disallow line, and add
+#   Sitemap: https://<the real domain>/sitemap.xml
+User-agent: *
+Disallow: /

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Twohomes — one child, two homes, one plan</title>
+<meta name="description" content="A calm shared calendar and expense ledger for separated parents. Twohomes answers who has the children tonight, who is paying, and what has changed — without either parent having to ask." />
+<meta name="theme-color" content="#f7f5ef" />
+<meta property="og:title" content="Twohomes — one child, two homes, one plan" />
+<meta property="og:description" content="A calm shared calendar and expense ledger for separated parents." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<!-- Figtree is served from this site, not fetched from a font CDN: one less
+     third party between a visitor and the page. -->
+<link rel="preload" href="fonts/figtree-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
+
+<!-- The tick used in every list on the page. -->
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <symbol id="tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+</svg>
+
+<header class="head" id="head">
+  <div class="head__inner">
+    <a class="brand" href="#top" aria-label="Twohomes, back to top">
+      <svg class="brand__mark" viewBox="0 0 40 28" aria-hidden="true">
+        <path d="M2 14 11 4l9 10v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" class="brand__a" />
+        <path d="M20 14 29 4l9 10v10a2 2 0 0 1-2 2H22a2 2 0 0 1-2-2z" class="brand__b" />
+      </svg>
+      <span class="brand__word">twohomes</span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#service" data-i18n="nav.service">The service</a>
+      <a href="#how" data-i18n="nav.how">How it works</a>
+      <a href="#faq" data-i18n="nav.faq">Good to know</a>
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+
+    <div class="head__actions">
+      <div class="lang" role="group" data-i18n-aria-label="a11y.language" aria-label="Language">
+        <button type="button" class="lang__btn is-on" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" class="lang__btn" data-set-lang="da" aria-pressed="false">DA</button>
+      </div>
+      <a class="btn btn--ink head__cta" href="#contact" data-i18n="nav.cta">Request early access</a>
+      <button type="button" class="burger" id="burger" aria-expanded="false" aria-controls="nav" data-i18n-aria-label="a11y.menu" aria-label="Menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ───────────────────────────── hero ─────────────────────────────
+       Two pictures, one on each colour: one child's week, in each home. -->
+  <section class="hero" id="top">
+    <div class="wrap hero__grid">
+      <div class="hero__copy reveal">
+        <p class="badge" data-i18n="hero.kicker">For parents living apart</p>
+        <h1 class="hero__title">
+          <span data-i18n="hero.t1">One child.</span>
+          <span data-i18n="hero.t2">Two homes.</span>
+          <span data-i18n="hero.t3">One plan.</span>
+        </h1>
+        <p class="lead" data-i18n="hero.lead">A shared calendar and expense list for parents living apart. Where the children are this week, what is coming up and who paid for what, in one place both homes can see.</p>
+        <div class="hero__cta">
+          <a class="btn btn--ink btn--lg" href="#contact" data-i18n="hero.cta1">Request early access</a>
+          <a class="btn btn--ghost btn--lg" href="#service" data-i18n="hero.cta2">See what it does</a>
+        </div>
+      </div>
+
+      <div class="hero__pics reveal">
+        <span class="shape shape--lime" aria-hidden="true"></span>
+        <span class="shape shape--cyan" aria-hidden="true"></span>
+        <img class="pic pic--a" src="images/hero-dad.webp" width="1200" height="1800" fetchpriority="high" alt="A father and his young daughter smiling together outdoors in autumn" data-i18n-alt="alt.heroDad" />
+        <img class="pic pic--b" src="images/hero-mum.webp" width="900" height="600" alt="A mother kissing her laughing son on the cheek" data-i18n-alt="alt.heroMum" />
+        <p class="chip chip--hero" aria-hidden="true"><span data-i18n="mock.answer1">Emma is with</span> <em data-i18n="mock.answer2">you</em> <span data-i18n="mock.answer3">tonight.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── what you get, at a glance ─────────────────────────── -->
+  <section class="ticks" data-i18n-aria-label="a11y.glance" aria-label="At a glance">
+    <ul class="wrap ticks__list">
+      <li class="reveal"><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="tick.one">Useful for one parent from day one</span></li>
+      <li class="reveal"><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="tick.private">End-to-end encrypted between homes</span></li>
+      <li class="reveal"><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="tick.patterns">7 custody rotations, plus your own</span></li>
+      <li class="reveal"><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="tick.holidays">School holidays already on the calendar</span></li>
+    </ul>
+  </section>
+
+  <!-- ─────────────────────────── why it matters ─────────────────────────── -->
+  <section class="section" id="why">
+    <div class="wrap row">
+      <div class="row__media reveal">
+        <span class="shape shape--sand" aria-hidden="true"></span>
+        <img class="pic" src="images/why-path.webp" width="1400" height="2100" loading="lazy" alt="A small child with a red backpack walking away along a path through the grass" data-i18n-alt="alt.why" />
+      </div>
+      <div class="row__copy reveal">
+        <p class="kicker" data-i18n="why.kicker">Everyday life</p>
+        <h2 class="h2" data-i18n="why.title">A quieter week, in both homes.</h2>
+        <p class="lead lead--mid" data-i18n="why.lead">Many Danish children have two homes. Small things keep the week running: the swimming kit, the dentist, who picks up on Friday. Twohomes keeps them in one place, so they need less discussion.</p>
+        <div class="stats">
+          <div class="stat">
+            <strong>37%</strong>
+            <span data-i18n="why.s1">of Danish 17-year-olds have parents who live apart.</span>
+            <a href="https://www.dst.dk/da/Statistik/udgivelser/bagtal/2019-02-18-brud-i-familier-gaar-i-arv" rel="noopener" data-i18n="why.s1src">Danmarks Statistik, 2018</a>
+          </div>
+          <div class="stat">
+            <strong>&gt;30%</strong>
+            <span data-i18n="why.s2">of Danish children can expect their parents to separate during childhood.</span>
+            <a href="https://rockwoolfonden.s3.eu-central-1.amazonaws.com/wp-content/uploads/2023/01/RFF-Study-Paper-185-The-effects-of-parental-union-dissolution.pdf?download=true" rel="noopener" data-i18n="why.s2src">ROCKWOOL Foundation</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── the service ───────────────────────────
+       One row per screen. The little card on each photo is what that screen
+       says, in the app's own colours. -->
+  <section class="section section--white" id="service">
+    <div class="wrap">
+      <header class="shead shead--center reveal">
+        <p class="kicker" data-i18n="service.kicker">The service</p>
+        <h2 class="h2" data-i18n="service.title">The everyday things, in one place.</h2>
+      </header>
+
+      <article class="row">
+        <div class="row__media reveal">
+          <span class="shape shape--lime" aria-hidden="true"></span>
+          <img class="pic" src="images/today.webp" width="1100" height="733" loading="lazy" alt="A boy with a colourful backpack running along a pavement" data-i18n-alt="alt.today" />
+          <div class="screen"><img src="images/screens/en/today.webp" data-screen="today" width="780" height="1688" loading="lazy" alt="The Today screen: who the children are with, and a swap request waiting for an answer" data-i18n-alt="shot.today" /></div>
+        </div>
+        <div class="row__copy reveal">
+          <p class="badge badge--lime" data-i18n="s1.title">Today</p>
+          <h3 class="h3" data-i18n="f1.title">Today at a glance</h3>
+          <p class="row__body" data-i18n="s1.body">Who has the children right now, when the next changeover is, and anything waiting on you. One sentence, above everything else.</p>
+          <ul class="list">
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f1.b1">The same answer on both phones</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f1.b2">The next changeover: when and where</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f1.b3">One thing at a time, until you are done</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="row row--flip">
+        <div class="row__media row__media--tall reveal">
+          <span class="shape shape--cyan" aria-hidden="true"></span>
+          <img class="pic" src="images/calendar.webp" width="1100" height="1650" loading="lazy" alt="A laughing girl riding on her father's shoulders in a park" data-i18n-alt="alt.calendar" />
+          <div class="screen"><img src="images/screens/en/calendar.webp" data-screen="calendar" width="780" height="1688" loading="lazy" alt="The Calendar screen: November in two colours, with nights counted for each home" data-i18n-alt="shot.calendar" /></div>
+        </div>
+        <div class="row__copy reveal">
+          <p class="badge badge--cyan" data-i18n="s2.title">Calendar</p>
+          <h3 class="h3" data-i18n="f2.title">A month both homes can see</h3>
+          <p class="row__body" data-i18n="s2.body">A month of custody days in two colours. Tap any day to reassign it or to ask the other home for a swap. School breaks and public holidays are already on it.</p>
+          <ul class="list">
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f2.b1">A swap request changes nothing until the other home agrees</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f2.b2">Every change shows who made it</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f2.b3">Nights counted for both homes</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="row__media reveal">
+          <span class="shape shape--pink" aria-hidden="true"></span>
+          <img class="pic" src="images/money.webp" width="1100" height="733" loading="lazy" alt="A father and daughter talking and laughing on a sofa at home" data-i18n-alt="alt.money" />
+          <div class="screen"><img src="images/screens/en/money.webp" data-screen="money" width="780" height="1688" loading="lazy" alt="The Money screen: the balance between the homes and a list of shared costs" data-i18n-alt="shot.money" /></div>
+        </div>
+        <div class="row__copy reveal">
+          <p class="badge badge--pink" data-i18n="s3.title">Money</p>
+          <h3 class="h3" data-i18n="f3.title">Shared costs, kept simple</h3>
+          <p class="row__body" data-i18n="s3.body">Shared costs, who owes whom, and a ledger both sides can audit. Twohomes records money that moved; it never moves money.</p>
+          <ul class="list">
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f3.b1">One balance, the same in both homes</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f3.b2">Boots, school trips and swimming fees in one list</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f3.b3">A clear record for both of you</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="row row--flip">
+        <div class="row__media row__media--tall row__media--low reveal">
+          <span class="shape shape--lime" aria-hidden="true"></span>
+          <img class="pic" src="images/moments.webp" width="1100" height="1650" loading="lazy" alt="A little girl with her head thrown back, laughing" data-i18n-alt="alt.moments" />
+          <div class="screen"><img src="images/screens/en/moments.webp" data-screen="moments" width="780" height="1688" loading="lazy" alt="The Moments screen: short notes from each home and an idea for the week" data-i18n-alt="shot.moments" /></div>
+        </div>
+        <div class="row__copy reveal">
+          <p class="badge badge--lime" data-i18n="s4.title">Moments</p>
+          <h3 class="h3" data-i18n="f4.title">A little of the week away</h3>
+          <p class="row__body" data-i18n="s4.body">A photo and a line from whichever home they are in. Plus one activity idea, every week.</p>
+          <ul class="list">
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f4.b1">Small things from each home, seen by both</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f4.b2">A suggestion, never a score</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f4.b3">No feed, no likes, nobody else watching</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="row__media row__media--right reveal">
+          <span class="shape shape--sand" aria-hidden="true"></span>
+          <img class="pic" src="images/kids.webp" width="1100" height="733" loading="lazy" alt="A girl in red glasses painting at a table" data-i18n-alt="alt.kids" />
+          <div class="screen"><img src="images/screens/en/kids.webp" data-screen="kids" width="780" height="1688" loading="lazy" alt="The Children screen: school, doctor and allergies, and the things that travel between homes" data-i18n-alt="shot.kids" /></div>
+        </div>
+        <div class="row__copy reveal">
+          <p class="badge badge--sand" data-i18n="s5.title">Kids</p>
+          <h3 class="h3" data-i18n="f5.title">Their health and their things, in both homes</h3>
+          <p class="row__body" data-i18n="s5.body">Allergies, school, doctor, and the list of things that have to travel between homes. Written once, visible to both.</p>
+          <ul class="list">
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f5.b1">Neither parent has to ask for their own child's medical details</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f5.b2">A bag list for each changeover</span></li>
+            <li><svg class="tick" aria-hidden="true"><use href="#tick" /></svg><span data-i18n="f5.b3">Doctor and school details always at hand</span></li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── how it works ─────────────────────────── -->
+  <section class="section" id="how">
+    <div class="wrap">
+      <header class="shead shead--center reveal">
+        <p class="kicker" data-i18n="how.kicker">How it works</p>
+        <h2 class="h2" data-i18n="how.title">Three steps to get started.</h2>
+      </header>
+      <figure class="film reveal">
+        <!-- preload="none": the 11 MB only travels when someone presses play. -->
+        <video id="film" controls playsinline preload="none" src="video/twohomes-demo.mp4" poster="images/video-poster.webp" width="1920" height="1080" data-i18n-aria-label="film.label" aria-label="Demo video of the Twohomes app"></video>
+        <figcaption data-i18n="film.caption">The real app, one morning, in under a minute.</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="step__n">1</span>
+          <h3 data-i18n="how1.title">Set the pattern</h3>
+          <p data-i18n="how1.body">Pick the rotation you already live by and the date it starts. The calendar fills itself in for every month ahead, holidays included.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__n">2</span>
+          <h3 data-i18n="how2.title">Invite the other home, when it suits you</h3>
+          <p data-i18n="how2.body">Both homes can sync, end-to-end encrypted, so a request lands on the other phone. A read-only link to next month is also an option. No account needed.</p>
+        </li>
+        <li class="step reveal">
+          <span class="step__n">3</span>
+          <h3 data-i18n="how3.title">Then it runs quietly</h3>
+          <p data-i18n="how3.body">A reminder the evening before every changeover, with that child's bag list. Costs added as they happen. A clear history for both homes.</p>
+        </li>
+      </ol>
+
+      <div class="patterns reveal">
+        <p class="patterns__label" data-i18n="patterns.label">Set the rotation once</p>
+        <ul class="patterns__list">
+          <li>week on / week off</li><li>2-2-3</li><li>2-2-5-5</li><li>3-4-4-3</li>
+          <li>5-2-2-5</li><li>two on / two off</li><li>every other weekend</li>
+          <li class="is-own" data-i18n="patterns.custom">your own</li>
+        </ul>
+        <p class="patterns__note" data-i18n="patterns.note">The pattern describes the agreement. Any single day can still be changed by hand.</p>
+      </div>
+
+      <div class="assure reveal">
+        <h3 class="assure__title" data-i18n="assure.title">Private by construction</h3>
+        <p data-i18n="assure.body">Your children's photos, health notes and school details stay on your devices. What passes between two homes is encrypted end-to-end and travels through a relay that cannot read it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── testimonials ───────────────────────────
+       PLACEHOLDERS. Every quote and name below is invented sample copy, for
+       layout only. Replace with real, permissioned quotes before this page
+       goes public, and delete .voices__disclaimer when you do.
+  -->
+  <section class="section section--lime" id="voices" hidden>
+    <div class="wrap">
+      <header class="shead reveal">
+        <p class="kicker" data-i18n="voices.kicker">Voices</p>
+        <h2 class="h2" data-i18n="voices.title">What we hope to hear.</h2>
+        <p class="voices__disclaimer" data-i18n="voices.disclaimer">Sample quotes. Twohomes has not launched yet — these are written to show the shape of the page, not real endorsements.</p>
+      </header>
+
+      <div class="quotes" id="quotes">
+        <figure class="quote is-on" data-quote>
+          <blockquote data-i18n="q1.text">"We stopped negotiating by text message. The calendar says whose Tuesday it is, and that is the end of it. I had not realised how much of the week went on that."</blockquote>
+          <figcaption><span class="quote__name" data-i18n="q1.name">Mette</span><span class="quote__meta" data-i18n="q1.meta">Sample quote · two children, week on / week off</span></figcaption>
+        </figure>
+        <figure class="quote" data-quote>
+          <blockquote data-i18n="q2.text">"The ledger ended an argument we had been having for two years. Not because it took a side — because there was finally nothing to remember wrong."</blockquote>
+          <figcaption><span class="quote__name" data-i18n="q2.name">Anders</span><span class="quote__meta" data-i18n="q2.meta">Sample quote · one child, 2-2-3</span></figcaption>
+        </figure>
+        <figure class="quote" data-quote>
+          <blockquote data-i18n="q3.text">"I used it alone for four months before their father joined. That mattered. Nothing about it demanded that he take part before he was ready."</blockquote>
+          <figcaption><span class="quote__name" data-i18n="q3.name">Katarzyna</span><span class="quote__meta" data-i18n="q3.meta">Sample quote · two children, every other weekend</span></figcaption>
+        </figure>
+        <figure class="quote" data-quote>
+          <blockquote data-i18n="q4.text">"My daughter stopped being the one carrying messages between us. That is the whole thing, really. She gets to just be eight."</blockquote>
+          <figcaption><span class="quote__name" data-i18n="q4.name">Sofie</span><span class="quote__meta" data-i18n="q4.meta">Sample quote · one child, 3-4-4-3</span></figcaption>
+        </figure>
+      </div>
+
+      <div class="quotes__nav">
+        <button type="button" class="round" data-quote-prev data-i18n-aria-label="a11y.prev" aria-label="Previous quote">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <div class="dots" id="dots"></div>
+        <button type="button" class="round" data-quote-next data-i18n-aria-label="a11y.next" aria-label="Next quote">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── live counters ───────────────────────────
+       The two numbers below are read at runtime from stats.json, so they can
+       be updated without touching this page. Point LIVE_ENDPOINT in app.js at
+       a real endpoint when there is one.
+
+       !! The values currently in stats.json are PLACEHOLDERS. Twohomes has not
+       launched, so set them to the real figures (or to 0, which this section
+       renders honestly as "not yet") before the page goes public.
+  -->
+  <section class="live" id="live" aria-labelledby="liveTitle" hidden>
+    <div class="wrap">
+      <h2 class="live__title" id="liveTitle">
+        <span class="live__pulse" aria-hidden="true"></span>
+        <span data-i18n="live.title">Live from the beta</span>
+      </h2>
+      <div class="live__grid">
+        <div class="counter reveal">
+          <p class="counter__num" data-counter="familiesHelped" aria-describedby="famLabel">0</p>
+          <p class="counter__label" id="famLabel" data-i18n="live.families">families helped</p>
+          <p class="counter__sub" data-i18n="live.familiesSub">households that have set up a rotation and kept it running</p>
+        </div>
+        <div class="counter reveal">
+          <p class="counter__num" data-counter="activeUsers" aria-describedby="actLabel">0</p>
+          <p class="counter__label" id="actLabel" data-i18n="live.active">active parents</p>
+          <p class="counter__sub" data-i18n="live.activeSub">opened Twohomes at least once in the last 30 days</p>
+        </div>
+      </div>
+      <p class="live__foot">
+        <span data-i18n="live.updated">Updated</span>
+        <time id="liveUpdated" datetime="">—</time>
+        <span class="live__note" data-i18n="live.note">· figures are placeholders until launch</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── questions ─────────────────────────── -->
+  <section class="section section--white" id="faq">
+    <div class="wrap faq">
+      <header class="shead reveal">
+        <p class="kicker" data-i18n="faq.kicker">Practical details</p>
+        <h2 class="h2" data-i18n="faq.title">Good to know.</h2>
+      </header>
+      <div class="faq__list reveal">
+        <details>
+          <summary data-i18n="faq.q1">Using it on your own</summary>
+          <p data-i18n="faq.a1">Twohomes works for one parent from day one. The other home can join whenever it suits, and nothing stops working if they do not.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q2">Privacy</summary>
+          <p data-i18n="faq.a2">Your information is visible to you, and to the other home if you pair with them. What passes between the homes is encrypted end-to-end, so the relay in the middle cannot read it, and neither can we.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q3">Cost</summary>
+          <p data-i18n="faq.a3">Free during the private beta. You would hear about any change first. One parent's access never depends on the other's payment.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q4">Your existing agreement</summary>
+          <p data-i18n="faq.a4">Pick the rotation that matches it, or set your own. Any single day can still be changed by hand.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q5">Who it is for</summary>
+          <p data-i18n="faq.a5">Parents who mostly manage day to day. It has no evidence logs or court exports. For a dispute, Familieretshuset or a family lawyer can help.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q7">Backups</summary>
+          <p data-i18n="faq.a7">Your data stays on your device. You can save an encrypted copy whenever you like, and take it with you if you leave.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q6">Phones and languages</summary>
+          <p data-i18n="faq.a6">iOS, Android and the web, in English, Danish and Polish.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── about ─────────────────────────── -->
+  <section class="section" id="about">
+    <div class="wrap about">
+      <div class="about__copy reveal">
+        <p class="kicker" data-i18n="about.kicker">About</p>
+        <h2 class="h2" data-i18n="about.title">Made with the children in mind.</h2>
+                <p class="lead" data-i18n="about.lead">Twohomes is for parents living apart who would like the practical side of the week to take less effort. Every feature is judged by whether it makes the week quieter for the children.</p>
+        <p data-i18n="about.body">It is not made for court or for high-conflict cases. It is for two parents who mostly manage, and who would like the admin to take thirty seconds instead of an evening.</p>
+        <ul class="principles">
+          <li><strong data-i18n="p1.title">The child is the user.</strong> <span data-i18n="p1.body">Decisions are settled by what makes their week calmer.</span></li>
+          <li><strong data-i18n="p2.title">Local-first.</strong> <span data-i18n="p2.body">Your data lives on your device. Sharing is a choice you make, screen by screen.</span></li>
+          <li><strong data-i18n="p3.title">Neutral by design.</strong> <span data-i18n="p3.body">No read receipts, no scoreboard, no nudges.</span></li>
+          <li><strong data-i18n="p4.title">Quiet on purpose.</strong> <span data-i18n="p4.body">Calendars and ledgers should be plain, fast and quiet.</span></li>
+        </ul>
+      </div>
+      <aside class="about__side reveal">
+        <div class="row__media about__pic">
+          <span class="shape shape--cyan" aria-hidden="true"></span>
+          <img class="pic" src="images/about.webp" width="1000" height="667" loading="lazy" alt="A mother and daughter hugging and smiling" data-i18n-alt="alt.about" />
+        </div>
+        <dl class="meta">
+          <div><dt data-i18n="meta.k1">Designed in</dt><dd data-i18n="meta.v1">Denmark</dd></div>
+          <div><dt data-i18n="meta.k2">Available in</dt><dd data-i18n="meta.v2">English, Danish and Polish</dd></div>
+          <div><dt data-i18n="meta.k3">Status</dt><dd data-i18n="meta.v3">Private beta, 2026</dd></div>
+          <div><dt data-i18n="meta.k4">Platforms</dt><dd data-i18n="meta.v4">iOS, Android and the web</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── contact ─────────────────────────── -->
+  <section class="section section--white" id="contact">
+    <div class="wrap contact">
+      <div class="contact__copy reveal">
+        <p class="kicker" data-i18n="contact.kicker">Contact</p>
+        <h2 class="h2" data-i18n="contact.title">Tell us about your week.</h2>
+        <p class="lead" data-i18n="contact.lead">The private beta takes a small number of families at a time. Write a little about your rotation if you like, and we will get back to you.</p>
+        <img class="pic contact__pic" src="images/contact.webp" width="1000" height="667" loading="lazy" alt="A mother and child hugging in a bright kitchen" data-i18n-alt="alt.contact" />
+        <dl class="meta meta--contact">
+          <div><dt data-i18n="contact.k1">Email</dt><dd><a href="mailto:hello@twohomes.app">hello@twohomes.app</a></dd></div>
+          <div><dt data-i18n="contact.k2">Reply time</dt><dd data-i18n="contact.v2">Within two working days</dd></div>
+          <div><dt data-i18n="contact.k3">Press &amp; partners</dt><dd><a href="mailto:hello@twohomes.app?subject=Press">hello@twohomes.app</a></dd></div>
+        </dl>
+      </div>
+
+      <form class="form reveal" id="form" novalidate>
+        <div class="field">
+          <label for="name" data-i18n="form.name">Your name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required data-i18n-placeholder="form.namePh" placeholder="Mette Jensen" />
+          <p class="err" data-err-for="name"></p>
+        </div>
+        <div class="field">
+          <label for="email" data-i18n="form.email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required data-i18n-placeholder="form.emailPh" placeholder="you@example.com" />
+          <p class="err" data-err-for="email"></p>
+        </div>
+        <div class="field">
+          <label for="country" data-i18n="form.country">Country</label>
+          <select id="country" name="country">
+            <option value="Denmark">Danmark</option>
+            <option value="Poland">Polska</option>
+            <option value="Other" data-i18n="form.other">Somewhere else</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message" data-i18n="form.message">A little about your week</label>
+          <textarea id="message" name="message" rows="5" required data-i18n-placeholder="form.messagePh" placeholder="Two children, 2-2-3."></textarea>
+          <p class="err" data-err-for="message"></p>
+        </div>
+        <button class="btn btn--ink btn--lg btn--full" type="submit" data-i18n="form.submit">Request early access</button>
+        <p class="fine" data-i18n="form.fine">This opens your own mail app with the message ready to send — nothing is submitted to a server from this page.</p>
+        <p class="form__ok" id="formOk" role="status" hidden data-i18n="form.ok">Your mail app should be opening. If it did not, write to hello@twohomes.app.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <div class="foot__brand">
+      <svg class="brand__mark" viewBox="0 0 40 28" aria-hidden="true">
+        <path d="M2 14 11 4l9 10v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" class="brand__a" />
+        <path d="M20 14 29 4l9 10v10a2 2 0 0 1-2 2H22a2 2 0 0 1-2-2z" class="brand__b" />
+      </svg>
+      <span class="brand__word">twohomes</span>
+      <p class="foot__line" data-i18n="foot.line">A calm shared calendar and expense list for parents living apart.</p>
+    </div>
+    <nav class="foot__nav" data-i18n-aria-label="a11y.footnav" aria-label="Footer">
+      <a href="#service" data-i18n="nav.service">The service</a>
+      <a href="#how" data-i18n="nav.how">How it works</a>
+      <a href="#faq" data-i18n="nav.faq">Good to know</a>
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <p class="foot__legal">
+      <span>© 2026 Twohomes</span>
+      <span data-i18n="foot.legal">Designed in Denmark.</span>
+      <span data-i18n="foot.photos">Photos: stock images from Pexels, shown for illustration.</span>
+    </p>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
